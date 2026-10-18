@@ -30,17 +30,23 @@ def checkout(tmp_path):
 
 
 def test_relocated_default_builders_reuse_exact_prebuilt_data(checkout):
+    transformers = pytest.importorskip(
+        "sentence_transformers", reason="Real semantic retrieval requires sentence-transformers"
+    )
+    from shared.hybrid_retrieval import MODEL, MODEL_REVISION
+    try:
+        transformers.SentenceTransformer(MODEL, revision=MODEL_REVISION, device="cpu",
+                                         local_files_only=True)
+    except OSError:
+        pytest.skip("Pinned MiniLM model weights are not available locally; no download attempted")
     script = '''
 import hashlib,json
 from pathlib import Path
+import sys
 from sentence_transformers import SentenceTransformer
-from docling.document_converter import DocumentConverter
-from docling.chunking import HybridChunker
-from langchain_docling import DoclingLoader
-def forbidden(*a,**kw): raise AssertionError("Expensive processing was attempted")
-DocumentConverter.convert = forbidden
-DoclingLoader.load = forbidden
-HybridChunker.chunk = forbidden
+# Prepared query serving must not import PDF ingestion dependencies at all.
+sys.modules['docling'] = None
+sys.modules['langchain_docling'] = None
 encode = SentenceTransformer.encode
 def queries_only(self,text,*a,**kw):
     assert isinstance(text,str), "Corpus embeddings must not be regenerated"
@@ -48,11 +54,13 @@ def queries_only(self,text,*a,**kw):
 SentenceTransformer.encode = queries_only
 from shared.hybrid_retrieval import ROOT, build_cisco_retriever
 from shared.sec_retrieval import build_sec_retriever
+from shared.query_context import answering_only
 def digests():
     return {str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in (ROOT/'storage').rglob('*') if p.is_file()}
 before=digests()
-tech=build_cisco_retriever()
-sec=build_sec_retriever()
+with answering_only():
+    tech=build_cisco_retriever()
+    sec=build_sec_retriever()
 assert len(tech.documents)==830 and len(sec.index.documents)==2967
 results = [tech.retrieve('Which Catalyst 8300 routers have two 10Gbps Ethernet ports?'),
            sec.retrieve('What were Cisco and Agilent FY2025 revenues?',company='Cisco',fiscal_year=2025)]
@@ -82,23 +90,21 @@ def test_content_and_processing_changes_invalidate_index(checkout, monkeypatch, 
     manifest = json.loads((cache / "index.json").read_text())
     old_key = manifest["key"]
     captured = []
-    models = []
 
     class Stop(Exception):
         pass
 
     def capture(documents, cache_dir, cache_key, model=None):
         captured.append(cache_key)
-        models.append(model)
         raise Stop
 
     monkeypatch.setattr(tech.Retriever, "from_documents", capture)
+    monkeypatch.setattr(module, "load_embedding_model", lambda **kwargs: object())
     build = module.build_cisco_retriever if domain == "technology" else module.build_sec_retriever
     kwargs = {"pdf_dir" if domain == "technology" else "data_dir": data, "cache_dir": cache}
     with pytest.raises(Stop):
         build(**kwargs)
     assert captured[-1] == old_key
-    monkeypatch.setattr(module, "SentenceTransformer", lambda *a, **kw: models[0])
     source = next(data.rglob("*.pdf"))
     original = source.read_bytes()
     source.write_bytes(original + b"\n")

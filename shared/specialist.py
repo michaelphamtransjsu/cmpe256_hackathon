@@ -6,7 +6,7 @@ from typing import Any
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from .model import AgentName, Settings, make_chat_model
-from .schemas import Analysis, Citation, Finding, SpecialistRequest, SpecialistResponse
+from .schemas import Analysis, Citation, Finding, SpecialistRequest, SpecialistResponse, narrative_evidence_ids
 from .retrieval import SpecialistIndex
 
 
@@ -77,7 +77,7 @@ class Specialist:
                 answer=f"Retrieved {len(citations)} relevant evidence excerpt(s). Review the cited findings for the source wording.",
                 findings=[Finding(text=c.excerpt, evidence_ids=[c.id]) for c in citations],
                 recommendations=[],
-                limitations=["Extractive mode quotes evidence; it does not synthesize advice. Hash embeddings use lexical similarity." if self.settings.embeddings_provider == "hash" else "Extractive mode quotes evidence; it does not synthesize advice."],
+                limitations=["Extractive mode quotes evidence; it does not synthesize advice. Hash embeddings use lexical similarity." if isinstance(self.index, SpecialistIndex) and self.settings.embeddings_provider == "hash" else "Extractive mode quotes evidence; it does not synthesize advice."],
             )
         else:
             model = self.model
@@ -88,6 +88,8 @@ class Specialist:
                 HumanMessage(content=json.dumps({"question": request.question, "evidence": [c.model_dump() for c in citations]})),
             ])
             analysis = Analysis.model_validate(result)
+            if not narrative_evidence_ids(analysis.model_dump()).issubset({c.id for c in citations}):
+                raise ValueError("Analysis narrative references an unknown evidence identifier")
         # Reject invalid citation references; never repair or silently accept hallucinated IDs.
         return SpecialistResponse(
             **analysis.model_dump(), agent=self.name, question=request.question,

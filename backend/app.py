@@ -10,6 +10,7 @@ from pydantic import Field
 import manager
 from shared.schemas import StrictModel
 from shared.query_context import answering_only
+from shared.diagnostics import log_failure
 
 logger = logging.getLogger(__name__)
 app = FastAPI(title="CMPE 256 Manager Chat", version="1.0.0")
@@ -42,8 +43,9 @@ def chat(request: ChatRequest) -> manager.ManagerResponse:
         with answering_only():
             return manager.consult(request.question)
     except Exception as error:
-        # Provider messages/tracebacks can contain credentials and private content.
-        logger.warning("Manager consultation failed (%s)", type(error).__name__)
+        # Keep traceback frames/types for diagnosis without provider messages,
+        # source lines, locals, credentials, or submitted question content.
+        log_failure(logger, "Manager consultation failed", error)
         raise HTTPException(status_code=503, detail=(
             "The Manager Agent could not complete this request. Try again. "
             "If it continues, check the backend API key, provider access, and agent configuration."

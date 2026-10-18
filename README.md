@@ -4,6 +4,8 @@ An evidence-based management-consulting project with a Manager Agent and Clinica
 
 The React + Vite chat UI and FastAPI adapter call the existing Manager Agent. See [Manager Chat: exact WSL setup and start commands](frontend/README.md). Each question is independent; browser-session history is for display. Document ingestion remains a separate setup step.
 
+See the [system compatibility audit](docs/system-audit.md) for confirmed repairs, operational prerequisites, regression results and remaining blocked live checks. Prepared Technology/SEC queries need `.[retrieval-runtime]` and the pinned local MiniLM weights; they do not need Docling or rebuild indexes during queries.
+
 - **Clinical** retrieves clinical/Agilent evidence and searches source-attributed trial records in SQLite. Its model prompt distinguishes trial registration from efficacy and identifies missing clinical evidence.
 - **Corporate Responsibility** retrieves assigned SOFI 2023/2024 evidence. Its model prompt preserves geography, units, publication/observation years, and differences between revisions and trends.
 
@@ -73,6 +75,148 @@ python -m venv .venv
 ```
 
 `requirements.txt` pins the tested runtime and test dependencies. Commands run directly from the checkout; editable installation is optional (`.venv/bin/python -m pip install --no-deps -e .`). `pyproject.toml` declares compatible update ranges and configures pytest to import from the repository root. Each cloud task already has an isolated checkout; no worktree is needed.
+
+## Setting Up the Local Embedding Model (Technology & SEC Agents)
+
+### Overview
+
+The Technology and SEC agents use a pretrained SentenceTransformers model to perform semantic search over their document collections.
+
+Unlike the Clinical and Corporate Responsibility agents, which use their own retrieval configuration, the Technology and SEC agents rely on a local embedding model called **`sentence-transformers/all-MiniLM-L6-v2`**.
+
+This model converts user questions into numerical vectors (embeddings), allowing the agents to identify relevant document passages based on semantic similarity.
+
+**Important:** Installing the `sentence-transformers` Python library does not automatically guarantee that the pretrained model files are downloaded and available locally.
+
+### Step 1: Install the required dependencies
+
+From the repository root, activate your Python virtual environment:
+
+```bash
+source .venv/bin/activate
+```
+
+Install the project's dependencies, including the semantic retrieval runtime:
+
+```bash
+python -m pip install -e '.[web,retrieval-runtime,test]'
+```
+
+This installs the Python libraries needed by the backend, retrieval system, and tests.
+
+### Step 2: Download the pretrained embedding model
+
+Run the following command from the repository root:
+
+```bash
+python - <<'PY'
+from sentence_transformers import SentenceTransformer
+from shared.hybrid_retrieval import MODEL, MODEL_REVISION
+
+SentenceTransformer(
+    MODEL,
+    revision=MODEL_REVISION,
+    device="cpu",
+)
+
+print("Embedding model downloaded and loaded successfully")
+PY
+```
+
+This command:
+
+1. Loads the embedding model defined in `shared/hybrid_retrieval.py`.
+2. Uses the exact model revision specified by the project.
+3. Downloads missing model files from Hugging Face.
+4. Caches the model locally for future use.
+5. Loads the model on the CPU without requiring a dedicated GPU.
+
+The download requires an internet connection the first time. Subsequent runs normally reuse the locally cached model.
+
+This operation **does not re-ingest source documents, rebuild vector indexes, or modify the existing document embeddings**.
+
+### Step 3: Verify the model is available offline
+
+After downloading the model, verify that it can be loaded without network access:
+
+```bash
+HF_HUB_OFFLINE=1 python - <<'PY'
+from sentence_transformers import SentenceTransformer
+from shared.hybrid_retrieval import MODEL, MODEL_REVISION
+
+model = SentenceTransformer(
+    MODEL,
+    revision=MODEL_REVISION,
+    device="cpu",
+    local_files_only=True,
+)
+
+print("Local embedding model loaded successfully")
+PY
+```
+
+If this succeeds, the required model is available in your local cache.
+
+### Step 4: Test the Technology Agent
+
+Run:
+
+```bash
+python -m agents.technology \
+  "Which Catalyst 8300 has two 10Gbps ports?"
+```
+
+With the prepared Technology cache, compatible model files, and required provider configuration, the agent should retrieve relevant passages from the Cisco documentation.
+
+A successful response may include:
+
+- `status: evidence_found`
+- `agent: technology`
+- `answer`
+- `findings`
+- `citations` with source documents and page numbers
+
+### Step 5: Test the SEC Agent
+
+Run:
+
+```bash
+python -m agents.sec \
+  "What major financial risks are disclosed in the available SEC filings?"
+```
+
+The available SEC corpus covers Cisco and Agilent FY2025 Form 10-K filings.
+
+A successful response should identify risks supported by those filings and provide citations to the original documents.
+
+### Common Troubleshooting Issues
+
+| Error | Possible cause | Recommended action |
+|---|---|---|
+| `ModuleNotFoundError` | Missing Python package | Install the project's retrieval dependencies |
+| `RuntimeError` | Missing local model files, incompatible cache, or another runtime problem | Inspect the underlying traceback and check model availability |
+| Model download failure | Network or Hugging Face access issue | Verify connectivity and retry |
+| Missing cached chunks | Prepared document index unavailable | Restore the required cache; do not silently rebuild it |
+| OpenAI authentication error | Missing or invalid API configuration | Configure the backend environment securely |
+
+### Important Notes
+
+- The embedding model is downloaded separately from Python dependencies.
+- Model files are stored in the local Hugging Face cache, typically under `~/.cache/huggingface/`.
+- The model generally only needs to be downloaded once per machine or shared model-cache location.
+- **Do not commit downloaded model weights or local vector indexes to GitHub.**
+- Technology and SEC must use a model compatible with their previously generated document embeddings.
+- Changing embedding models or revisions may make existing cached vectors incompatible.
+- OpenAI-generated answers require separate provider configuration and may incur API usage charges.
+- Downloading the embedding model does not download or prepare the underlying Cisco and SEC document datasets.
+
+### Why This Setup Is Necessary
+
+During integration testing, the Technology and SEC agents initially failed because their semantic retrieval environment was not fully configured.
+
+After installing the necessary Python dependencies and downloading the required embedding model, both agents successfully loaded their prepared document caches and produced evidence-backed responses.
+
+This setup ensures that developers can reproduce the required local semantic retrieval environment without unnecessarily rebuilding existing indexes.
 
 ## Ingest the existing extracted data
 

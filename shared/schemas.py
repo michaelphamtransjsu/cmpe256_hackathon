@@ -1,11 +1,28 @@
-"""Validated input/output contract shared by the two specialists."""
+"""Validated input/output contract shared by the specialists."""
 
+import re
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .model import AgentName
 from .trials import TrialRecord
+
+
+def narrative_evidence_ids(value: object) -> set[str]:
+    """Read bracketed evidence references from generated analysis fields.
+
+    Source excerpts are not analysis: callers must keep original quoted evidence
+    out of this check because a source may contain its own bracketed identifiers.
+    """
+    if isinstance(value, str):
+        return {reference for block in re.findall(r"\[([^\[\]]+)\]", value)
+                for reference in re.findall(r"\b(?:[a-z_]+:)?E\d+\b", block)}
+    if isinstance(value, dict):
+        return set().union(*(narrative_evidence_ids(item) for item in value.values()))
+    if isinstance(value, (list, tuple)):
+        return set().union(*(narrative_evidence_ids(item) for item in value))
+    return set()
 
 
 class StrictModel(BaseModel):

@@ -14,14 +14,16 @@ cd ~/cmpe256_hackathon
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 # CPU PyTorch avoids installing unnecessary CUDA packages on typical WSL laptops.
-.venv/bin/python -m pip install 'torch>=2.6,<3' torchvision --index-url https://download.pytorch.org/whl/cpu
-.venv/bin/python -m pip install -e '.[web,retrieval,test]'
+.venv/bin/python -m pip install 'torch>=2.6,<3' --index-url https://download.pytorch.org/whl/cpu
+.venv/bin/python -m pip install -e '.[web,retrieval-runtime,test]'
 cd frontend
 npm ci
 ```
 
-The `retrieval` extra declares the dependencies already used by the Technology and
-SEC agents. Clinical and Corporate Responsibility still use the base dependencies.
+The `retrieval-runtime` extra declares prepared-cache query dependencies used by
+Technology and SEC. Clinical and Corporate Responsibility use base dependencies.
+Prepare the pinned local MiniLM weights and restore existing indexes as described
+in the [system audit](../docs/system-audit.md#exact-wsl-commands).
 
 ### Terminal 1 — backend
 
@@ -35,10 +37,14 @@ export SPECIALIST_DATA_DIR="$PWD/data"
 .venv/bin/python -m uvicorn backend.app:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-The manager always uses the existing `gpt-4.1-mini` routing/synthesis factory, so it
-needs backend access to OpenAI even when specialists use extractive mode. `.env`
-files are not loaded automatically. Preserve any existing specialist/provider
-configuration. Never set an API key in a `VITE_*` variable, browser code, or Git.
+The Manager always uses a hosted model for routing and synthesis and requires the
+backend OpenAI key above. `SPECIALIST_CHAT_MODEL` selects the model (default
+`gpt-4.1-mini`). `SPECIALIST_LLM_PROVIDER=extractive` controls specialist answers;
+it does not disable the Manager's hosted calls. Clinical/SOFI support offline
+specialist retrieval with `SPECIALIST_EMBEDDINGS_PROVIDER=hash`; reuse indexes
+built with the same provider. `.env` files are not loaded automatically. Preserve
+existing specialist/provider configuration. Never set an API key in a `VITE_*`
+variable, browser code, or Git.
 
 ### Terminal 2 — frontend
 
@@ -58,24 +64,19 @@ missing on Ubuntu, install `python3-venv` using your normal system setup.
 Reuse the team's prepared indexes. Chat never calls ingestion: it runs
 `manager.consult(question)` with a request-local cache-only safeguard. Missing or
 stale Technology/SEC caches produce the manager's existing specialist-failure
-limitations instead of document conversion or corpus embedding. Existing agent CLI
-and ingestion behavior is unchanged outside the HTTP request.
+limitations instead of document conversion or corpus embedding. Independent agent
+queries and retrieval query helpers enforce the same read-only behavior. Explicit
+ingestion builders retain their separate setup behavior.
 
-For Technology/SEC setup, run these existing builders **separately before starting
-the servers**, with the team's source PDFs and model dependencies available:
-
-```bash
-cd ~/cmpe256_hackathon
-.venv/bin/python -m shared.hybrid_retrieval
-.venv/bin/python -m shared.sec_retrieval
-```
-
-They reuse valid portable caches, but can build/replace caches when sources or
-settings differ. The first setup may download the pinned MiniLM model and Docling
-assets; it requires access to their model hosts. For Clinical/SOFI indexes and
-trial import, follow the ingestion instructions in the root README. Do not put
-these setup commands in an HTTP handler. Query-time model loading and query
-embeddings can still occur; the safeguard prohibits corpus ingestion/re-embedding.
+Technology/SEC query existing portable indexes with the `retrieval-runtime` extra
+and the pinned MiniLM model already cached. The full optional `retrieval` extra
+installs document conversion tools, which queries do not need. Preserve the team's
+index directories and source PDFs. Missing/stale evidence or missing runtime/model
+dependencies produce setup limitations. Do not run ingestion builders to repair
+a chat request: obtain approval before rebuilding an index. For Clinical/SOFI
+indexes and trial import, follow the ingestion instructions in the root README.
+Query-time model loading and query embeddings can still occur; the safeguard
+prohibits corpus ingestion/re-embedding and model downloads.
 
 ## Verified manager contract
 
@@ -100,6 +101,8 @@ incorporated the latest `main` (including SEC registration and date serializatio
 - Routing/provider exceptions return a safe HTTP 503 message with a retry action.
   Specialist/synthesis failures remain successful manager responses with limitations.
   Raw provider exception text is never sent to the browser or application logs.
+  Backend logs preserve exception types and traceback frames while omitting
+  exception messages, source lines, and locals.
 - `GET /api/health` is liveness only and does not invoke providers or read indexes.
 
 ## History and interaction
@@ -130,10 +133,8 @@ Existing live/real-data test opt-ins remain unchanged. A successful build produc
 `npm run preview`. A production deployment needs a same-origin `/api` reverse proxy
 and appropriate access control; deployment is outside this PR's scope.
 
-Validation in this implementation environment: `npm run build` and desktop/mobile
-browser smoke checks passed. All 49 manager + HTTP integration tests passed. The
-full suite (`HF_HUB_OFFLINE=1 .venv/bin/python -m pytest -q`) produced **255 passed,
-4 skipped, 3 failed**. The three failures are existing cache-portability tests
-requiring the pinned MiniLM model, which was not cached here. Running those tests
-against untouched `main` reproduced the same three failures (and one pass).
-Live OpenAI consultation was not exercised.
+See the repository compatibility report for current audit results, blocked live
+provider checks, and environment requirements. `npm run build` verifies TypeScript
+and production bundling; it does not establish that a live browser/provider flow
+passed. The HTTP suite additionally covers cross-domain citation namespacing,
+clinical date serialization, and partial specialist failures.

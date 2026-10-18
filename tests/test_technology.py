@@ -1,6 +1,8 @@
 """Technology adapter tests; no model credentials or PDF processing required."""
 
 import os
+import subprocess
+import sys
 
 import pytest
 from pydantic import ValidationError
@@ -62,6 +64,30 @@ def test_empty_evidence_and_report_year_handling(monkeypatch):
     assert agent.invoke("interfaces").status == "insufficient_evidence"
     with pytest.raises(ValueError, match="only to Corporate Responsibility"):
         agent.invoke({"question": "interfaces", "report_year": 2023})
+
+
+def test_import_and_initialization_do_not_require_ingestion_or_semantic_packages():
+    script = """
+import sys
+for module in ('sentence_transformers', 'sklearn', 'docling', 'langchain_docling'):
+    sys.modules[module] = None
+from agents.technology import TechnologyAgent
+TechnologyAgent()
+"""
+    result = subprocess.run([sys.executable, "-c", script], capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
+
+
+def test_standalone_queries_use_read_only_retrieval(monkeypatch):
+    from shared.query_context import cache_only
+
+    def retrieve(question, *, k):
+        assert cache_only.get(), "Standalone queries must never rebuild data or download models"
+        return []
+
+    monkeypatch.setattr(technology, "retrieve", retrieve)
+    assert technology.TechnologyAgent(Settings()).invoke("interfaces").status == "insufficient_evidence"
+    assert not cache_only.get(), "The query guard must remain request-local"
 
 
 @pytest.mark.skipif(os.environ.get("RUN_TECHNOLOGY_LIVE_TEST") != "1",

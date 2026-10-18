@@ -10,8 +10,16 @@ from shared.specialist import Specialist
 
 
 def _companies(question):
-    return [f["company"] for f in FILINGS
-            if re.search(r"\b" + re.escape(f["company"]) + r"\b", question, re.I)]
+    named = [f["company"] for f in FILINGS
+             if re.search(r"\b" + re.escape(f["company"]) + r"\b", question, re.I)]
+    if named:
+        return named
+    # An explicit corpus-wide question does not require an issuer name. Keep
+    # unsupported issuer requests distinct from questions about available sources.
+    if re.search(r"\b(?:available|indexed|supplied|provided|local|these)\s+"
+                 r"(?:SEC\s+)?(?:documents|filings|reports|10-Ks?)\b", question, re.I):
+        return [f["company"] for f in FILINGS]
+    return []
 
 
 class _SECEvidence:
@@ -61,11 +69,20 @@ class SECAgent(Specialist):
 
     def _prepare_query(self, request):
         if not _companies(request.question):
-            raise ValueError("Specify Cisco or Agilent; only their FY2025 Form 10-Ks are indexed")
+            raise ValueError("Specify Cisco or Agilent, or ask about the available SEC filings; "
+                             "only their FY2025 Form 10-Ks are indexed")
         years = set(re.findall(r"(?<!\d)(20\d{2})(?!\d)", request.question))
         year = request.report_year if request.report_year is not None else (
             int(next(iter(years))) if len(years) == 1 else 2025)
         return request.question, year
+
+    def invoke(self, request):
+        response = super().invoke(request)
+        response.limitations.append(
+            "The available SEC corpus contains only Cisco and Agilent FY2025 Form 10-Ks; "
+            "these excerpts do not cover other issuers or all SEC filings."
+        )
+        return response
 
 
 def main(argv=None):

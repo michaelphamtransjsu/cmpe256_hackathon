@@ -7,9 +7,11 @@ from functools import lru_cache
 from pathlib import Path
 
 from langchain_core.documents import Document
-from sentence_transformers import SentenceTransformer
 
-from shared.hybrid_retrieval import MODEL, MODEL_REVISION, ROOT, Retriever
+from shared.hybrid_retrieval import (
+    MODEL, MODEL_REVISION, ROOT, Retriever, load_embedding_model, require_prepared_cache,
+)
+from shared.query_context import answering_only
 
 DATA = ROOT / "data/UnitedStatesSecuritiesandExchangeCommission(SEC)"
 CACHE = ROOT / "storage/sec"
@@ -71,25 +73,27 @@ class SECRetriever:
 
 
 def build_sec_retriever(data_dir=DATA, cache_dir=CACHE):
-    from docling.chunking import HybridChunker
-    from docling.datamodel.base_models import ConversionStatus, InputFormat
-    from docling.datamodel.pipeline_options import PdfPipelineOptions
-    from docling.document_converter import DocumentConverter, PdfFormatOption
-    from docling_core.transforms.chunker.tokenizer.huggingface import HuggingFaceTokenizer
-    from docling_core.types.doc import DoclingDocument
-    import pypdfium2 as pdfium
-
     cache_dir = Path(cache_dir)
-    cache_dir.mkdir(parents=True, exist_ok=True)
     paths = [Path(data_dir) / f["company"] / f["filename"] for f in FILINGS]
     fingerprints = {p.relative_to(data_dir).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     key = json.dumps({"files": fingerprints, "config": CONFIG, "filings": FILINGS}, sort_keys=True)
-    model = SentenceTransformer(MODEL, revision=CONFIG["model_revision"], device="cpu")
-    chunker = HybridChunker(tokenizer=HuggingFaceTokenizer(tokenizer=model.tokenizer, max_tokens=CONFIG["max_tokens"]),
-                            merge_peers=CONFIG["merge_peers"], repeat_table_header=CONFIG["repeat_table_header"])
+    require_prepared_cache(cache_dir, key)
+    model = load_embedding_model(revision=CONFIG["model_revision"])
     contexts = {}
 
     def load():
+        from docling.chunking import HybridChunker
+        from docling.datamodel.base_models import ConversionStatus, InputFormat
+        from docling.datamodel.pipeline_options import PdfPipelineOptions
+        from docling.document_converter import DocumentConverter, PdfFormatOption
+        from docling_core.transforms.chunker.tokenizer.huggingface import HuggingFaceTokenizer
+        from docling_core.types.doc import DoclingDocument
+        import pypdfium2 as pdfium
+
+        chunker = HybridChunker(
+            tokenizer=HuggingFaceTokenizer(tokenizer=model.tokenizer, max_tokens=CONFIG["max_tokens"]),
+            merge_peers=CONFIG["merge_peers"], repeat_table_header=CONFIG["repeat_table_header"],
+        )
         documents, failures = [], []
         converter = DocumentConverter(format_options={InputFormat.PDF: PdfFormatOption(
             pipeline_options=PdfPipelineOptions(do_ocr=CONFIG["do_ocr"]))})
@@ -153,7 +157,9 @@ def build_sec_retriever(data_dir=DATA, cache_dir=CACHE):
 
 @lru_cache(maxsize=1)
 def _default():
-    return build_sec_retriever()
+    # Querying never converts PDFs, rewrites indexes, or downloads model weights.
+    with answering_only():
+        return build_sec_retriever()
 
 
 def retrieve(question, k=5, *, company=None, fiscal_year=None):

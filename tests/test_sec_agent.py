@@ -74,3 +74,24 @@ def test_team_model_policy_and_citation_validation(evidence, eid):
             agent.invoke("Cisco FY2025 risks")
     else:
         assert agent.invoke("Cisco FY2025 risks").mode == "openai"
+
+
+def test_generic_available_filings_question_balances_both_companies(evidence):
+    response = sec.SECAgent(Settings()).invoke(
+        "What major financial risks are disclosed in the available SEC filings?"
+    )
+    assert evidence == [("Cisco", 2025, 5), ("Agilent", 2025, 5)]
+    assert response.status == "evidence_found"
+    assert [citation.source_id for citation in response.citations] == ["Cisco", "Agilent"]
+    assert all(finding.evidence_ids for finding in response.findings)
+    assert any("only Cisco and Agilent FY2025" in note for note in response.limitations)
+
+
+def test_generic_question_with_unavailable_year_has_no_fabricated_evidence(evidence):
+    response = sec.SECAgent(Settings()).invoke(
+        {"question": "What risks appear in the available SEC filings?", "report_year": 2026}
+    )
+    assert evidence == [("Cisco", 2026, 5), ("Agilent", 2026, 5)]
+    assert response.status == "insufficient_evidence"
+    assert response.citations == []
+    assert response.findings == []
