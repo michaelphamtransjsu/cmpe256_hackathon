@@ -298,6 +298,143 @@ def test_grouped_narrative_citations_cannot_introduce_unknown_evidence():
     assert any("Synthesis unavailable" in x for x in response.limitations)
 
 
+@pytest.fixture
+def food_security_case():
+    """Synthetic excerpts mirror the reported domains; no retrieval or index writes."""
+    question = "Which technology investments could improve food security and sustainability outcomes?"
+    gap = "The retrieved Technology evidence does not identify specific food-security technologies or establish food-security outcomes."
+    texts = {
+        "corporate_responsibility": "Synthetic SOFI evidence: digital tools, cold storage and agricultural R&D support agrifood transformation.",
+        "technology": "Synthetic Cisco evidence: product sustainability and ESG reporting resources are available.",
+    }
+    originals = {name: SpecialistResponse(
+        agent=name, question=question, status="evidence_found", mode="openai",
+        answer=text + " [E1]", findings=[{"text": text, "evidence_ids": ["E1"]}],
+        recommendations=[], limitations=[gap] if name == "technology" else [],
+        citations=[{"id": "E1", "source_id": "synthetic-" + name,
+                    "source": "fixture:" + name, "page": 2, "excerpt": text}],
+    ) for name, text in texts.items()}
+
+    class Agent:
+        def __init__(self, response):
+            self.response = response
+
+        def invoke(self, request):
+            assert request.question == question
+            return self.response
+
+    registry = {name: lambda settings, response=response: Agent(response)
+                for name, response in originals.items()}
+
+    class FoodModel(Model):
+        def invoke(self, messages):
+            result = super().invoke(messages)
+            if self.schema is not Analysis:
+                return result
+            data = json.loads(messages[1].content)
+            assert "explicitly name that domain's evidence gap" in messages[0].content
+            assert "do not imply shared recommendations" in messages[0].content
+            assert data["question"] == question
+            assert data["specialists"][1]["recommendations"] == []
+            assert data["specialists"][1]["limitations"] == [gap]
+            return {
+                "answer": "Corporate Responsibility documents agrifood investments [corporate_responsibility:E1]. "
+                          "Technology provides Cisco sustainability context only [technology:E1]. " + gap +
+                          " These are separate findings, without evidence of a shared recommendation "
+                          "[corporate_responsibility:E1,\ntechnology:E1].",
+                "findings": [f for p in data["specialists"] for f in p["findings"]],
+                "recommendations": [{"action": "Suggestion: assess digital tools, cold storage and agricultural R&D.",
+                    "rationale": "Corporate Responsibility documents these agrifood investments; effectiveness needs assessment.",
+                    "evidence_ids": ["corporate_responsibility:E1"]}],
+                "limitations": [gap],
+            }
+
+    return question, gap, originals, registry, FoodModel
+
+
+@pytest.mark.parametrize("structured_model", [False, True], ids=["dict", "pydantic"])
+def test_food_security_cross_domain_synthesis_preserves_attribution(food_security_case, structured_model):
+    question, gap, originals, registry, FoodModel = food_security_case
+
+    class ResponseModel(FoodModel):
+        def invoke(self, messages):
+            result = super().invoke(messages)
+            return self.schema.model_validate(result) if structured_model else result
+
+    model = ResponseModel(list(registry))
+    original_payloads = [r.model_dump() for r in originals.values()]
+    result = ManagerAgent(Settings(), model=model, registry=registry).consult(question)
+    assert len(model.calls) == 2
+    assert "Synthesis unavailable" not in result.answer
+    assert "without evidence of a shared recommendation" in result.answer
+    assert gap in result.answer and f"technology: {gap}" in result.limitations
+    assert result.recommendations[0].evidence_ids == ["corporate_responsibility:E1"]
+    assert [f.evidence_ids for f in result.findings] == [["corporate_responsibility:E1"], ["technology:E1"]]
+    assert [r.model_dump() for r in result.specialist_responses] == original_payloads
+    assert [c.model_dump() for c in result.citations] == [
+        {**r.citations[0].model_dump(), "id": f"{name}:E1"} for name, r in originals.items()]
+    assert ManagerResponse.model_validate_json(result.model_dump_json()) == result
+
+
+@pytest.mark.parametrize("field", ["answer", "finding", "action", "rationale", "limitation"])
+@pytest.mark.parametrize("reference", ["technology:E1", "technology:E999", "invented:E1", "E1"])
+def test_cross_domain_narrative_validation_checks_raw_fields(food_security_case, field, reference):
+    question, _, _, registry, FoodModel = food_security_case
+
+    class CitationModel(FoodModel):
+        def invoke(self, messages):
+            result = super().invoke(messages)
+            if self.schema is Analysis:
+                result["answer"] = "Separate domain findings are supplied below."
+                text = f"Separate evidence [corporate_responsibility:E1,\n\t{reference}]."
+                if field == "answer":
+                    result["answer"] = text
+                elif field == "finding":
+                    result["findings"][0]["text"] = text
+                elif field == "limitation":
+                    result["limitations"] = [text]
+                else:
+                    result["recommendations"][0][field] = text
+            return result
+
+    result = ManagerAgent(Settings(), model=CitationModel(list(registry)), registry=registry).consult(question)
+    assert ("Synthesis unavailable (ValueError)" in result.answer) == (reference != "technology:E1")
+    if reference != "technology:E1":
+        assert "Separate evidence" not in result.model_dump_json()
+        assert result.recommendations == []
+
+
+@pytest.mark.parametrize(("failure", "error_type"), [
+    ("provider", "ValueError"), ("malformed", "ValidationError"),
+    ("unknown-evidence", "ValidationError"),
+])
+def test_food_security_synthesis_failures_preserve_safe_fallback(food_security_case, caplog, failure, error_type):
+    question, _, originals, registry, FoodModel = food_security_case
+    private_detail = "synthetic-private-provider-detail"
+
+    class FailingModel(FoodModel):
+        def invoke(self, messages):
+            result = super().invoke(messages)
+            if self.schema is Analysis:
+                if failure == "provider":
+                    raise ValueError(private_detail)
+                if failure == "malformed":
+                    return {"answer": private_detail}
+                result["recommendations"][0]["evidence_ids"] = ["technology:E999"]
+            return result
+
+    model = FailingModel(list(registry))
+    result = ManagerAgent(Settings(), model=model, registry=registry).consult(question)
+    assert len(model.calls) == 2
+    assert f"Synthesis unavailable ({error_type})" in result.answer
+    assert [r.model_dump() for r in result.specialist_responses] == [r.model_dump() for r in originals.values()]
+    assert [f.evidence_ids for f in result.findings] == [["corporate_responsibility:E1"], ["technology:E1"]]
+    assert result.recommendations == []
+    assert private_detail not in result.model_dump_json() + caplog.text
+    assert "E999" not in result.model_dump_json() + caplog.text
+    assert question not in caplog.text
+
+
 def test_limitations_deduplicate_attribution_case_whitespace_and_punctuation():
     response = ManagerResponse(question="Question", agents_used=[], answer="No evidence",
         findings=[], recommendations=[], citations=[], limitations=[

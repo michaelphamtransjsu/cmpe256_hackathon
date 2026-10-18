@@ -211,6 +211,10 @@ class ManagerAgent:
                     "and their attribution; do not silently resolve them. Distinguish facts from suggested "
                     "actions. A specialist's participation is not evidence for another domain's conclusion; "
                     "only attribute support to findings actually backed by that specialist's cited excerpts. "
+                    "When a specialist supplies only background context and no relevant support for a "
+                    "requested outcome, explicitly name that domain's evidence gap. Combine the supported "
+                    "findings with their own attribution; do not imply shared recommendations or attach "
+                    "background citations to another specialist's recommendations. "
                     "Use citation IDs and portable source labels, never absolute local file paths. "
                     "Do not turn insufficient evidence into a purchase recommendation.")),
                 HumanMessage(content=json.dumps({"question": request.question,
@@ -219,8 +223,12 @@ class ManagerAgent:
             combined = list(dict.fromkeys([*limitations, *analysis.limitations]))
             result = ManagerResponse(**base, **{**analysis.model_dump(), "limitations": combined})
             # Reject invented bracketed references in narrative fields as well as structured IDs.
-            text = json.dumps(analysis.model_dump())
-            references = [reference for block in re.findall(r"\[([^\[\]]+)\]", text)
+            # Scan raw strings: JSON escaping turns a newline before technology:E1 into
+            # a literal \\ntechnology:E1, which the ID regex misreads as ntechnology:E1.
+            texts = [analysis.answer, *analysis.limitations,
+                     *(f.text for f in analysis.findings),
+                     *(text for r in analysis.recommendations for text in (r.action, r.rationale))]
+            references = [reference for text in texts for block in re.findall(r"\[([^\[\]]+)\]", text)
                           for reference in re.findall(r"\b(?:[a-z_]+:)?E\d+\b", block)]
             if not set(references).issubset({c.id for c in citations}):
                 raise ValueError("Unknown narrative citation")
