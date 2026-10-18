@@ -9,7 +9,7 @@ from pathlib import Path
 from langchain_core.documents import Document
 from sentence_transformers import SentenceTransformer
 
-from shared.hybrid_retrieval import MODEL, ROOT, Retriever
+from shared.hybrid_retrieval import MODEL, MODEL_REVISION, ROOT, Retriever
 
 DATA = ROOT / "data/UnitedStatesSecuritiesandExchangeCommission(SEC)"
 CACHE = ROOT / "storage/sec"
@@ -20,7 +20,15 @@ FILINGS = [
      "period_end": "2025-10-31", "filename": "b5098e8e-5716-4b35-8d8e-84dbdab516b1.pdf"},
 ]
 CONFIG = {"model": MODEL, "max_tokens": 220, "merge_peers": False,
-          "repeat_table_header": True, "do_ocr": False, "version": 1}
+          "repeat_table_header": True, "do_ocr": False, "version": 1,
+          "model_revision": MODEL_REVISION}
+
+
+def _artifact_name(source_id, digest):
+    """Parsed-document reuse depends on conversion settings, not chunk size."""
+    conversion = {"sha256": digest, "do_ocr": CONFIG["do_ocr"], "version": CONFIG["version"]}
+    identity = hashlib.sha256(json.dumps(conversion, sort_keys=True).encode()).hexdigest()
+    return f"{source_id}-{identity}.docling.json"
 
 
 class SECRetriever:
@@ -74,21 +82,21 @@ def build_sec_retriever(data_dir=DATA, cache_dir=CACHE):
     cache_dir = Path(cache_dir)
     cache_dir.mkdir(parents=True, exist_ok=True)
     paths = [Path(data_dir) / f["company"] / f["filename"] for f in FILINGS]
-    fingerprints = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
+    fingerprints = {p.relative_to(data_dir).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     key = json.dumps({"files": fingerprints, "config": CONFIG, "filings": FILINGS}, sort_keys=True)
-    model = SentenceTransformer(MODEL, device="cpu")
-    chunker = HybridChunker(tokenizer=HuggingFaceTokenizer(tokenizer=model.tokenizer, max_tokens=220),
-                            merge_peers=False, repeat_table_header=True)
+    model = SentenceTransformer(MODEL, revision=CONFIG["model_revision"], device="cpu")
+    chunker = HybridChunker(tokenizer=HuggingFaceTokenizer(tokenizer=model.tokenizer, max_tokens=CONFIG["max_tokens"]),
+                            merge_peers=CONFIG["merge_peers"], repeat_table_header=CONFIG["repeat_table_header"])
     contexts = {}
 
     def load():
         documents, failures = [], []
         converter = DocumentConverter(format_options={InputFormat.PDF: PdfFormatOption(
-            pipeline_options=PdfPipelineOptions(do_ocr=False))})
+            pipeline_options=PdfPipelineOptions(do_ocr=CONFIG["do_ocr"]))})
         for filing, path in zip(FILINGS, paths):
             source_id = f"{filing['company'].lower()}-{filing['fiscal_year']}-{filing['filing_type']}"
-            digest = fingerprints[str(path)]
-            artifact = cache_dir / f"{source_id}-{digest}.docling.json"
+            digest = fingerprints[path.relative_to(data_dir).as_posix()]
+            artifact = cache_dir / _artifact_name(source_id, digest)
             context_path = cache_dir / f"{source_id}-context.json"
             try:
                 if artifact.exists():
@@ -118,7 +126,7 @@ def build_sec_retriever(data_dir=DATA, cache_dir=CACHE):
                     items = meta.get("doc_items", [])
                     physical_pages = sorted({p["page_no"] for item in items for p in item.get("prov", [])})
                     documents.append(Document(page_content=chunker.contextualize(chunk), metadata={
-                        **filing, "source": str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path),
+                        **filing, "source": "data/UnitedStatesSecuritiesandExchangeCommission(SEC)/" + path.relative_to(data_dir).as_posix(),
                         "source_id": source_id, "sha256": digest, "pages": physical_pages,
                         "page": physical_pages[0] if len(physical_pages) == 1 else None,
                         "table_refs": [item["self_ref"] for item in items if item["self_ref"] in tables],
