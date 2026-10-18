@@ -1,6 +1,7 @@
 """Deterministic orchestration tests; models and specialists are injected."""
 
 import json
+from datetime import date, datetime, timezone
 
 import pytest
 from pydantic import ValidationError
@@ -8,6 +9,7 @@ from pydantic import ValidationError
 from manager import ManagerAgent, ManagerResponse
 from shared.model import Settings
 from shared.schemas import Analysis, SpecialistResponse
+from shared.trials import TrialRecord
 
 
 class Model:
@@ -55,6 +57,110 @@ def specialist(name, calls, *, empty=False, fail=False):
     return lambda settings: Agent()
 
 
+@pytest.fixture
+def clinical_trial(tmp_path):
+    from agents.clinical import ClinicalAgent
+
+    settings = Settings(data_dir=tmp_path)
+    clinical = ClinicalAgent(settings)
+    record = TrialRecord(
+        trial_id="SYNTHETIC-DIABETES-001", title="Synthetic diabetes registration",
+        source="fixture:synthetic-trial", updated_at=date(2026, 10, 1),
+        metadata={"provenance": {"source_id": "synthetic-csv", "record_number": 2}},
+    )
+    clinical.trials.upsert(record)
+    return settings, clinical, record
+
+
+@pytest.mark.parametrize("updated_at", [
+    date(2026, 10, 1), datetime(2026, 10, 1, 12, 30, tzinfo=timezone.utc), None,
+], ids=["date", "datetime", "missing-date"])
+@pytest.mark.parametrize("structured_model", [False, True], ids=["dict", "pydantic"])
+def test_clinical_trial_synthesis_serializes_dates_and_preserves_evidence(
+        clinical_trial, updated_at, structured_model):
+    settings, clinical, record = clinical_trial
+    record.updated_at = updated_at
+    clinical.trials.upsert(record)
+    question = "What diabetes trial evidence is available?"
+    original = clinical.invoke(question)
+    original_payload = original.model_dump()
+
+    class TrialModel(Model):
+        def invoke(self, messages):
+            result = super().invoke(messages)
+            if self.schema is not Analysis:
+                result["limitations"] = ["Routing scope: clinical trial evidence only."]
+            else:
+                payload = json.loads(messages[1].content)
+                trial = payload["specialists"][0]["trial_records"][0]
+                assert trial == record.model_dump(mode="json")
+                assert payload["specialists"][0]["findings"][0]["evidence_ids"] == ["clinical:E1"]
+                assert payload["specialists"][0]["citations"][0]["excerpt"] == original.citations[0].excerpt
+                result["limitations"] = ["Registration alone does not establish efficacy."]
+            return self.schema.model_validate(result) if structured_model else result
+
+    model = TrialModel(["clinical"])
+    response = ManagerAgent(settings, model=model, registry={"clinical": lambda settings: clinical}).consult(question)
+
+    assert len(model.calls) == 2
+    assert response.answer == "Documented result [clinical:E1]."
+    assert response.recommendations[0].evidence_ids == ["clinical:E1"]
+    assert response.findings[0].evidence_ids == ["clinical:E1"]
+    assert response.agents_used == ["clinical"] and response.question == question
+    assert response.citations[0].model_dump() == {**original.citations[0].model_dump(), "id": "clinical:E1"}
+    assert response.specialist_responses[0].model_dump() == original_payload
+    assert response.specialist_responses[0].trial_records == [record]
+    assert response.citation_labels == {"clinical:E1": "fixture:synthetic-trial"}
+    assert "Routing scope: clinical trial evidence only." in response.limitations
+    assert "Registration alone does not establish efficacy." in response.limitations
+    assert all(f"clinical: {item}" in response.limitations for item in original.limitations)
+    assert not any("Synthesis unavailable" in item for item in response.limitations)
+    assert ManagerResponse.model_validate_json(response.model_dump_json()) == response
+
+
+@pytest.mark.parametrize(("failure", "error_type"), [
+    ("provider", "RuntimeError"), ("provider-type-error", "TypeError"),
+    ("malformed", "ValidationError"), ("unknown-evidence", "ValidationError"),
+    ("unknown-narrative", "ValueError"),
+])
+def test_clinical_trial_synthesis_failures_keep_grounded_fallback(clinical_trial, failure, error_type):
+    settings, clinical, record = clinical_trial
+    question = "What diabetes trial evidence is available?"
+    original = clinical.invoke(question)
+
+    class FailingModel(Model):
+        def invoke(self, messages):
+            result = super().invoke(messages)
+            if self.schema is Analysis:
+                if failure in {"provider", "provider-type-error"}:
+                    error = RuntimeError if failure == "provider" else TypeError
+                    raise error("private provider details")
+                if failure == "malformed":
+                    return {"answer": "private malformed response"}
+                if failure == "unknown-evidence":
+                    result["findings"][0]["evidence_ids"] = ["clinical:E999"]
+                if failure == "unknown-narrative":
+                    result["answer"] = "Unsupported claim [clinical:E1, clinical:E999]."
+            return result
+
+    model = FailingModel(["clinical"])
+    response = ManagerAgent(settings, model=model, registry={"clinical": lambda settings: clinical}).consult(question)
+
+    reason = (f"Synthesis unavailable ({error_type}); specialist responses are shown separately "
+              "and conflicts remain unresolved.")
+    assert len(model.calls) == 2, "The dated trial must reach the synthesis provider"
+    assert response.answer == f"{reason}\n\nclinical: {original.answer}"
+    assert reason in response.limitations
+    assert response.agents_used == ["clinical"] and response.question == question
+    assert response.citations[0].model_dump() == {**original.citations[0].model_dump(), "id": "clinical:E1"}
+    assert response.findings[0].evidence_ids == ["clinical:E1"]
+    assert response.recommendations == original.recommendations
+    assert response.specialist_responses == [original]
+    assert response.specialist_responses[0].trial_records == [record]
+    assert "private" not in response.model_dump_json() and "E999" not in response.model_dump_json()
+    assert ManagerResponse.model_validate_json(response.model_dump_json()) == response
+
+
 @pytest.mark.parametrize(("question", "selected"), [
     ("Which Catalyst 8300 has two 10Gbps ports?", ["technology"]),
     ("What clinical trial evidence supports this intervention?", ["clinical"]),
@@ -78,6 +184,9 @@ def test_routing_invocation_and_grounded_synthesis(question, selected):
     assert all("Uncertainty from " + name in " ".join(result.limitations) for name in selected)
     assert ManagerResponse.model_validate_json(result.model_dump_json()) == result
     assert result.specialist_responses[0].citations[0].id == "E1"
+    assert len(model.calls) == 2
+    assert result.answer == f"Documented result [{selected[0]}:E1]."
+    assert result.recommendations[0].evidence_ids == [name + ":E1" for name in selected]
 
 
 def test_unavailable_sec_in_custom_registry_does_not_invoke_unrelated_agent():
