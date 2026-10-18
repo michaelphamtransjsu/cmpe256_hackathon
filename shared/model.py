@@ -7,7 +7,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 
-AgentName = Literal["clinical", "corporate_responsibility", "technology"]
+AgentName = Literal["clinical", "corporate_responsibility", "technology", "sec"]
 
 
 class Settings(BaseModel):
