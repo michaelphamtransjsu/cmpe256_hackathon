@@ -61,11 +61,14 @@ def specialist(name, calls, *, empty=False, fail=False):
     ("What does SOFI say about food affordability?", ["corporate_responsibility"]),
     ("Evaluate Cisco connectivity and clinical laboratory continuity.", ["technology", "clinical"]),
     ("Assess nutrition trial evidence and SOFI food affordability.", ["clinical", "corporate_responsibility"]),
+    ("What are Cisco's FY2025 financial risks?", ["sec"]),
+    ("What was Agilent's FY2025 revenue?", ["sec"]),
+    ("Assess Cisco router specifications and FY2025 financial risks.", ["technology", "sec"]),
 ])
 def test_routing_invocation_and_grounded_synthesis(question, selected):
     calls = []
     model = Model(selected)
-    registry = {name: specialist(name, calls) for name in ["technology", "clinical", "corporate_responsibility"]}
+    registry = {name: specialist(name, calls) for name in ["technology", "clinical", "corporate_responsibility", "sec"]}
     result = ManagerAgent(Settings(), model=model, registry=registry).consult(question)
     assert result.agents_used == selected
     assert [name for name, request in calls] == selected
@@ -77,9 +80,10 @@ def test_routing_invocation_and_grounded_synthesis(question, selected):
     assert result.specialist_responses[0].citations[0].id == "E1"
 
 
-def test_sec_is_not_registered_and_no_unrelated_agent_is_invoked():
+def test_unavailable_sec_in_custom_registry_does_not_invoke_unrelated_agent():
     model = Model([])
-    result = ManagerAgent(Settings(), model=model).consult("Compare Cisco and Agilent 2025 SEC filings")
+    result = ManagerAgent(Settings(), model=model, registry={
+        "technology": specialist("technology", [])}).consult("Compare Cisco and Agilent 2025 SEC filings")
     assert result.agents_used == [] and result.citations == []
     assert result.recommendations == [] and "SEC agent unavailable" in result.limitations
     assert len(model.calls) == 1
@@ -87,7 +91,7 @@ def test_sec_is_not_registered_and_no_unrelated_agent_is_invoked():
 
 def test_route_schema_rejects_unregistered_agent_before_invocation():
     with pytest.raises(ValidationError):
-        ManagerAgent(Settings(), model=Model(["sec"])).consult("SEC filings")
+        ManagerAgent(Settings(), model=Model(["retail"])).consult("Retail analysis")
 
 
 def test_partial_failures_and_conflicts_are_reported_without_exposing_errors():
@@ -236,3 +240,52 @@ def test_partial_evidence_never_generates_cross_domain_support(empty_agent):
     assert all(not c.id.startswith(empty_agent + ":") for c in response.citations)
     assert all(not eid.startswith(empty_agent + ":") for f in response.findings for eid in f.evidence_ids)
     assert any(f"{empty_agent}: insufficient evidence" in x for x in response.limitations)
+
+
+def test_default_sec_registration_and_scope(monkeypatch):
+    import manager
+    from agents import create_specialist
+    from agents.sec import SECAgent
+
+    settings = Settings()
+    assert isinstance(create_specialist("sec", settings), SECAgent)
+    calls = []
+    monkeypatch.setattr(manager, "create_specialist", lambda name, settings: specialist(name, calls)(settings))
+    model = Model(["sec"])
+    result = manager.ManagerAgent(settings, model=model).consult("Cisco FY2025 financial risks")
+    assert result.agents_used == ["sec"]
+    route_schema = model.calls[0][0].content
+    assert "Agilent FY2025" in route_schema
+    assert "Technology and SEC" in route_schema
+
+
+def test_sec_periods_and_both_domains_evidence_survive_synthesis():
+    class SEC:
+        def invoke(self, request):
+            return SpecialistResponse(agent="sec", question=request.question, mode="extractive",
+                status="evidence_found", report_year=2025,
+                answer="Cisco FY2025 total revenue was USD 56,654 million for the year ended July 26, 2025 [E1].",
+                findings=[{"text": "Cisco FY2025 total revenue: USD 56,654 million; year ended July 26, 2025.", "evidence_ids": ["E1"]}],
+                recommendations=[], limitations=["No causal link to router specifications is established."],
+                citations=[{"id": "E1", "source_id": "cisco-2025-10-K", "source": "fixture:cisco-filing",
+                    "page": 59, "report_year": 2025, "excerpt": "Cisco | FY2025 | year ended 2025-07-26 | total revenue USD 56,654 million."}])
+
+    class InspectModel(Model):
+        def invoke(self, messages):
+            if self.schema is Analysis:
+                payload = json.loads(messages[1].content)
+                sec = next(p for p in payload["specialists"] if p["agent"] == "sec")
+                assert sec["report_year"] == sec["citations"][0]["report_year"] == 2025
+                assert "USD 56,654 million" in sec["answer"] and "July 26, 2025" in sec["answer"]
+                assert "Do not infer that product features" in messages[0].content
+            return super().invoke(messages)
+
+    result = ManagerAgent(Settings(), model=InspectModel(["technology", "sec"]), registry={
+        "technology": specialist("technology", []), "sec": lambda settings: SEC()}).consult(
+            "Compare Cisco router specifications and FY2025 financial risk.")
+    assert {eid.split(":")[0] for f in result.findings for eid in f.evidence_ids} == {"sec", "technology"}
+    citation = next(c for c in result.citations if c.id == "sec:E1")
+    assert citation.report_year == 2025 and citation.page == 59
+    assert "2025-07-26" in citation.excerpt and "USD 56,654 million" in citation.excerpt
+    assert "sec: No causal link to router specifications is established." in result.limitations
+    assert ManagerResponse.model_validate_json(result.model_dump_json()) == result

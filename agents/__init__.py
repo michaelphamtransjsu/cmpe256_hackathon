@@ -14,4 +14,8 @@ def create_specialist(name: AgentName, settings: Settings | None = None) -> Spec
         from .corporate_responsibility import CorporateResponsibilityAgent
 
         return CorporateResponsibilityAgent(settings)
+    if name == "sec":
+        from .sec import SECAgent
+
+        return SECAgent(settings)
     raise ValueError("Unknown specialist")
