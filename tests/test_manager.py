@@ -289,3 +289,48 @@ def test_sec_periods_and_both_domains_evidence_survive_synthesis():
     assert "2025-07-26" in citation.excerpt and "USD 56,654 million" in citation.excerpt
     assert "sec: No causal link to router specifications is established." in result.limitations
     assert ManagerResponse.model_validate_json(result.model_dump_json()) == result
+
+
+def test_cross_domain_synthesis_policy_reconciles_supplied_specs_and_direct_support():
+    """Regression of prompt/data wiring; semantic compliance is checked by the live test."""
+    specs = "Synthetic router X has two built-in 10Gbps Ethernet ports."
+    risk = "Synthetic issuer discloses acquisition integration risk."
+
+    def constructor(name, text, recommendations):
+        class Agent:
+            def invoke(self, request):
+                return SpecialistResponse(agent=name, question=request.question, mode="extractive",
+                    status="evidence_found", answer=text,
+                    findings=[{"text": text, "evidence_ids": ["E1"]}],
+                    recommendations=recommendations, limitations=[],
+                    citations=[{"id": "E1", "source_id": name, "source": "fixture:" + name,
+                                "excerpt": text}])
+        return lambda settings: Agent()
+
+    class ReviewModel(Model):
+        def invoke(self, messages):
+            if self.schema is not Analysis:
+                return super().invoke(messages)
+            policy = messages[0].content
+            assert "Consider all specialist findings before generating recommendations" in policy
+            assert "Do not recommend obtaining information already supplied by another specialist" in policy
+            assert "actual excerpts directly support the associated factual" in policy
+            assert "do not blindly copy specialist recommendations" in policy
+            assert "do not imply that the source prescribes the action or proves its effectiveness" in policy
+            data = json.loads(messages[1].content)
+            supplied = {p["agent"]: p for p in data["specialists"]}
+            assert supplied["technology"]["findings"][0]["text"] == specs
+            assert supplied["sec"]["citations"][0]["excerpt"] == risk
+            assert supplied["sec"]["recommendations"][0]["action"] == "Obtain product specifications"
+            return {"answer": specs + " [technology:E1] " + risk + " [sec:E1]",
+                    "findings": [f for p in data["specialists"] for f in p["findings"]],
+                    "recommendations": [], "limitations": ["No causal relationship is established."]}
+
+    result = ManagerAgent(Settings(), model=ReviewModel(["technology", "sec"]), registry={
+        "technology": constructor("technology", specs, []),
+        "sec": constructor("sec", risk, [{"action": "Obtain product specifications",
+            "rationale": "Not supplied by this specialist", "evidence_ids": ["E1"]}]),
+    }).consult("Which router ports are documented and what are the issuer's risks?")
+    assert result.recommendations == []
+    assert result.findings[0].evidence_ids == ["technology:E1"]
+    assert result.findings[1].evidence_ids == ["sec:E1"]
