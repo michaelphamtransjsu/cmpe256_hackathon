@@ -67,17 +67,31 @@ def _classify(original: str) -> dict[str, Any]:
     tokens = set(re.findall(r"[a-z0-9]+", path.lower()))
     name = PurePosixPath(path).name.lower()
     parts = {part.lower() for part in PurePosixPath(path).parts}
+    if name.endswith(":zone.identifier"):
+        return {"status": "ignored", "topic": "windows_metadata"}
     if tokens & _EXCLUDED:
         return {"status": "excluded", "topic": "out_of_scope", "reason": "assigned_to_other_project_or_specialist"}
     if re.search(r"assignment|project[ _-]*scope|hackathon[ _-]*(brief|instructions|scope)", name):
         return {"status": "reference_only", "topic": "project_scope"}
     if name == "agilent.txt":
         return {"agent": "clinical", "status": "reference_only", "topic": "source_catalog"}
-    if parts & {"clinical.zip", "clinical.zip.contents"}:
+    relative = list(PurePosixPath(path).parts)
+    if relative and relative[0].lower() == "data":
+        relative = relative[1:]
+    clinical_folder = len(relative) >= 2 and relative[0].lower() == "clinical"
+    food_folder = len(relative) == 2 and relative[0].lower() == "foodsecurity"
+    clinical_archive = bool(parts & {"clinical.zip", "clinical.zip.contents"})
+    if ((clinical_folder and len(relative) == 2) or clinical_archive) and re.fullmatch(r"ctg-studies_[^/]+\.csv", name):
+        return {"agent": "clinical", "status": "ready_for_import", "topic": "clinical_trials"}
+    if clinical_folder and name.endswith(".pdf"):
+        return {"agent": "clinical", "status": "ready", "topic": "clinical_research"}
+    if food_folder and name in _SOFI_NAMES:
+        return {"agent": "corporate_responsibility", "status": "ready", "topic": "food_security", "report_year": int(name[5:9])}
+    if clinical_archive:
         return {"agent": "clinical", "status": "ready", "topic": "clinical_research"}
     if parts & {"foodsecurity.zip", "foodsecurity.zip.contents"}:
         if name in _SOFI_NAMES:
-            return {"agent": "corporate_responsibility", "status": "ready", "topic": "food_security"}
+            return {"agent": "corporate_responsibility", "status": "ready", "topic": "food_security", "report_year": int(name[5:9])}
         return {"status": "reference_only", "topic": "unassigned", "reason": "not_an_assigned_sofi_report"}
     return {"status": "reference_only", "topic": "unassigned", "reason": "no_explicit_source_assignment"}
 
@@ -188,6 +202,8 @@ def inspect_archive(
                 if total_entries > limits.max_entries:
                     entries.append(_entry(original, status="failed", reason="archive_entry_limit_exceeded"))
                     return
+                if item["status"] == "ignored":
+                    continue
                 if not _safe_member(member.filename):
                     item.update(status="failed", reason="unsafe_archive_path")
                     entries.append(item)
@@ -203,7 +219,7 @@ def inspect_archive(
                     entries.append(item)
                     continue
                 extension = item["format"]
-                if extension not in _EVIDENCE_FORMATS | {"zip"}:
+                if extension not in _EVIDENCE_FORMATS | {"zip"} and item["topic"] != "clinical_trials":
                     item.update(status="unsupported", reason="unsupported_document_format")
                     entries.append(item)
                     continue
@@ -229,7 +245,7 @@ def inspect_archive(
                     continue
                 # Unknown documents need no decompression or extraction. ZIPs
                 # still need inspection to locate the assigned nested bundles.
-                should_extract = item["status"] == "ready" or item["topic"] in {"source_catalog", "project_scope"}
+                should_extract = item["status"] in {"ready", "ready_for_import"} or item["topic"] in {"source_catalog", "project_scope"}
                 if extension != "zip" and not should_extract:
                     entries.append(item)
                     continue
@@ -262,40 +278,58 @@ def inspect_archive(
     return entries
 
 
-def discover_sources(root: Path) -> list[dict[str, Any]]:
+def discover_sources(root: Path, *, local_only: bool = False) -> list[dict[str, Any]]:
     """Inventory local inputs without fetching URLs or unpacking ZIPs.
 
-    An assigned extracted file must retain its ``Clinical.zip.contents`` or
-    ``FoodSecurity.zip.contents`` lineage. Arbitrary agent-named directories do
-    not confer assignment. Previously downloaded Agilent URLs should be mapped
-    explicitly to their manifest entry by the caller after verification.
+    The selected root is a data directory: only its Clinical PDFs/trial CSVs and
+    two top-level FoodSecurity SOFI PDFs are assigned. ZIP extraction lineage is
+    also supported. local_only records catalog URLs as deferred references, so
+    local evidence can be ingested without claiming external URLs were read.
     """
     root = Path(root)
     if not root.exists():
         return [_entry(str(root), format="directory", status="missing", reason="source_directory_not_found")]
-    if root.is_symlink():
+    if root.is_symlink() or any(parent.is_symlink() for parent in root.parents):
         return [_entry(str(root), status="failed", reason="source_symlink_rejected")]
     candidates = [root] if root.is_file() else sorted(root.rglob("*"))
+    data_root = next((ancestor for ancestor in [root, *root.parents] if ancestor.name.lower() == "data"), None)
     entries: list[dict[str, Any]] = []
     for path in candidates:
+        if path.name.lower().endswith(":zone.identifier"):
+            continue
         if path.is_dir() and not path.is_symlink():
             continue
         original = str(path.relative_to(root)) if root.is_dir() else path.name
         # Include a deliberately named extraction root in the assignment lineage.
-        if root.is_dir() and root.name.lower() in {"clinical.zip.contents", "foodsecurity.zip.contents"}:
+        if data_root is not None:
+            original = f"{data_root.name}/{path.relative_to(data_root).as_posix()}"
+        elif root.is_dir() and root.name.lower() in {"clinical", "foodsecurity", "clinical.zip.contents", "foodsecurity.zip.contents"}:
             original = f"{root.name}/{original}"
+        elif root.is_file() and root.parent.name.lower() == "clinical":
+            original = f"Clinical/{original}"
+        if data_root is None:
+            # Selecting an excluded subtree directly must not erase its scope.
+            excluded_parent = next((p.name for p in [root, *root.parents]
+                                    if set(re.findall(r"[a-z0-9]+", p.name.lower())) & _EXCLUDED), None)
+            if excluded_parent:
+                original = f"{excluded_parent}/{original}"
         entry = _entry(original, **_classify(original), local_path=str(path.absolute()))
-        if path.is_symlink() or any(parent.is_symlink() for parent in path.parents if parent != root.parent):
+        if path.is_symlink() or any(parent.is_symlink() for parent in path.parents):
             entry.update(status="failed", local_path=None, reason="source_symlink_rejected")
         elif entry["status"] != "excluded":
             try:
                 entry["sha256"] = _sha256(path)
                 if entry["format"] == "zip":
                     entry.update(status="pending_inspection", topic="source_bundle")
-                elif entry["format"] not in _EVIDENCE_FORMATS:
+                elif entry["format"] not in _EVIDENCE_FORMATS and entry["topic"] != "clinical_trials":
                     entry.update(status="unsupported", reason="unsupported_document_format")
                 elif entry["topic"] == "source_catalog":
-                    entries.extend(_url_entries(entry, path.read_text(encoding="utf-8-sig", errors="replace")))
+                    urls = _url_entries(entry, path.read_text(encoding="utf-8-sig", errors="replace"))
+                    if local_only:
+                        for url in urls:
+                            if url["status"] == "pending_download":
+                                url.update(status="reference_only", reason="external_reference_deferred_local_only")
+                    entries.extend(urls)
             except OSError as error:
                 entry.update(status="failed", reason=str(error))
         entries.append(entry)
@@ -371,6 +405,8 @@ def load_documents(entries: list[dict[str, Any]], agent: str) -> tuple[list[Any]
     updated = [dict(entry) for entry in entries]
     documents: list[Document] = []
     for entry in updated:
+        if entry.get("topic") == "clinical_trials":
+            continue  # Structured trial facts have a separate validated importer.
         retry_local_evidence = (
             entry.get("status") in {"failed", "missing"}
             and entry.get("local_path")
@@ -404,6 +440,8 @@ def load_documents(entries: list[dict[str, Any]], agent: str) -> tuple[list[Any]
                 "topic": entry["topic"],
                 "agent": agent,
                 "sha256": digest,
+                "original_member_path": entry["original_member_path"],
+                "local_path": str(path.absolute()),
             }
             if agent == "corporate_responsibility":
                 match = re.search(r"SOFI-(2023|2024)\.pdf(?:$|!/)", entry["original_member_path"], re.I)

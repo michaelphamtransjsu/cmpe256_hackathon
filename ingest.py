@@ -46,6 +46,7 @@ def parser() -> argparse.ArgumentParser:
     discover = commands.add_parser("discover", help="Inventory existing extracted sources without indexing them")
     discover.add_argument("root", type=Path)
     discover.add_argument("--manifest", type=Path, required=True)
+    discover.add_argument("--local-only", action="store_true", help="Defer Agilent URL downloads while preserving catalog references")
     attach = commands.add_parser("attach-source", help="Associate a manually downloaded Agilent reference with its manifest entry")
     attach.add_argument("--manifest", type=Path, required=True)
     attach.add_argument("--source-id", required=True)
@@ -54,8 +55,10 @@ def parser() -> argparse.ArgumentParser:
     ingest.add_argument("agent", choices=["clinical", "corporate_responsibility"])
     ingest.add_argument("--manifest", type=Path, required=True)
     ingest.add_argument("--allow-empty", action="store_true", help="Explicitly permit clearing an index when no readable documents exist")
-    trials = commands.add_parser("trials-import", help="Validate and upsert a JSON array of source-attributed trial records")
-    trials.add_argument("path", type=Path)
+    trials = commands.add_parser("trials-import", help="Atomically import validated JSON records or assigned ClinicalTrials.gov CSVs")
+    trials.add_argument("path", type=Path, nargs="?", help="JSON array, ctg-studies_*.csv, or data/Clinical directory")
+    trials.add_argument("--manifest", type=Path, help="Import assigned CSVs with their discovered hashes and paths")
+    trials.add_argument("--replace-existing", action="store_true", help="Back up SQLite before replacing changed existing trial IDs")
     search = commands.add_parser("trials-search", help="Query saved clinical trial records")
     search.add_argument("query", nargs="?", default="")
     return result
@@ -72,7 +75,7 @@ def main(argv: list[str] | None = None) -> int:
 
             if args.manifest.exists():
                 raise ValueError("Manifest already exists; choose a new path to preserve the existing inventory")
-            entries = inspect_archive(args.archive, args.output) if args.command == "inspect" else discover_sources(args.root)
+            entries = inspect_archive(args.archive, args.output) if args.command == "inspect" else discover_sources(args.root, local_only=args.local_only)
             _write_json(args.manifest, {"version": 1, "entries": entries})
             statuses = dict(Counter(row["status"] for row in entries))
             print(json.dumps({"manifest": str(args.manifest), "entries": len(entries), "statuses": statuses}))
@@ -81,8 +84,8 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "attach-source":
             manifest = _read_manifest(args.manifest)
             entry = next((row for row in manifest["entries"] if row["source_id"] == args.source_id), None)
-            if entry is None or entry.get("status") not in {"pending_download", "failed", "missing"} or entry.get("agent") != "clinical" or not entry.get("url"):
-                raise ValueError("Only an existing pending/failed/missing Agilent URL reference can be attached")
+            if entry is None or entry.get("status") not in {"pending_download", "reference_only", "failed", "missing"} or entry.get("agent") != "clinical" or not entry.get("url"):
+                raise ValueError("Only an existing deferred/pending/failed/missing Agilent URL reference can be attached")
             path = args.path.resolve(strict=True)
             if not path.is_file() or path.suffix.lower() not in (".pdf", ".txt", ".md", ".html", ".htm"):
                 raise ValueError("The local source must be a PDF, TXT, Markdown, or HTML file")
@@ -95,7 +98,7 @@ def main(argv: list[str] | None = None) -> int:
             manifest = _read_manifest(args.manifest)
             documents, entries = load_documents(manifest["entries"], args.agent)
             problems = [row for row in entries if
-                        (row.get("agent") == args.agent and row.get("status") in {"failed", "missing", "unavailable", "pending_download", "unsupported"})
+                        (row.get("agent") == args.agent and row.get("topic") != "clinical_trials" and row.get("status") in {"failed", "missing", "unavailable", "pending_download", "unsupported"})
                         or (row.get("format") == "zip" and row.get("status") in {"failed", "missing", "pending_inspection"})]
             if problems:
                 for row in entries:
@@ -109,19 +112,33 @@ def main(argv: list[str] | None = None) -> int:
                 manifest["entries"] = entries
                 _write_json(args.manifest, manifest)
                 raise ValueError("No readable assigned documents; index preserved. See manifest statuses")
-            count = SpecialistIndex(args.agent, settings).replace(documents)
+            count = SpecialistIndex(args.agent, settings).replace(documents, allow_empty=args.allow_empty)
             manifest["entries"] = entries
             _write_json(args.manifest, manifest)
             print(json.dumps({"agent": args.agent, "documents": len(documents), "chunks": count, "manifest": str(args.manifest)}))
         elif args.command == "trials-import":
-            raw = json.loads(args.path.read_text(encoding="utf-8"))
-            if not isinstance(raw, list):
-                raise ValueError("Trial input must be a JSON array")
-            records = [TrialRecord.model_validate(row) for row in raw]
+            if (args.path is None) == (args.manifest is None):
+                raise ValueError("Provide exactly one input path or --manifest")
+            if args.path is not None and args.path.suffix.lower() == ".json":
+                raw = json.loads(args.path.read_text(encoding="utf-8"))
+                if not isinstance(raw, list):
+                    raise ValueError("Trial input must be a JSON array")
+                records = [TrialRecord.model_validate(row) for row in raw]
+            else:
+                from shared.sources import discover_sources
+                from shared.trial_csv import load_trial_csvs
+
+                entries = _read_manifest(args.manifest)["entries"] if args.manifest else discover_sources(args.path)
+                records = load_trial_csvs(entries)
             store = TrialStore(settings.data_dir / "clinical" / "trials.sqlite3")
-            for record in records:
-                store.upsert(record)
-            print(json.dumps({"imported": len(records)}))
+            result = store.import_records(records, replace_existing=args.replace_existing)
+            if args.manifest:
+                manifest = _read_manifest(args.manifest)
+                for entry in manifest["entries"]:
+                    if entry.get("topic") == "clinical_trials":
+                        entry.update(status="imported")
+                _write_json(args.manifest, manifest)
+            print(json.dumps(result))
         elif args.command == "trials-search":
             store = TrialStore(settings.data_dir / "clinical" / "trials.sqlite3")
             print(json.dumps([row.model_dump(mode="json") for row in store.search(args.query)], indent=2))

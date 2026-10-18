@@ -22,6 +22,7 @@ shared/
   specialist.py                 # Reusable query/response runtime
   cli.py                        # Shared answering-only CLI helper
   trials.py                     # SQLite clinical-trial helper
+  trial_csv.py                  # Validated CTG CSV mapping and provenance
   sources.py                    # Safe inventory, manifests, and ingestion
   html_evidence.py              # Passive HTML text extraction
 tests/                         # Unit/integration tests and real-source validator
@@ -34,13 +35,27 @@ README.md
 
 The code uses a flat Python layout with one primary module per specialist and reusable helpers in `shared/`. `pyproject.toml` provides optional editable installation and pytest configuration; `sources/` holds the source manifest and compact validation evidence. Original documents, local indexes, and SQLite records stay in ignored `data/`.
 
-## Input status
+## Local inputs
 
-The actual 11-page assignment, `FoodSecurity.zip`, and `Agilent.txt` have now been inspected. Assignment page 3 identifies the two specialist source groups; page 4 supplies food-security questions; pages 6–11 describe the separate Retail task. These pages were read as project evidence, not executed as instructions.
+The pipeline accepts the existing extracted tree directly:
 
-Both actual SOFI PDFs are indexed locally: 602 total PDF pages, 601 with text, and 2,238 chunks. [sources/manifest.json](sources/manifest.json) records observed sources, hashes, assignments, and individual statuses. [sources/corporate-validation.json](sources/corporate-validation.json) records real-document checks; the input PDFs and vector snapshots remain in ignored `data/`, outside version control.
+```text
+data/
+  Clinical/
+    Covid/*.pdf
+    Diabetes/*.pdf
+    Heart_attack/*.pdf
+    KneeInjuries/*.pdf
+    ctg-studies_*.csv
+  FoodSecurity/
+    SOFI-2023.pdf
+    SOFI-2024.pdf
+  Agilent.txt
+```
 
-Clinical's actual sources remain blocked: the individual `Clinical.zip` still exceeds the **32 MiB** transfer limit, and the six URLs in `Agilent.txt` are awaiting permitted network access/downloads. The first Agilent request returned proxy `403 Forbidden`; the other five were not attempted because they use the same unlisted host. A draft adds `www.agilent.com` to environment network settings, preserving package-manager presets. Review and save that draft and publish the environment to activate the saved configuration; saving the draft alone did not change current access. Supply smaller Clinical archives or a workspace path. No real trial records have been fabricated.
+Only Clinical PDFs, the named clinical-trial CSV exports, and these two SOFI reports are assigned from this tree. Retail, SEC, Cisco, Google, and other unrelated sources are excluded or remain unassigned. Windows `:Zone.Identifier` sidecars are ignored. The CSV headers were inspected before implementing the mapping: the four supplied exports contain 32,611 rows, including 219 identical duplicate registrations, yielding 32,392 unique trial IDs.
+
+Original inputs, manifests, local indexes, backups, and SQLite records belong in ignored `data/` or `work/`. Ignore rules do not untrack datasets already present in repository history; this change adds no datasets to version control.
 
 ## Install and test
 
@@ -54,46 +69,74 @@ python -m venv .venv
 
 `requirements.txt` pins the tested runtime and test dependencies. Commands run directly from the checkout; editable installation is optional (`.venv/bin/python -m pip install --no-deps -e .`). `pyproject.toml` declares compatible update ranges and configures pytest to import from the repository root. Each cloud task already has an isolated checkout; no worktree is needed.
 
-## Inspect and ingest
+## Ingest the existing extracted data
 
-Keep original inputs outside tracked code directories; `data/` is ignored. These commands preserve original archives, inspect nested ZIPs, extract assigned PDF/text evidence, and write a new manifest. They never execute document instructions or fetch catalog links.
+Run from the repository root after installing dependencies. These commands create a new manifest, index local PDFs for each agent, and import all assigned clinical CSVs into the existing SQLite store. They never fetch URLs or execute document instructions.
 
 ```bash
-.venv/bin/python ingest.py inspect /path/to/Hackathon_export.zip \
-  --output data/extracted --manifest data/source-manifest.json
+.venv/bin/python ingest.py discover data \
+  --manifest data/extracted-manifest.json --local-only
+.venv/bin/python ingest.py ingest clinical \
+  --manifest data/extracted-manifest.json
+.venv/bin/python ingest.py ingest corporate_responsibility \
+  --manifest data/extracted-manifest.json
+.venv/bin/python ingest.py trials-import \
+  --manifest data/extracted-manifest.json
 
-# Alternative: inventory previously extracted files without unpacking ZIPs.
-.venv/bin/python ingest.py discover /path/to/extracted \
-  --manifest data/discovered-manifest.json
-
-.venv/bin/python ingest.py ingest clinical --manifest data/source-manifest.json
-.venv/bin/python ingest.py ingest corporate_responsibility --manifest data/source-manifest.json
+# Query saved evidence after ingestion; these commands do not ingest inputs.
+.venv/bin/python -m agents.clinical 'diabetes recruiting' --max-sources 3
+.venv/bin/python -m agents.corporate_responsibility \
+  'food insecurity drivers conflict climate prices' --report-year 2023
+.venv/bin/python -m agents.corporate_responsibility \
+  'food insecurity drivers conflict climate prices' --report-year 2024
+.venv/bin/python ingest.py trials-search 'diabetes recruiting'
 ```
+
+`discover` refuses to overwrite an existing manifest. For a new inventory, choose a new manifest filename. Reuse an existing manifest to repeat ingestion/import; trial imports skip identical records. `--local-only` explicitly defers the URLs listed in Agilent.txt to `reference_only` entries, preserving each URL and its catalog attribution while selecting local evidence as the corpus. Omit the flag when external references must be resolved before Clinical index replacement. Deferred URLs can be attached later using the command below. CSV import is separate from PDF ingestion: CSVs are never embedded as prose, and document queries never import CSVs.
 
 | Input | Assignment |
 | --- | --- |
-| `Clinical.zip` descendants | Clinical PDF/TXT/Markdown/HTML evidence |
-| URLs actually listed in `Agilent.txt` | Clinical, pending explicit download/association |
-| `FoodSecurity.zip` / `SOFI-2023.pdf`, `SOFI-2024.pdf` | Corporate Responsibility |
-| Assignment/project-scope PDFs | Reference only, never agent instructions or indexed evidence |
+| `data/Clinical/**/*.pdf` | Clinical research evidence |
+| `data/Clinical/ctg-studies_*.csv` | Clinical SQLite trial records, separately validated |
+| `data/FoodSecurity/SOFI-2023.pdf`, `SOFI-2024.pdf` | Corporate Responsibility; publication years 2023 and 2024 |
+| URLs actually listed in `Agilent.txt` | Clinical catalog references; explicit download/association required |
+| `Clinical.zip` / `Clinical.zip.contents` descendants | Existing ZIP evidence workflow; named CTG CSV exports supported |
+| `FoodSecurity.zip` / `FoodSecurity.zip.contents` SOFI reports | Existing ZIP evidence workflow |
+| Assignment/project-scope PDFs | Reference only |
 | Cisco, Google, SEC, Technology/Tech, Retail | Excluded from both indexes |
-| Unknown inputs/unsupported formats | Recorded, never indexed |
+| Other files and Windows metadata | Unassigned/unsupported or ignored; never indexed |
 
-Discovery of extracted files requires the original `Clinical.zip.contents/` or `FoodSecurity.zip.contents/` lineage. Generic `clinical/` directories do not confer assignment. Do not rename unrelated sources into assigned lineage.
+Discovery accepts a data root or its `Clinical/` or `FoodSecurity/` subdirectory. Nested lookalikes such as `Retail/Clinical/` and arbitrary SOFI PDFs elsewhere do not grant assignment. Extracted Clinical TXT/HTML files are unassigned; the original ZIP evidence formats remain supported.
 
-Observed manifest entries include `source_id`, `agent`, `topic`, `format`, `status`, `original_member_path`, `local_path`, and SHA-256 when bytes were read. Excluded/unread members have no fabricated hash. PDF citations use one-based pages. Scanned/empty PDFs fail visibly and may need separate OCR preparation.
+Manifest entries retain `source_id`, `agent`, `topic`, `format`, `status`, `original_member_path`, `local_path`, and SHA-256 for inspected local inputs. SOFI entries include `report_year` from discovery onward. Document metadata preserves both paths and the verified hash. Citations retain original source paths, one-based PDF pages, and report publication years. Scanned/empty PDFs fail visibly and may need separate OCR preparation.
 
-Agilent URLs are not fetched implicitly. Download a listed document through an approved route, verify its identity, and associate it with its manifest reference (HTML, PDF, TXT, or Markdown):
+Agilent URLs are not fetched implicitly. Download a listed document, verify its identity, then associate it with its catalog entry:
 
 ```bash
 .venv/bin/python ingest.py attach-source \
-  --manifest data/source-manifest.json --source-id SOURCE_ID \
+  --manifest data/extracted-manifest.json --source-id SOURCE_ID \
   --path /path/to/downloaded-source.html
+.venv/bin/python ingest.py ingest clinical --manifest data/extracted-manifest.json
 ```
 
-Then re-run ingestion. Missing, failed, pending, or unsupported assigned sources block index replacement and preserve the old index. Archive inspection failures also block replacement because their contents are unknown. Restoring a missing file or its original bytes permits a safe retry; explicitly re-attach an Agilent download to record an intentional replacement. Reinspect changed original archives into a new manifest. Unsupported assigned formats require separate preparation with provenance preserved. Successful ingestion atomically replaces the selected specialist's complete corpus, removing stale sources and duplicate chunks. Each specialist index represents one complete manifest; successive partial manifests do not append. An intentionally empty corpus requires `--allow-empty`.
+### ZIP alternative
 
-Archive limits: depth 4, 10,000 entries, 64 MiB per member, 256 MiB cumulative decompression, ratio 250. Traversal, symlinks, executable/unsupported types, and differing-file overwrites are rejected. Failures remain visible in the manifest. Original nested archives remain intact within their parent ZIP. No document scripts are executed.
+```bash
+.venv/bin/python ingest.py inspect /path/to/Hackathon_export.zip \
+  --output data/extracted --manifest data/zip-manifest.json
+.venv/bin/python ingest.py ingest clinical --manifest data/zip-manifest.json
+.venv/bin/python ingest.py ingest corporate_responsibility --manifest data/zip-manifest.json
+# If the ZIP contains assigned ctg-studies_*.csv exports:
+.venv/bin/python ingest.py trials-import --manifest data/zip-manifest.json
+```
+
+Original archives remain intact. Archive limits: depth 4, 10,000 entries, 64 MiB per member, 256 MiB cumulative decompression, ratio 250. Traversal, symlinks, unsafe types, and differing-file overwrites are rejected. Failures remain visible in the manifest.
+
+### Existing index safeguards
+
+Missing, failed, pending, or unsupported assigned document sources block index replacement; trial CSV validation belongs to the separate importer. Archive inspection failures also block replacement because their contents are unknown. No readable documents preserves the existing index unless `--allow-empty` is explicit. Source hashes are rechecked before ingestion; changed bytes require a new inventory or deliberate URL reattachment.
+
+Successful ingestion atomically replaces one specialist's complete corpus. Use a complete manifest rather than successive partial manifests. Before replacing any existing snapshot, ingestion writes a durable, content-keyed backup to `data/indexes/AGENT/backups/vectors-SHA256.json`. Backup failure preserves the existing snapshot. To restore, stop ingestion and copy the selected backup to that agent's `vectors.json`; use the original embedding settings. Changing providers/models requires a new data directory or a deliberate backup/migration.
 
 ## Run either specialist
 
@@ -128,14 +171,33 @@ Corporate requests can specify `report_year` (CLI: `--report-year`). Explicit wo
 
 ## Trial records
 
-SQLite is stored at `data/clinical/trials.sqlite3`. Records are supplied facts, never inferred or scraped. Required fields: `trial_id`, `title`, `source`. Optional: `conditions`, `interventions`, `status`, `phase`, `sponsor`, `summary`, source `updated_at`, finer `citations`, and `metadata`. Unknowns stay empty; an upsert replaces the complete record with the same ID.
+SQLite remains at `data/clinical/trials.sqlite3` (lowercase `clinical`, as in the existing implementation). The validated trial-record schema requires `trial_id`, `title`, and `source`; optional fields remain empty when absent. CSV records use these observed columns:
+
+| CSV column | Trial record field |
+| --- | --- |
+| `NCT Number` | `trial_id`; validated as NCT plus eight digits |
+| `Study Title` | `title`; required, nonempty |
+| `Study URL` | `source` and citation; if empty, use the original CSV path and record number |
+| `Conditions`, `Interventions` | `conditions`, `interventions`; split only on `|` |
+| `Study Status`, `Phases`, `Sponsor`, `Brief Summary` | `status`, `phase`, `sponsor`, `summary` |
+| `Last Update Posted` | `updated_at` for a complete ISO date; no invented time/timezone |
+| All original columns | `metadata.csv_columns`, preserving raw strings and unmapped fields |
+
+The importer preserves a date-only update as a date. Partial ISO dates stay in raw metadata with `updated_at` unset. It never uses file modification time, infers outcomes from registration status, or invents a registry URL. A supplied Study URL must be the matching HTTPS ClinicalTrials.gov study URL. Each record retains file SHA-256, source ID, original/local paths, CSV record number, physical line range, and citations under `metadata.csv_provenance`. Record numbers start at 2 after the header and differ from physical lines for multiline values.
+
+UTF-8 BOMs, quoted multiline values, and fields up to 16 MiB are supported. Invalid headers, malformed rows, missing required facts, invalid IDs/dates/URLs, symlinks, changed hashes, and contradictory duplicate IDs fail before writes. Identical duplicate CSV registrations merge all file/row attributions. Every file and record is validated before one SQLite transaction writes the batch; write failures roll back the batch. Records absent from an import are never deleted.
+
+Additional supported inputs:
 
 ```bash
+.venv/bin/python ingest.py trials-import data/Clinical
+.venv/bin/python ingest.py trials-import data/Clinical/ctg-studies_diabetes.csv
 .venv/bin/python ingest.py trials-import /path/to/verified-trials.json
-.venv/bin/python ingest.py trials-search 'diabetes recruiting'
 ```
 
-Input is a JSON array; all rows are validated before writing begins. `shared.trials.TrialStore.upsert`, `get`, and bounded natural-language `search` are public Python APIs. Corporate Responsibility's interface does not access clinical records.
+JSON input remains an array of trial-record objects. Existing IDs with changed content fail by default and preserve the database. To deliberately replace changed records, use the same import command with `--replace-existing`. This creates a consistent SQLite backup at `data/clinical/backups/trials-*.sqlite3` before any replacements and prints its path. Extra verified CSV origins can be added without discarding existing origins. Conflicting IDs inside one input batch always fail. To restore, stop writers and restore the selected SQLite backup. `TrialStore.upsert` remains the explicit single-record replacement API; `import_records` provides the safeguarded batch import.
+
+Corporate Responsibility never reads the trial store. Clinical queries retrieve saved records and cite their supplied registry URL or CSV location.
 
 ## Configuration
 
@@ -158,16 +220,29 @@ The durable LangChain vector JSON snapshot records its embedding identity and re
 
 ## Validation
 
-Tests cover both specialists independently, generated PDF extraction/page citations, nested archives, forbidden sources, Agilent HTML associations/passive extraction, source hashes, SQLite persistence/injection handling, vector reload/replacement, unrelated/stopword-only queries, publication-year isolation, structured outputs, and mocked model citation validation. CLI integration tests start fresh Python processes and exercise ingestion, both agents, and restart persistence. Synthetic fixtures never populate a production index.
+Run the automated suite without private data:
 
-Real-document checks verify every stored corporate chunk against its original PDF page, source/year/hash attribution, the assignment's questions, focused drivers/conflict/prices evidence, and identical results in a new Python process. To repeat with the local original PDFs and index present:
+```bash
+.venv/bin/python -m pytest -q
+```
+
+Tests cover the original ZIP workflow, extracted-folder discovery, exclusions, Windows sidecars, CSV mapping/validation, missing values, long/multiline fields, duplicate provenance, atomic writes, conflict safeguards/backups, SQLite persistence, both agents, report-year filtering, source hashes, page citations, index backups, and answering without re-reading source documents. Synthetic fixtures remain in temporary test directories.
+
+Optional real-data tests use temporary indexes/databases and leave existing stores untouched. They skip with an explicit reason unless enabled and the corresponding originals are present:
+
+```bash
+.venv/bin/python -m pytest -q -rs tests/test_real_data.py \
+  --run-real-data --real-data-dir data
+```
+
+The real CSV test validates and imports every supplied trial, checks database round trips and idempotence, and retrieves a cited record through Clinical. The clinical PDF test requires actual `Clinical/**/*.pdf` files. The SOFI test requires both actual reports, builds a temporary directory-based index, checks retrieval for each publication year, and compares citations against original PDF pages and hashes.
+
+For a deeper check of a saved corporate index after ingestion:
 
 ```bash
 .venv/bin/python tests/validate_corporate_sources.py \
-  --manifest sources/manifest.json --data-dir data \
-  --output data/real-corporate/validation.json
+  --manifest data/extracted-manifest.json --data-dir data \
+  --output data/corporate-validation.json
 ```
 
-Validation found and corrected wrong-report retrieval and report-title cover-page bias. Some lower-ranked excerpts can still be tangential. Corporate real-document validation uses extractive responses; hosted synthesis is untested. Clinical's actual corpus and trial-record content remain unverified until its sources are available. A fresh Git checkout does not contain ignored source PDFs or local indexes: supply the originals and re-run inspection/ingestion there.
-
-The implementation branch is `codex/clinical-corporate-implementation`, targeting `feature/clinical-corporate`. The development commands above do not merge or push.
+That validator checks every corporate chunk against its original PDF page, source/year/hash attribution, focused questions, and retrieval after a process restart. Real Clinical PDF retrieval requires local originals; Windows metadata sidecars do not contain document text. Hosted model/embedding behavior requires configured credentials and network access and is not part of offline validation.
