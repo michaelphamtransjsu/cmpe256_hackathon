@@ -191,7 +191,9 @@ def build_cisco_retriever(pdf_dir=ROOT / "data/technology",
 
 @lru_cache(maxsize=1)
 def _default_retriever():
-    return build_cisco_retriever()
+    from shared.technology_retrieval import build_technology_retriever
+
+    return build_technology_retriever()
 
 
 def retrieve(question: str, k: int = 5, *, mode="hybrid", filter_family=True) -> list[dict]:

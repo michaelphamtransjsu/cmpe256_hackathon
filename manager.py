@@ -31,7 +31,7 @@ AGENT_REGISTRY = {
 AGENT_SCOPES = {
     "clinical": "Clinical research, trials, laboratory capabilities and Agilent clinical evidence; not patient-specific advice.",
     "corporate_responsibility": "SOFI food security, hunger, nutrition and affordability; not general corporate or SEC filings.",
-    "technology": "Cisco router specifications, connectivity and infrastructure decisions; not Cisco financial filings.",
+    "technology": "Cisco router specifications, connectivity and infrastructure; Google Cloud/GCP and IBM technical documentation, MCP and retrieval-augmented generation (RAG) architecture. Not financial filings.",
     "sec": "Cisco and Agilent FY2025 Form 10-K financial figures, reporting periods, business and operational risks. Other companies/filing years are not indexed.",
 }
 

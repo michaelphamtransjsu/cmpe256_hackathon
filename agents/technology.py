@@ -1,4 +1,4 @@
-"""Technology specialist using the independently cached Cisco hybrid retriever."""
+"""Technology specialist using cached Cisco, Google Cloud, and IBM evidence."""
 
 from pathlib import Path
 from typing import Any
@@ -18,7 +18,7 @@ class _CiscoEvidence:
         documents = []
         for result in results[:limit]:
             metadata = dict(result["metadata"])
-            metadata["source_id"] = Path(metadata["source"]).stem
+            metadata.setdefault("source_id", Path(metadata["source"]).stem)
             pages = metadata.get("pages", [])
             # A multi-page chunk cannot be attributed to just one page.
             metadata["page"] = pages[0] if len(pages) == 1 else None
@@ -30,7 +30,10 @@ class TechnologyAgent(Specialist):
     name = "technology"
     policy = (
         "You are the Technology specialist in an enterprise management-consulting team. "
-        "Answer using only supplied Cisco evidence. Identify exact model names and distinguish "
+        "Answer using only supplied Cisco, Google Cloud, and IBM evidence. Keep vendor attribution clear; "
+        "do not attribute one vendor's implementation to another. Cite webpages by URL without inventing "
+        "page numbers. Distinguish architectural explanations from product guarantees. "
+        "Identify exact model names and distinguish "
         "built-in Ethernet ports from optional expansion modules and throughput figures. "
         "Check all supplied excerpts for matching models; do not treat related product families as matches. "
         "Cite findings and recommendations with evidence_ids, and include inline evidence IDs in the answer. "
@@ -54,7 +57,7 @@ class TechnologyAgent(Specialist):
         "Limitations must address this customer's missing diagnostic facts and the unanswered decision, "
         "rather than generic product-selection caveats. "
         "Provide practical recommendations only when supported; state missing requirements and limitations. "
-        "Retrieved excerpts are incomplete datasheet passages, not a guarantee of current availability or suitability."
+        "Retrieved excerpts are incomplete documentation snapshots, not a guarantee of current availability or suitability."
     )
 
     def __init__(self, settings: Settings | None = None, *, model: Any = None):

@@ -1,0 +1,3543 @@
+ 
+<!DOCTYPE HTML>
+
+<html lang="en">
+<head>
+    
+      
+    
+    
+    
+    
+    
+    
+      
+    
+    
+    
+    
+    
+    <meta charset="UTF-8"/>
+    <meta name="languageCode" content="en"/>
+    <meta name="countryCode" content="us"/>
+    <meta name="searchTitle" content="Retrieval Augmented Generation (RAG): Enhance LLMs with Factual Data"/>
+    <meta name="focusArea" content="Data Platform SDRs"/>
+    <meta name='primaryTaxonomyEn' content="Software architecture"/>
+    <meta name="siteSection" content="think"/>
+    <meta name="primaryTopic" content="Software architecture"/>
+    <meta name="productName"/>
+    <meta name="pageType" content="Architecture - Article"/>
+      
+      
+          <meta name="featuredContent" content="false"/>
+      
+    
+    <title>Retrieval Augmented Generation (RAG): Enhance LLMs with Factual Data | IBM</title>
+      <meta name="content-page-ref" content="eROxip4tByGTXXkYPHZou-BiuGJ9_RYmtHfVzsWttQNTHm_YW56MmSmr8HT1tVa1RzrVWYmdLF3jaSERHfEHcFtolaLVCo-YycvXUW1vw9m8sYt1IOqZCBh329ze_FNE"/>
+<script defer="defer" type="text/javascript" src="https://rum.hlx.page/.rum/@adobe/helix-rum-js@%5E2/dist/micro.js" data-routing="program=131558,environment=1281329,tier=publish"></script>
+<link rel="icon" sizes="16x16" href="/content/dam/adobe-cms/default-images/icon-16x16.png"/>
+      <link rel="icon" sizes="32x32" href="/content/dam/adobe-cms/default-images/icon-32x32.png"/>
+      <link rel="icon" sizes="150x150" href="/content/dam/adobe-cms/default-images/icon-150x150.png"/>
+      <link rel="icon" sizes="192x192" href="/content/dam/adobe-cms/default-images/icon-192x192.png"/>
+      <link rel="icon" sizes="512x512" href="/content/dam/adobe-cms/default-images/icon-512x512.png"/>
+      <link rel="apple-touch-icon" sizes="57x57" href="/content/dam/adobe-cms/default-images/apple-touch-icon-57x57.png"/>
+      <link rel="apple-touch-icon" sizes="76x76" href="/content/dam/adobe-cms/default-images/apple-touch-icon-76x76.png"/>
+      <link rel="apple-touch-icon" sizes="120x120" href="/content/dam/adobe-cms/default-images/apple-touch-icon-120x120.png"/>
+      <link rel="apple-touch-icon" sizes="152x152" href="/content/dam/adobe-cms/default-images/apple-touch-icon-152x152.png"/>
+      <link rel="apple-touch-icon" sizes="180x180" href="/content/dam/adobe-cms/default-images/apple-touch-icon-180x180.png"/>
+
+    <meta name="keywords" content="Retrieval augmented generation (RAG),Software architecture,Architecture patterns"/>
+    <meta name="description" content="Explore Retrieval Augmented Generation (RAG), an architectural pattern enabling LLMs to produce factually correct outputs using external data. Learn about IBM&#39;s RAG solutions and use cases."/>
+    <meta name="template" content="generic-enhanced"/>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="robots" content="index, follow, max-image-preview:large"/>
+    
+          <meta name="ut-codes" content="10A00 > 15ANP"/>
+          <meta name="ut-codes-id" content="10A00 - IBM Software > 15ANP - Data Platform"/>
+    
+    
+      
+          <meta name="ibm.com.search.appid" content="thinkhub"/>
+          <meta name="ibm.com.search.scopes" content="thinkhub"/>
+          <meta name="dcterms.date" content="2026-01-26T10:45:33.868"/>
+          <meta name="ibm.search.facet.field_hierarchy_01" content="taxonomy : Topics / Application development / Software architecture"/>
+          <meta name="ibm.search.facet.field_hierarchy_02"/>
+          <meta name="ibm.search.facet.field_hierarchy_03" content="taxonomy : Content Format / Article"/>
+          <meta name="ibm.search.facet.field_hierarchy_04" content="taxonomy : Content Type / Architecture"/>
+          <meta name="ibm.search.facet.field_hierarchy_05"/>
+          <meta name="ibm.search.facet.field_keyword_01" content="Software architecture"/>
+          <meta name="ibm.search.facet.field_keyword_09" content="https://prod-cloud-publish.aem.ibm.net/content/dam/connectedassets-adobe-cms/worldwide-content/creative-assets/s-migr/ul/g/e3/c4/generative-ai-medium-leadspace.component.crop-thumbnail-16-by-9-retina.ts=0.png/content/adobe-cms/us/en/think/architectures/patterns/genai-rag/jcr:content/root/leadspace_container/leadspace_expanded"/>
+          <meta name="ibm.search.facet.field_keyword_14"/>
+          <meta name="ibm.search.facet.field_text_01" content="26 January 2026"/>
+          <meta name="ibm.search.facet.field_text_03" content="Architecture"/>
+      
+      
+      
+      
+      
+    <link rel="canonical" href="https://www.ibm.com/think/architectures/patterns/genai-rag"/>
+
+      
+          <link rel="preload" as="image" href="/content/adobe-cms/us/en/think/architectures/patterns/genai-rag/jcr:content/root/leadspace_container/leadspace_expanded/image.coreimg.png/1787568882401/generative-ai-medium-leadspace.png" fetchpriority="high"/>
+      
+
+    
+    
+
+
+    
+     <script type="text/javascript">
+        window.CARBON_LOADER_PATH = '/etc.clientlibs/adobe-cms/clientlibs/clientlib-carbon-dynamic-loader/resources/';
+     </script>
+
+    
+    <script src="/etc.clientlibs/adobe-cms/clientlibs/clientlib-carbon-dynamic-loader.lc-96bbcfdb94dd35ab81b4797a49db60fa-lc.min.js"></script>
+
+
+
+    
+    
+    <script defer src="/etc.clientlibs/adobe-cms/clientlibs/clientlib-smartling-context.lc-d30c41c1c7a4511befbe3e285d76955a-lc.min.js"></script>
+
+
+
+      
+
+      
+      <script type="text/javascript">
+          !function(e, a, n, t) {
+              var i = e.head;
+              if (i) {
+                  if (a) return;
+                  var o = e.createElement("style");
+                  o.id = "alloy-prehiding", o.innerText = n, i.appendChild(o),
+                      setTimeout(function() {
+                          o.parentNode && o.parentNode.removeChild(o)
+                      }, t)
+              }
+          }
+          (document, document.location.href.indexOf("adobe_authoring_enabled") !== -1, "body { opacity: 0 !important }", 900);
+      </script>
+      
+      
+<!--      <script type="text/javascript">
+          (function(c,l,a,r,i,t,y){
+              c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+              t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+              y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+          })(window, document, "clarity", "script", "s52kp7iw7g");
+      </script>-->
+      
+    <style id="prevent-layout-shift-style">
+    c4d-masthead-container:not(:defined) {
+        min-height: 49px; /* Reserve space before it loads */
+        display: block !important; 
+        opacity: 0; /* Hide visually but keep space */
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .masthead.hasNavigation c4d-masthead-container:not(:defined) {
+        min-height: 102px;
+    }
+
+    @media (min-width: 1056px) {
+        .masthead.hasNavigation c4d-masthead-container:not(:defined) {
+            min-height: 114px;
+        }
+    }
+
+    c4d-masthead-container:defined {
+        transition: opacity 0.3s ease-in-out;
+        opacity: 1;
+    }
+
+    c4d-leadspace:not(:defined) {
+        display:none;
+    }
+
+    c4d-table-of-contents:not(:defined) {
+        display:none;
+    }
+
+    c4d-link-list:not(:defined) {
+        display:none;
+    }
+</style>
+
+      <script src="https://assets.adobedtm.com/0f2de1d5b89a/565c2aeb0d39/launch-560e54b3e83c.min.js" type="text/javascript" async="async"></script>
+     <script type="text/javascript" async="async">
+	var adobeDataLayer = window.adobeDataLayer || [];
+	</script>
+
+    <script type="text/javascript">
+        window.searchKey = {
+            templateName: 'generic\u002Denhanced',
+            taxonomylist: 'taxonomy : Topics \/ Application development \/ Software architecture,taxonomy : Topics \/ Artificial intelligence \/ Machine learning \/ Generative AI \/ Retrieval augmented generation (RAG),taxonomy : Topics \/ Application development \/ Software architecture \/ Architecture patterns',
+            L0Tag: 'Topics,Brands,Geography,Compliance Entities,Product Categories,Events,Computer Languages,Content Format,Series,Content Type,CMaaS Focus Areas,Deployment Types,Product Types,Search Index,Unified Taxonomy,Site Sections,Page Types,Persona,Journey Stage,Journey Step,Industries,topics_v2',
+        }
+    </script>
+
+    
+        <link rel="alternate" hreflang="ar-sa" href="https://www.ibm.com/sa-ar/think/architectures/patterns/genai-rag"/>
+    
+        <link rel="alternate" hreflang="de-de" href="https://www.ibm.com/de-de/think/architectures/patterns/genai-rag"/>
+    
+        <link rel="alternate" hreflang="en-us" href="https://www.ibm.com/think/architectures/patterns/genai-rag"/>
+    
+        <link rel="alternate" hreflang="ko-kr" href="https://www.ibm.com/kr-ko/think/architectures/patterns/genai-rag"/>
+    
+        <link rel="alternate" hreflang="pt-br" href="https://www.ibm.com/br-pt/think/architectures/patterns/genai-rag"/>
+    
+        <link rel="alternate" hreflang="ar-qa" href="https://www.ibm.com/qa-ar/think/architectures/patterns/genai-rag"/>
+    
+        <link rel="alternate" hreflang="es-es" href="https://www.ibm.com/es-es/think/architectures/patterns/genai-rag"/>
+    
+        <link rel="alternate" hreflang="ar-ae" href="https://www.ibm.com/ae-ar/think/architectures/patterns/genai-rag"/>
+    
+        <link rel="alternate" hreflang="zh-cn" href="https://www.ibm.com/cn-zh/think/architectures/patterns/genai-rag"/>
+    
+        <link rel="alternate" hreflang="es-mx" href="https://www.ibm.com/mx-es/think/architectures/patterns/genai-rag"/>
+    
+        <link rel="alternate" hreflang="it-it" href="https://www.ibm.com/it-it/think/architectures/patterns/genai-rag"/>
+    
+        <link rel="alternate" hreflang="x-default" href="https://www.ibm.com/think/architectures/patterns/genai-rag"/>
+    
+        <link rel="alternate" hreflang="id-id" href="https://www.ibm.com/id-id/think/architectures/patterns/genai-rag"/>
+    
+        <link rel="alternate" hreflang="fr-fr" href="https://www.ibm.com/fr-fr/think/architectures/patterns/genai-rag"/>
+    
+        <link rel="alternate" hreflang="ja-jp" href="https://www.ibm.com/jp-ja/think/architectures/patterns/genai-rag"/>
+    
+
+    
+
+    <script type="text/javascript">
+        var languageCode = document.getElementsByName('languageCode')[0].content;
+        var countryCode = document.getElementsByName('countryCode')[0].content;
+        var focusArea = document.getElementsByName('focusArea')[0].content;
+        var primaryTopic = document.getElementsByName('primaryTopic')[0]?.content?.trim() || '';
+        var productName = document.getElementsByName('productName')[0]?.content?.trim() || '';
+        var pageType = document.getElementsByName('pageType')[0]?.content?.trim() || '';
+
+        var promptTitle = '';
+        var prompt1 = '';
+        var prompt2 = '';
+        var prompt3 = '';
+        var prompts = [prompt1, prompt2, prompt3].filter(Boolean);
+        var promptConfig = promptTitle || prompts.length ? { title: promptTitle, prompts: prompts } : null;
+
+        /* Define digital data object based on _appInfo object */
+          window._ibmAnalytics = {
+              settings: {
+                 name: "AEM Sites",
+                 tealiumProfileName: "adobe-launch"
+              },
+           };
+        window.digitalData = {
+            page: {
+                category: {
+                    primaryCategory: '',
+                },
+                taxonomy: Object.assign({
+                    primaryTopic: primaryTopic,
+                    productName: productName,
+                    pageType: pageType
+                }, promptConfig ? { promptConfig: promptConfig } : {}),
+                pageInfo: {
+                    language: languageCode + '-' + countryCode,
+                    ibm: {
+                        siteID: 'MarketingAEM',
+                        country: countryCode,
+                        messaging: {
+                            routing: {
+                                focusArea: focusArea,
+                                languageCode: languageCode,
+                                regionCode: countryCode
+                            },
+                            translation: {
+                                languageCode: languageCode,
+                                regionCode: countryCode
+                            }
+                        },
+                        sections: 0,
+                        patterns: 0,
+                    },
+                    carbon: {
+                        '@carbon/web-components': '',
+                        '@carbon/ibmdotcom-web-components': '',
+                        'carbon-for-aem': '',
+                    },
+                },
+            },
+        };
+    </script>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Retrieval Augmented Generation",
+            "description": "Explore Retrieval Augmented Generation (RAG), an architectural pattern enabling LLMs to produce factually correct outputs using external data. Learn about IBM's RAG solutions and use cases.",
+            "url": "https://www.ibm.com/think/architectures/patterns/genai-rag",
+            "datePublished": "2026-01-26",
+            "dateModified": "2026-07-20",
+            "image": ["https://www.ibm.com/content/dam/connectedassets-adobe-cms/worldwide-content/creative-assets/s-migr/ul/g/e3/c4/generative-ai-medium-leadspace.png"],
+            "inLanguage": "en-US"
+        }
+    </script>
+
+
+
+      <!-- Instana script specific to Dev environment start -->
+<!--      <script>
+          (function(s,t,a,n){s[t]||(s[t]=a,n=s[a]=function(){n.q.push(arguments)},
+          n.q=[],n.v=2,n.l=1*new Date)})(window,"InstanaEumObject","ineum");
+
+          ineum('reportingUrl', 'https://eum-orange-saas.instana.io');
+          ineum('key', 'mFJnYtpBSiCKl9zenWHXtg');
+          ineum('trackSessions');
+      </script>
+      <script defer crossorigin="anonymous" src=https://eum.instana.io/1.7.2/eum.min.js
+              integrity="sha384-cgeSlevgebehPauohUhsnAeBrpjXzaj94mSv3L2EXjCQH0RRb9xSQ2ErGOWkthIJ"></script>-->
+      <!-- Instana script specific to Dev environment end -->
+
+    
+    
+        <meta property="og:url" content="https://www.ibm.com/think/architectures/patterns/genai-rag"/>
+    
+        <meta property="og:type" content="website"/>
+    
+        <meta property="og:title" content="Retrieval Augmented Generation (RAG): Enhance LLMs with Factual Data | IBM"/>
+    
+        <meta property="og:description" content="Explore Retrieval Augmented Generation (RAG), an architectural pattern enabling LLMs to produce factually correct outputs using external data. Learn about IBM&#39;s RAG solutions and use cases."/>
+    
+        
+    
+        <meta property="article:published_time" content="2026-01-26"/>
+    
+    
+        <meta property="og:image" content="https://www.ibm.com/content/dam/connectedassets-adobe-cms/worldwide-content/creative-assets/s-migr/ul/g/e3/c4/generative-ai-medium-leadspace.png/_jcr_content/renditions/cq5dam.web.1280.1280.png"/>
+    
+
+    
+    <script src="https://1.www.s81c.com/common/stats/ibm-common.js" type="text/javascript" async="async"></script>
+
+    
+    
+    
+<link rel="stylesheet" href="/etc.clientlibs/adobe-cms/clientlibs/clientlib-base.lc-30313e00669f877069f15dd099f23454-lc.min.css" type="text/css">
+<link rel="stylesheet" href="/etc.clientlibs/adobe-cms/clientlibs/clientlib-idlStylesCarbon.lc-be7d2847dfdb7e200310550a1f065ccb-lc.min.css" type="text/css">
+<link rel="stylesheet" href="/etc.clientlibs/adobe-cms/clientlibs/clientlib-idlStyles.lc-7dfb6b1d0ad1261af7aee0baa63f35c5-lc.min.css" type="text/css">
+
+
+
+    
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon-for-ibm-dotcom/tag/v1/latest/plex.css"/>
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/plex/sans.css"/>
+    
+    
+
+
+    
+    
+    
+
+    
+
+    
+
+
+
+    
+    
+    
+
+
+
+    
+
+    
+    
+
+    
+    
+
+
+
+      
+          
+      
+</head>
+<body class="content-page page basicpage publish  " id="content-page-01f22b572d" data-cmp-data-layer-enabled data-fullwidthtemplate="false">
+
+<script>
+    window.CQ_Analytics = window.CQ_Analytics || {};
+    window.adobeDataLayer = window.adobeDataLayer || [];
+    adobeDataLayer.push({
+        page: JSON.parse("{\x22content\u002Dpage\u002D01f22b572d\x22:{\x22@type\x22:\x22adobe\u002Dcms\/components\/structure\/content\u002Dpage\x22,\x22repo:modifyDate\x22:\x222026\u002D07\u002D20T16:43:24Z\x22,\x22dc:title\x22:\x22Retrieval Augmented Generation\x22,\x22xdm:template\x22:\x22\/conf\/adobe\u002Dcms\u002Deditable\/settings\/wcm\/templates\/generic\u002Denhanced\x22,\x22xdm:language\x22:\x22en\x22,\x22xdm:tags\x22:[\x22Retrieval augmented generation (RAG)\x22,\x22Software architecture\x22,\x22Architecture patterns\x22],\x22repo:path\x22:\x22\/content\/adobe\u002Dcms\/us\/en\/think\/architectures\/patterns\/genai\u002Drag.html\x22}}"),
+        event: 'cmp:show',
+        eventInfo: {
+            path: 'page.content\u002Dpage\u002D01f22b572d'
+        }
+    });
+</script>
+
+
+    
+
+
+
+
+    
+
+
+
+    
+<div class="page-modal-wrapper">
+     
+</div>
+
+
+<c4d-video-cta-container>
+     
+         <div class="root container responsivegrid">
+
+    
+    
+    
+    <div id="container-e2b350236f" class="cmp-container " data-region="content">
+        
+        <div data-component-name="masthead" data-region="site-navigation" class="masthead">
+
+
+
+
+
+
+
+
+
+
+    <c4d-masthead-container data-endpoint="#" auth-method="profile-api" has-contact="true" brand="ibm" has-global="true" has-profile="true" has-search="true" has-cart current-region-text="Your current region is" different-region-text="Select a different region" no-other-region-text="This page is not available in any other regions" light-theme-tooltip-text="Light Mode" dark-theme-tooltip-text="Dark Mode">
+        
+    </c4d-masthead-container>
+
+
+
+
+
+
+    
+
+
+    
+<script src="/etc.clientlibs/clientlibs/granite/jquery.lc-7842899024219bcbdb5e72c946870b79-lc.min.js"></script>
+<script src="/etc.clientlibs/adobe-cms/components/structure/navigation/masthead/clientlibs/site.lc-896245da59e50446b51138c4b0c0eb3e-lc.min.js"></script>
+
+
+
+
+
+    
+    
+<script src="/etc.clientlibs/adobe-cms/components/structure/navigation/masthead/clientlibs/country-restoration.lc-849dd35b12585fe0bf0fee55c31b147c-lc.min.js"></script>
+
+
+
+
+
+<script>
+    let l0Json = "{\x22profileMenu\x22:{\x22signedout\x22:[{\x22title\x22:\x22Log in\x22,\x22url\x22:\x22https:\/\/login.ibm.com\/oidc\/endpoint\/default\/authorize?redirect_uri=https%3A%2F%2Fmyibm.ibm.com%2FOIDCHandler.html\x26response_type=token\x26client_id=v18LoginProdCI\x26scope=openid\x26state=https%3A%2F%2Fwww.ibm.com\x26nonce=8675309\x22}],\x22signedin\x22:[{\x22title\x22:\x22My IBM\x22,\x22url\x22:\x22https:\/\/myibm.ibm.com\/?lnk=mmi\x22},{\x22title\x22:\x22Profile\x22,\x22url\x22:\x22https:\/\/myibm.ibm.com\/profile\/?lnk=mmi\x22},{\x22title\x22:\x22Billing\x22,\x22url\x22:\x22https:\/\/myibm.ibm.com\/billing\/?lnk=mmi\x22},{\x22title\x22:\x22Log out\x22,\x22url\x22:\x22https:\/\/myibm.ibm.com\/pkmslogout?filename=accountRedir.html\x22}]},\x22mastheadNav\x22:{\x22links\x22:[{\x22title\x22:\x22Software\x22,\x22url\x22:\x22\x22,\x22submenu\x22:{\x22sections\x22:[{\x22heading\x22:{\x22title\x22:\x22Artificial intelligence\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/solutions\/artificial\u002Dintelligence?lnk=L0G\x22,\x22description\x22:\x22\x22},\x22groups\x22:[{\x22heading\x22:{\x22title\x22:\x22\x22,\x22description\x22:\x22\x22},\x22links\x22:[{\x22title\x22:\x22AI coding agent\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/ai\u002Dcoding\u002Dagent?lnk=L0G\x22,\x22description\x22:\x22Bob your AI software development partner\x22},{\x22title\x22:\x22Maximo Application Suite\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/maximo?lnk=L0G\x22,\x22description\x22:\x22AI\u002Dpowered monitoring, predictive maintenance, and reliability planning, available as SaaS or on Red Hat OpenShift\x22},{\x22title\x22:\x22watsonx\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/watsonx?lnk=L0G\x22,\x22description\x22:\x22AI and data platform\x22},{\x22title\x22:\x22watsonx Orchestrate\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/watsonx\u002Dorchestrate?lnk=L0G\x22,\x22description\x22:\x22Generative AI and automation solution that empowers your business\x22},{\x22title\x22:\x22watsonx.data\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/watsonx\u002Ddata?lnk=L0G\x22,\x22description\x22:\x22Open, hybrid data foundation delivering trusted real\u002Dtime data for AI and analytics across the enterprise\x22},{\x22title\x22:\x22watsonx.data integration\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/watsonx\u002Ddata\u002Dintegration?lnk=L0G\x22,\x22description\x22:\x22Adaptive data integration tool designed to future proof your data integration\x22},{\x22title\x22:\x22watsonx.data intelligence\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/watsonx\u002Ddata\u002Dintelligence?lnk=L0G\x22,\x22description\x22:\x22Discover, curate and govern data assets across on prem and public, private or hybrid cloud\x22},{\x22title\x22:\x22watsonx.governance\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/watsonx\u002Dgovernance?lnk=L0G\x22,\x22description\x22:\x22Direct, manage and monitor your AI with a single platform\x22}]}]},{\x22heading\x22:{\x22title\x22:\x22Data \x26 analytics\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/solutions\/analytics?lnk=L0G\x22,\x22description\x22:\x22\x22},\x22groups\x22:[{\x22heading\x22:{\x22title\x22:\x22\x22,\x22description\x22:\x22\x22},\x22links\x22:[{\x22title\x22:\x22Cloud Databases for Elasticsearch\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/databases\u002Dfor\u002Delasticsearch?lnk=L0G\x22,\x22description\x22:\x22A powerful tool for rich data with a full\u002Dtext search engine and JSON document database indexing\x22},{\x22title\x22:\x22Cloud Pak for Data\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/cloud\u002Dpak\u002Dfor\u002Ddata?lnk=L0G\x22,\x22description\x22:\x22Tools for data analysis, organization and management\x22},{\x22title\x22:\x22Cloudant\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/cloudant?lnk=L0G\x22,\x22description\x22:\x22A JSON document database based on Apache CouchDB that offers independent serverless scaling of throughput capacity and storage\x22},{\x22title\x22:\x22Cognos Analytics\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/cognos\u002Danalytics?lnk=L0G\x22,\x22description\x22:\x22Transform your data into actionable insights with a trusted AI co\u002Dpilot\x22},{\x22title\x22:\x22DataStage\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/datastage?lnk=L0G\x22,\x22description\x22:\x22A visual interface for designing, developing and deploying data pipelines.\x22},{\x22title\x22:\x22Db2\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/db2?lnk=L0G\x22,\x22description\x22:\x22Power low\u002Dlatency transactions and real\u002Dtime analytics across any cloud\x22},{\x22title\x22:\x22EDB Postgres Enterprise and Standard with IBM\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/postgres\u002Denterprise?lnk=L0G\x22,\x22description\x22:\x22Develop and run applications on a security\u002Drich, enterprise\u002Dclass database based on open source PostgreSQL\x22},{\x22title\x22:\x22ILOG CPLEX Optimization Studio\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/ilog\u002Dcplex\u002Doptimization\u002Dstudio?lnk=L0G\x22,\x22description\x22:\x22A decision optimization software for building and solving complex optimization models\x22},{\x22title\x22:\x22ILOG CPLEX Optimizer\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/ilog\u002Dcplex\u002Doptimization\u002Dstudio\/cplex\u002Doptimizer?lnk=L0G\x22,\x22description\x22:\x22Produce precise and logical decisions for planning and resource allocation problems\x22},{\x22title\x22:\x22Planning Analytics\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/planning\u002Danalytics?lnk=L0G\x22,\x22description\x22:\x22A business performance management software with planning, forecasting and reporting features\x22},{\x22title\x22:\x22SPSS\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/spss?lnk=L0G\x22,\x22description\x22:\x22Software for statistical analysis and business intelligence\x22},{\x22title\x22:\x22StreamSets\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/streamsets?lnk=L0G\x22,\x22description\x22:\x22Build robust and intelligent streaming data pipelines\x22}]}]},{\x22heading\x22:{\x22title\x22:\x22DevOps\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/solutions\/devops?lnk=L0G\x22,\x22description\x22:\x22\x22},\x22groups\x22:[{\x22heading\x22:{\x22title\x22:\x22\x22,\x22description\x22:\x22\x22},\x22links\x22:[{\x22title\x22:\x22Cloud Pak for AIOps\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/cloud\u002Dpak\u002Dfor\u002Daiops?lnk=L0G\x22,\x22description\x22:\x22Enable IT operators to place AI at the core of their ITOps toolchain\x22},{\x22title\x22:\x22Cloud Pak for Applications\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/cloud\u002Dpak\u002Dfor\u002Dapplications?lnk=L0G\x22,\x22description\x22:\x22Collection of cloud\u002D native runtimes, Al\u002Dpowered application modernization tools, and a Kubernetes Platform\x22},{\x22title\x22:\x22Concert\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/concert?lnk=L0G\x22,\x22description\x22:\x22A generative AI\u002Ddriven technology automation platform\x22},{\x22title\x22:\x22DevOps Code ClearCase\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/devops\u002Dcode\u002Dclearcase?lnk=L0G\x22,\x22description\x22:\x22Configuration management system for software asset access control\x22},{\x22title\x22:\x22DevOps Test\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/devops\u002Dtest?lnk=L0G\x22,\x22description\x22:\x22Continuous testing and virtualization platform\x22},{\x22title\x22:\x22Engineering Lifecycle Management\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/engineering\u002Dlifecycle\u002Dmanagement?lnk=L0G\x22,\x22description\x22:\x22Comprehensive end\u002Dto\u002Dend engineering solution\x22},{\x22title\x22:\x22Instana Observability\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/instana?lnk=L0G\x22,\x22description\x22:\x22Incident prevention with automated full\u002Dstack visibility\x22},{\x22title\x22:\x22Kubecost\x22,\x22url\x22:\x22https:\/\/www.apptio.com\/products\/kubecost?lnk=L0G\x22,\x22description\x22:\x22A comprehensive cost monitoring and optimization solution for teams running Kubernetes\x22},{\x22title\x22:\x22Terraform\x22,\x22url\x22:\x22https:\/\/www.hashicorp.com\/en\/products\/terraform?lnk=L0G\x22,\x22description\x22:\x22Maximize infrastructure investments using a standardized automated workflow from Terraform\x22}]}]},{\x22heading\x22:{\x22title\x22:\x22Integration\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/software\/integration\u002Dresilience?lnk=L0G\x22,\x22description\x22:\x22\x22},\x22groups\x22:[{\x22heading\x22:{\x22title\x22:\x22\x22,\x22description\x22:\x22\x22},\x22links\x22:[{\x22title\x22:\x22API Connect\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/api\u002Dconnect?lnk=L0G\x22,\x22description\x22:\x22Seamlessly develop, manage, secure and socialize your API types\x22},{\x22title\x22:\x22App Connect\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/app\u002Dconnect?lnk=L0G\x22,\x22description\x22:\x22An application integration software that connects applications and data sources\x22},{\x22title\x22:\x22Aspera\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/aspera?lnk=L0G\x22,\x22description\x22:\x22A suite of data transfer software for moving amounts of data quickly and securely\x22},{\x22title\x22:\x22Cloud Pak for Integration\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/cloud\u002Dpak\u002Dfor\u002Dintegration?lnk=L0G\x22,\x22description\x22:\x22Connects apps, services and data\x22},{\x22title\x22:\x22Event Automation\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/event\u002Dautomation?lnk=L0G\x22,\x22description\x22:\x22A composable solution to help accelerate business event\u002Ddriven efforts\x22},{\x22title\x22:\x22MQ\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/mq?lnk=L0G\x22,\x22description\x22:\x22Secure, reliable enterprise messaging that connects applications and data across hybrid environments.\x22},{\x22title\x22:\x22NS1 Connect\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/ns1\u002Dconnect?lnk=L0G\x22,\x22description\x22:\x22Resilient, fast, authoritative DNS connections to prevent network outages\x22},{\x22title\x22:\x22Sterling B2B Integration SaaS​\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/b2b\u002Dintegration\u002Dsaas?lnk=L0G\x22,\x22description\x22:\x22SaaS solution to simplify and optimize your EDI and B2B API transactions. Fully \u002Dmanage service option\x22},{\x22title\x22:\x22Sterling B2B Integration Value\u002DAdded Network\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/b2b\u002Dintegration\u002Dvan?lnk=L0G\x22,\x22description\x22:\x22Highly reliable B2B network accelerates onboarding of new customers, suppliers or other trading partners\x22},{\x22title\x22:\x22Sterling Secure File Transfer​\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/secure\u002Dfile\u002Dtransfer?lnk=L0G\x22,\x22description\x22:\x22Fast, scalable, file transfer platform for on\u002D premise or hybrid cloud containerized software deployment\x22},{\x22title\x22:\x22webMethods B2B Integration\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/webmethods\u002Db2b?lnk=L0G\x22,\x22description\x22:\x22Increase control of B2B transaction data with seamless integration across system​\x22},{\x22title\x22:\x22webMethods Hybrid Integration\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/webmethods\u002Dhybrid\u002Dintegration?lnk=L0G\x22,\x22description\x22:\x22Transform AI pilots into production with enterprise integration in one unified iPaaS​\x22},{\x22title\x22:\x22webMethods Managed File Transfer\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/webmethods\u002Dmft?lnk=L0G\x22,\x22description\x22:\x22Automated end\u002Dto\u002Dend secure file transfers with AI\u002Dpowered integration capabilities\x22}]}]},{\x22heading\x22:{\x22title\x22:\x22Security\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/categories\/security\u002Dproducts?lnk=L0G\x22,\x22description\x22:\x22\x22},\x22groups\x22:[{\x22heading\x22:{\x22title\x22:\x22\x22,\x22description\x22:\x22\x22},\x22links\x22:[{\x22title\x22:\x22Cloud App ID\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/app\u002Did?lnk=L0G\x22,\x22description\x22:\x22Authentication and user profiles as a service for mobile and web apps\x22},{\x22title\x22:\x22Cloud Cyber Recovery\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/solutions\/cyber\u002Drecovery?lnk=L0G\x22,\x22description\x22:\x22A simple, isolated resilient infrastructure with air gaps, disaster recovery and business continuity plan against ransomware\x22},{\x22title\x22:\x22Guardium\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/guardium?lnk=L0G\x22,\x22description\x22:\x22Suite for data encryption, management and simplified compliance\x22},{\x22title\x22:\x22Guardium Data Encryption\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/guardium\u002Ddata\u002Dencryption?lnk=L0G\x22,\x22description\x22:\x22A family of data encryption and key management software used to manages policies, configurations and encryption keys\x22},{\x22title\x22:\x22Guardium Data Protection\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/guardium\u002Ddata\u002Dprotection?lnk=L0G\x22,\x22description\x22:\x22Discover, classify and secure structured and unstructured data across hybrid environments\x22},{\x22title\x22:\x22Guardium Key Lifecycle Manager\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/guardium\u002Dkey\u002Dlifecycle\u002Dmanager?lnk=L0G\x22,\x22description\x22:\x22Centralize, simplify and automate encryption key management\x22},{\x22title\x22:\x22Guardium Vulnerability Assessment\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/guardium\u002Dvulnerability\u002Dassessment?lnk=L0G\x22,\x22description\x22:\x22Scan your data environment to detect vulnerabilities and suggest remedial actions\x22},{\x22title\x22:\x22MaaS360\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/maas360?lnk=L0G\x22,\x22description\x22:\x22Unified endpoint management for mobile workforces\x22},{\x22title\x22:\x22QRadar\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/qradar?lnk=L0G\x22,\x22description\x22:\x22Identify, investigate, and remediate threats across enterprise networks\x22},{\x22title\x22:\x22Secrets Manager\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/secrets\u002Dmanager?lnk=L0G\x22,\x22description\x22:\x22Centrally manage your secrets in a single\u002Dtenant, dedicated instance\x22},{\x22title\x22:\x22Trusteer\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/trusteer?lnk=L0G\x22,\x22description\x22:\x22Software to authenticate customers, detect fraud and assess risk\x22},{\x22title\x22:\x22Vault\x22,\x22url\x22:\x22https:\/\/www.hashicorp.com\/en\/products\/vault?lnk=L0G\x22,\x22description\x22:\x22Standardize secrets management with identity\u002Dbased security from Vault\x22},{\x22title\x22:\x22Verify\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/verify?lnk=L0G\x22,\x22description\x22:\x22Identity, authentication, and access control software\x22}]}]},{\x22heading\x22:{\x22title\x22:\x22Technology business management\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/categories\/technology\u002Dbusiness\u002Dmanagement\u002Dproducts?lnk=L0G\x22,\x22description\x22:\x22\x22},\x22groups\x22:[{\x22heading\x22:{\x22title\x22:\x22\x22,\x22description\x22:\x22\x22},\x22links\x22:[{\x22title\x22:\x22Apptio\x22,\x22url\x22:\x22https:\/\/www.apptio.com\/products\/ibm\u002Dapptio?lnk=L0G\x22,\x22description\x22:\x22Empower digital leaders to make data\u002Ddriven decisions, realize value and transform the business\x22},{\x22title\x22:\x22Cloudability\x22,\x22url\x22:\x22https:\/\/www.apptio.com\/products\/cloudability?lnk=L0G\x22,\x22description\x22:\x22Empower FinOps teams to manage and optimize multi\u002Dcloud, AI and Kubernetes spend\x22},{\x22title\x22:\x22Concert\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/concert?lnk=L0G\x22,\x22description\x22:\x22A generative AI\u002Ddriven technology automation platform\x22},{\x22title\x22:\x22Instana Observability\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/instana?lnk=L0G\x22,\x22description\x22:\x22Incident prevention with automated full\u002Dstack visibility\x22},{\x22title\x22:\x22Kubecost\x22,\x22url\x22:\x22https:\/\/www.apptio.com\/products\/kubecost?lnk=L0G\x22,\x22description\x22:\x22A comprehensive cost monitoring and optimization solution for teams running Kubernetes\x22},{\x22title\x22:\x22Targetprocess\x22,\x22url\x22:\x22https:\/\/www.apptio.com\/products\/targetprocess?lnk=L0G\x22,\x22description\x22:\x22Connect strategy and execution to achieve enterprise\u002Dwide alignment\x22},{\x22title\x22:\x22Turbonomic\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/turbonomic?lnk=L0G\x22,\x22description\x22:\x22Automate resource management for assured performance across multicloud environments\x22}]}]}],\x22viewAll\x22:{\x22title\x22:\x22Explore all products\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\x22}}},{\x22title\x22:\x22Infrastructure\x22,\x22url\x22:\x22\x22,\x22submenu\x22:{\x22sections\x22:[{\x22heading\x22:{\x22title\x22:\x22Cloud\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/solutions\/cloud?lnk=L0G\x22,\x22description\x22:\x22\x22},\x22groups\x22:[{\x22heading\x22:{\x22title\x22:\x22\x22,\x22description\x22:\x22\x22},\x22links\x22:[{\x22title\x22:\x22Cloud Bare Metal Servers\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/bare\u002Dmetal\u002Dservers?lnk=L0G\x22,\x22description\x22:\x22100% dedicated, secure, bare metal servers\x22},{\x22title\x22:\x22Cloud Code Engine\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/code\u002Dengine?lnk=L0G\x22,\x22description\x22:\x22A fully managed, serverless platform, running containerized workloads\x22},{\x22title\x22:\x22Cloud Container Registry\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/container\u002Dregistry?lnk=L0G\x22,\x22description\x22:\x22Store and distribute Docker images in a managed, private registry\x22},{\x22title\x22:\x22Cloud for SAP\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/cloud\/sap?lnk=L0G\x22,\x22description\x22:\x22Simplify and accelerate the delivery of SAP software in the cloud\x22},{\x22title\x22:\x22Cloud Internet Services\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/cloud\u002Dinternet\u002Dservices?lnk=L0G\x22,\x22description\x22:\x22Security, reliability and performance capabilities designed to protect public\u002Dfacing web content and applications\x22},{\x22title\x22:\x22Cloud Kubernetes Service\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/kubernetes\u002Dservice?lnk=L0G\x22,\x22description\x22:\x22Enable the orchestration of intelligent scheduling, self\u002Dhealing and horizontal scaling\x22},{\x22title\x22:\x22Cloud Object Storage\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/cloud\u002Dobject\u002Dstorage?lnk=L0G\x22,\x22description\x22:\x22Store any data securely at scale, anywhere, backed by resilient architecture with simple all‑inclusive pricing for every usage cost\x22},{\x22title\x22:\x22Cloud Pak for Business Automation\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/cloud\u002Dpak\u002Dfor\u002Dbusiness\u002Dautomation?lnk=L0G\x22,\x22description\x22:\x22A modular set of integrated software components for operations management and automation\x22},{\x22title\x22:\x22Cloud Paks\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/cloud\u002Dpaks?lnk=L0G\x22,\x22description\x22:\x22Integrated, open, containerized solutions certified by IBM\x22},{\x22title\x22:\x22Cloud Satellite\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/satellite?lnk=L0G\x22,\x22description\x22:\x22A software platform that allows you provision managed cloud services across any environment\x22},{\x22title\x22:\x22Cloud Virtual Servers for VPC\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/virtual\u002Dservers?lnk=L0G\x22,\x22description\x22:\x22Configurable single\u002D or multi\u002Dtenant virtual machines, available with Intel, IBM zSystems, and IBM LinuxONE architectures\x22},{\x22title\x22:\x22GPUs and AI Accelerators on IBM Cloud\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/gpu\u002Dai\u002Daccelerator?lnk=L0G\x22,\x22description\x22:\x22Securely scale AI and HPC workloads on a trusted enterprise environment\x22},{\x22title\x22:\x22Power Virtual Server\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/power\u002Dvirtual\u002Dserver?lnk=L0G\x22,\x22description\x22:\x22A family of configurable, multitenant, virtual IBM Power servers that help you expand your hybrid journey\x22},{\x22title\x22:\x22Red Hat OpenShift\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/openshift?lnk=L0G\x22,\x22description\x22:\x22Bring mission\u002Dcritical applications and AI initiatives to market with Red Hat OpenShift on IBM Cloud\x22}]}]},{\x22heading\x22:{\x22title\x22:\x22Compute\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/categories\/compute\u002Dproducts?lnk=L0G\x22,\x22description\x22:\x22\x22},\x22groups\x22:[{\x22heading\x22:{\x22title\x22:\x22\x22,\x22description\x22:\x22\x22},\x22links\x22:[{\x22title\x22:\x22AIX\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/aix?lnk=L0G\x22,\x22description\x22:\x22IBM’s proprietary Unix operating system designed to run on IBM Power servers\x22},{\x22title\x22:\x22Confidential Computing Container Runtime\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/confidential\u002Dcomputing\u002Dcontainer\u002Druntime?lnk=L0G\x22,\x22description\x22:\x22Hardware\u002Dlevel security for virtual servers on IBM Z and LinuxONE, available in on\u002Dpremises servers and managed offerings on IBM Cloud\x22},{\x22title\x22:\x22DataPower Gateway\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/datapower\u002Dgateway?lnk=L0G\x22,\x22description\x22:\x22A purpose\u002Dbuilt security and integration platform for mobile, web, API, SOA, B2B and cloud workloads\x22},{\x22title\x22:\x22Digital Asset Haven\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/digital\u002Dasset\u002Dhaven?lnk=L0G\x22,\x22description\x22:\x22Operational backbone for financial institutions and regulated enterprises entering the digital asset economy\x22},{\x22title\x22:\x22IBM i\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/ibm\u002Di?lnk=L0G\x22,\x22description\x22:\x22Secure, stable, and integrated operating system for IBM Power Systems\x22},{\x22title\x22:\x22LinuxOne\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/linuxone?lnk=L0G\x22,\x22description\x22:\x22Family of enterprise\u002Dgrade Linux servers, powered by the IBM Telum processor.\x22},{\x22title\x22:\x22Oracle on IBM Power\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/power\/oracle?lnk=L0G\x22,\x22description\x22:\x22Designed to support the most demanding workloads for your Oracle hybrid cloud environment\x22},{\x22title\x22:\x22Power\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/power?lnk=L0G\x22,\x22description\x22:\x22Accelerate big data insights and hybrid cloud deployment with an open server ecosystem\x22},{\x22title\x22:\x22Quantum\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/quantum?lnk=L0G\x22,\x22description\x22:\x22Access the world’s largest fleet of 100+ qubit quantum computers and performant Qiskit software tools\x22}]}]},{\x22heading\x22:{\x22title\x22:\x22IBM Z\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/z?lnk=L0G\x22,\x22description\x22:\x22\x22},\x22groups\x22:[{\x22heading\x22:{\x22title\x22:\x22\x22,\x22description\x22:\x22\x22},\x22links\x22:[{\x22title\x22:\x22Application Discovery and Delivery Intelligence\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/app\u002Ddiscovery\u002Dand\u002Ddelivery\u002Dintelligence?lnk=L0G\x22,\x22description\x22:\x22A software to analyze and visualize applications, data, and jobs on z\/OS\x22},{\x22title\x22:\x22CICS Transaction Server for z\/OS\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/cics\u002Dtransaction\u002Dserver?lnk=L0G\x22,\x22description\x22:\x22Drive operational efficiencies while increasing service agility, with a service delivery platform for cloud computing\x22},{\x22title\x22:\x22Db2 for z\/OS\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/db2\u002Dfor\u002Dzos?lnk=L0G\x22,\x22description\x22:\x22A relational database management system for z\/OS\x22},{\x22title\x22:\x22Developer for z\/OS Enterprise Edition\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/developer\u002Dfor\u002Dzos?lnk=L0G\x22,\x22description\x22:\x22VS Code, full debugging, cloud, and AI tools, built on the core Eclipse\u002Dbased IBM Developer for z\/OS\x22},{\x22title\x22:\x22OMEGAMON\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/z\u002Domegamon?lnk=L0G\x22,\x22description\x22:\x22Monitor and manage sophisticated mainframe applications and environments\x22},{\x22title\x22:\x22watsonx Assistant for Z\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/watsonx\u002Dassistant\u002Dfor\u002Dz?lnk=L0G\x22,\x22description\x22:\x22An AI\u002Dpowered tool that simplifies how users interact with and manage the mainframe with agentic workflows and generative AI\x22},{\x22title\x22:\x22watsonx Code Assistant for Z\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/watsonx\u002Dcode\u002Dassistant\u002Dz?lnk=L0G\x22,\x22description\x22:\x22Accelerate the mainframe application lifecycle with generative AI and automation with IBM watsonx Code Assistant for Z\x22},{\x22title\x22:\x22Z Development and Test Environment\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/z\u002Ddevelopment\u002Dtest\u002Denvironment?lnk=L0G\x22,\x22description\x22:\x22Develop and test IBM Z systems applications on Intel\u002Dbased hardware\x22},{\x22title\x22:\x22Z IntelliMagic Vision\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/z\u002Dintellimagic\u002Dvision?lnk=L0G\x22,\x22description\x22:\x22Advanced performance analysis software for IBM Z\x22},{\x22title\x22:\x22z\/OS\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/zos?lnk=L0G\x22,\x22description\x22:\x22A highly secure and scalable operating system for running mission\u002Dcritical applications\x22},{\x22title\x22:\x22z16\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/z16?lnk=L0G\x22,\x22description\x22:\x22The latest IBM Z mainframe with on\u002Dchip AI inferencing and quantum\u002Dsafe technology\x22},{\x22title\x22:\x22z17\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/z17?lnk=L0G\x22,\x22description\x22:\x22Process up to 5 million inference operations per second\x22}]}]},{\x22heading\x22:{\x22title\x22:\x22Storage\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/solutions\/storage?lnk=L0G\x22,\x22description\x22:\x22\x22},\x22groups\x22:[{\x22heading\x22:{\x22title\x22:\x22\x22,\x22description\x22:\x22\x22},\x22links\x22:[{\x22title\x22:\x22FlashSystem\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/flashsystem?lnk=L0G\x22,\x22description\x22:\x22Storage for mission critical workloads where availability, performance, and integrity cannot fail.\x22},{\x22title\x22:\x22 Fusion\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/storage\u002Dfusion?lnk=L0G\x22,\x22description\x22:\x22Integrated compute, networking, and storage platform for containerized workloads and modern application environments.\x22},{\x22title\x22:\x22Storage area network (SAN)\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/storage\u002Darea\u002Dnetwork?lnk=L0G\x22,\x22description\x22:\x22Consistent, lossless data movement between systems so performance, availability, and recovery are not impacted by the network.\x22},{\x22title\x22:\x22Storage Ceph\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/storage\u002Dceph?lnk=L0G\x22,\x22description\x22:\x22Software\u002Ddefined unified storage for operational workloads and unstructured data.\x22},{\x22title\x22:\x22Storage Defender\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/storage\u002Ddefender?lnk=L0G\x22,\x22description\x22:\x22Detect, protect, and recover from data breaches with immutable storage and automated resilience workflows.\x22},{\x22title\x22:\x22Storage DS8000\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/ds8000?lnk=L0G\x22,\x22description\x22:\x22Mainframe storage designed for systems where transaction consistency must be guaranteed without exception.\x22},{\x22title\x22:\x22Storage Insights\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/storage\u002Dinsights?lnk=L0G\x22,\x22description\x22:\x22Monitor, optimize, and predict storage behavior across environments so issues are address before they impact storage systems.\x22},{\x22title\x22:\x22Storage Scale System\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/storage\u002Dscale\u002Dsystem?lnk=L0G\x22,\x22description\x22:\x22High\u002Dperformance file and object storage for large datasets, analytics, and data\u002Dintensive workloads.\x22},{\x22title\x22:\x22Tape Storage\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/tape?lnk=L0G\x22,\x22description\x22:\x22Low\u002Dcost, energy\u002Defficient storage for long\u002Dterm retention and air\u002Dgapped data protection.\x22}]}]}],\x22viewAll\x22:{\x22title\x22:\x22Explore all products\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\x22}}},{\x22title\x22:\x22Consulting\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/consulting?lnk=L0G\x22},{\x22title\x22:\x22Support\x22,\x22url\x22:null,\x22submenu\x22:[{\x22title\x22:\x22Overview\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/mysupport\/s\/?language=en_US\x26lnk=L0G\x22,\x22description\x22:\x22Resolve product issues with self\u002Dservice tools\x22},{\x22title\x22:\x22Community\x22,\x22url\x22:\x22https:\/\/community.ibm.com\/community\/user\/my\u002Dcommunity?lnk=L0G\x22,\x22description\x22:\x22Share knowledge in a collaborative environment to unlock innovation\x22},{\x22title\x22:\x22Developer\x22,\x22url\x22:\x22https:\/\/developer.ibm.com\/?lnk=L0G\x22,\x22description\x22:\x22Access digital resources, code samples and code trials\x22},{\x22title\x22:\x22Documentation\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/docs\/en?lnk=L0G\x22,\x22description\x22:\x22Understand, develop and deploy our products with comprehensive technical resources\x22},{\x22title\x22:\x22IBM Cloud platform\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/cloud\/support?lnk=L0G\x22,\x22description\x22:\x22Access subject matter experts and content to address questions and issues about IBM Cloud\x22},{\x22title\x22:\x22Implementation\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/products\/expertlabs?lnk=L0G\x22,\x22description\x22:\x22Drive better business outcomes with an experienced team of IBM product experts\x22},{\x22title\x22:\x22Training\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/training\/?lnk=L0G\x22,\x22description\x22:\x22Develop your skills with premiere educational offerings and credentials\x22},{\x22title\x22:\x22Technology Lifecycle Services\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/services\/technology\u002Dlifecycle\u002Dservices?lnk=L0G\x22,\x22description\x22:\x22Elevate your support experience with a holistic approach to data center management across your IT environment\x22}]},{\x22title\x22:\x22Think\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think?lnk=L0G\x22}]}}";
+    const searchPlaceholderText = "Search all of IBM";
+    const links = JSON.parse(l0Json).mastheadNav.links;
+    const unAuthenticated = JSON.parse(l0Json).profileMenu.signedout;
+    const authenticated = JSON.parse(l0Json).profileMenu.signedin;
+
+    const mastheadContainerEl = document.querySelector('c4d-masthead-container');
+
+    mastheadContainerEl.navLinks = links;
+    mastheadContainerEl.unauthenticatedProfileItems = unAuthenticated;
+    mastheadContainerEl.authenticatedProfileItems = authenticated;
+
+    const appendSearchPlaceholderText = () => {
+        const typeheadEl = mastheadContainerEl.querySelector('c4d-search-with-typeahead');
+        if (typeheadEl) {
+            typeheadEl.searchPlaceholder = searchPlaceholderText;
+            observer.disconnect();
+        }
+    }
+    let observer = new MutationObserver(appendSearchPlaceholderText);
+    observer.observe(mastheadContainerEl, {subtree: true, childList: true});
+</script>
+
+    
+
+    
+
+    
+
+    
+        
+            
+    
+<script src="/etc.clientlibs/adobe-cms/clientlibs/clientlib-new-design.lc-d512509cc4e86661b00f0ed84fb1c77d-lc.min.js"></script>
+
+
+
+        
+    
+
+    
+
+
+<script>
+    var json = "{\x22title\x22:\x22Think\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\x22,\x22menuItems\x22:[{\x22title\x22:\x22Artificial intelligence\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/artificial\u002Dintelligence\x22},{\x22title\x22:\x22Data management\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/data\u002Dmanagement\x22},{\x22title\x22:\x22Topics\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/security\x22,\x22submenu\x22:{\x22columns\x22:1,\x22menuSections\x22:[{\x22span\x22:1,\x22items\x22:[{\x22title\x22:\x22Analytics\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/analytics\x22},{\x22title\x22:\x22Artificial intelligence\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/artificial\u002Dintelligence\x22},{\x22title\x22:\x22Asset management\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/asset\u002Dmanagement\x22},{\x22title\x22:\x22Business automation\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/business\u002Dautomation\x22},{\x22title\x22:\x22Business operations\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/business\u002Doperations\x22},{\x22title\x22:\x22Cloud\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/cloud\x22},{\x22title\x22:\x22Compute and servers\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/compute\x22},{\x22title\x22:\x22Data management\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/data\u002Dmanagement\x22},{\x22title\x22:\x22DevOps\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/devops\x22},{\x22title\x22:\x22IT automation\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/it\u002Dautomation\x22},{\x22title\x22:\x22IT infrastructure\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/it\u002Dinfrastructure\x22},{\x22title\x22:\x22Leadership\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/leadership\x22},{\x22title\x22:\x22Middleware\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/middleware\x22},{\x22title\x22:\x22Network\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/network\x22},{\x22title\x22:\x22Quantum\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/quantum\x22},{\x22title\x22:\x22Storage\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/storage\x22},{\x22title\x22:\x22Sustainability\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/sustainability\x22},{\x22title\x22:\x22View all topics\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/search\x22}]}]}},{\x22title\x22:\x22Industries\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/news\x22,\x22submenu\x22:{\x22columns\x22:1,\x22menuSections\x22:[{\x22span\x22:1,\x22items\x22:[{\x22title\x22:\x22Automotive\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/automotive\x22},{\x22title\x22:\x22Banking\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/banking\u002Dfinancial\u002Dmarkets\x22},{\x22title\x22:\x22Consumer goods\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/consumer\u002Dgoods\x22},{\x22title\x22:\x22Energy \x26 Utilities\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/energy\x22},{\x22title\x22:\x22Government\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/government\x22},{\x22title\x22:\x22Healthcare\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/healthcare\x22},{\x22title\x22:\x22Manufacturing\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/manufacturing\x22},{\x22title\x22:\x22Retail\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/retail\x22},{\x22title\x22:\x22Telecommunications\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/telecommunications\x22},{\x22title\x22:\x22Travel\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/travel\u002Dtransportation\x22},{\x22title\x22:\x22View all topics\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/search\x22}]}]}},{\x22title\x22:\x22Podcasts\x22,\x22submenu\x22:{\x22columns\x22:1,\x22menuSections\x22:[{\x22span\x22:1,\x22items\x22:[{\x22title\x22:\x22Overview\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/podcasts\x22},{\x22title\x22:\x22Mixture of Experts\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/podcasts\/mixture\u002Dof\u002Dexperts\x22},{\x22title\x22:\x22Security Intelligence\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/podcasts\/security\u002Dintelligence\x22},{\x22title\x22:\x22Smart Talks with IBM\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/podcasts\/smart\u002Dtalks\x22},{\x22title\x22:\x22Techsplainers\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/podcasts\/techsplainers\x22},{\x22title\x22:\x22The Coherence Times\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/podcasts\/the\u002Dcoherence\u002Dtimes\x22}]}]}},{\x22title\x22:\x22Reports\x22,\x22submenu\x22:{\x22columns\x22:1,\x22menuSections\x22:[{\x22span\x22:1,\x22items\x22:[{\x22title\x22:\x22IBM X\u002DForce 2026 Threat Intelligence Index\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/reports\/threat\u002Dintelligence\x22},{\x22title\x22:\x22Cost of a Data Breach Report\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/reports\/data\u002Dbreach\x22},{\x22title\x22:\x22The CEO Study\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/thought\u002Dleadership\/institute\u002Dbusiness\u002Dvalue\/c\u002Dsuite\u002Dstudy\/ceo\x22},{\x22title\x22:\x22Industries in the AI era\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/thought\u002Dleadership\/institute\u002Dbusiness\u002Dvalue\/report\/industries\u002Dai\u002Dera\x22},{\x22title\x22:\x22Orchestrating agentic AI for intelligent business operations\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/thought\u002Dleadership\/institute\u002Dbusiness\u002Dvalue\/report\/agentic\u002Dprocess\u002Dautomation\x22},{\x22title\x22:\x22Scaling supply chain resilience: Agentic AI for autonomous operations\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/thought\u002Dleadership\/institute\u002Dbusiness\u002Dvalue\/report\/supply\u002Dchain\u002Dai\u002Dautomation\u002Doracle\x22},{\x22title\x22:\x22AI in Action report\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/reports\/ai\u002Din\u002Daction\x22},{\x22title\x22:\x22View all IBV reports\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/thought\u002Dleadership\/institute\u002Dbusiness\u002Dvalue\x22}]}]}},{\x22title\x22:\x22Learn\x22,\x22submenu\x22:{\x22columns\x22:3,\x22menuSections\x22:[{\x22span\x22:1,\x22items\x22:[{\x22title\x22:\x22Overview\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/videos\x22},{\x22title\x22:\x22AI Academy\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/videos\/ai\u002Dacademy\x22},{\x22title\x22:\x22Think 2026 on demand\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/videos\/think\u002Dkeynotes\x22},{\x22title\x22:\x22Webinars\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/webinars\x22}]},{\x22span\x22:1,\x22heading\x22:{\x22headingLevel\x22:2,\x22title\x22:\x22Learn the basics\x22},\x22items\x22:[{\x22title\x22:\x22Explainer articles\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/topics\x22},{\x22title\x22:\x22Techsplainers podcast\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/podcasts\/techsplainers\x22}]},{\x22span\x22:1,\x22heading\x22:{\x22headingLevel\x22:2,\x22title\x22:\x22Learning guides\x22},\x22items\x22:[{\x22title\x22:\x22Artificial intelligence\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/topics\/ai\u002Dguide\x22},{\x22title\x22:\x22AI agents\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/ai\u002Dagents\x22},{\x22title\x22:\x22Cybersecurity\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/cybersecurity\x22},{\x22title\x22:\x22Data management\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/topics\/data\u002Dmanagement\u002Dguide\x22},{\x22title\x22:\x22DevOps\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/topics\/devops\u002Dguide\x22},{\x22title\x22:\x22Machine learning\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/machine\u002Dlearning\x22},{\x22title\x22:\x22Prompt engineering\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/prompt\u002Dengineering\x22}]},{\x22span\x22:1,\x22heading\x22:{\x22headingLevel\x22:2,\x22title\x22:\x22Get hands\u002Don\x22},\x22items\x22:[{\x22title\x22:\x22Tutorials\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/tutorials\x22}]},{\x22span\x22:1,\x22heading\x22:{\x22headingLevel\x22:2,\x22title\x22:\x22Additional learning\x22},\x22items\x22:[{\x22title\x22:\x22Webinars\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/webinars\x22},{\x22title\x22:\x22Insights\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/insights\x22},{\x22title\x22:\x22Reference architecture\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/think\/architectures\x22}]}]}},{\x22title\x22:\x22Events\x22,\x22submenu\x22:{\x22columns\x22:1,\x22menuSections\x22:[{\x22span\x22:1,\x22items\x22:[{\x22title\x22:\x22Think 2026\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/events\/think\x22},{\x22title\x22:\x22Think on Tour\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/events\/think\/on\u002Dtour\x22},{\x22title\x22:\x22TechXchange\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/events\/techxchange\x22},{\x22title\x22:\x22View all IBM Events\x22,\x22target\x22:\x22_self\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/events\x22}]}]}},{\x22title\x22:\x22Newsletters\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/subscribe\x22}],\x22actions\x22:{\x22login\x22:null,\x22cta\x22:{\x22title\x22:\x22Subscribe\x22,\x22url\x22:\x22https:\/\/www.ibm.com\/forms\/news\u002Dmkt\u002D52954\x22}},\x22optinalCta\x22:true,\x22linkOrContactModule\x22:false}";
+    document.querySelector('c4d-masthead-container').l1Data = JSON.parse(json);
+    document.querySelector('.masthead').classList.add("hasNavigation");
+    document.documentElement.style.setProperty('--anker-navigation-spacing', '-6rem');
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelector('c4d-masthead-l1').overviewText = 'Overview';
+    });
+</script>
+
+<script type="text/javascript">
+    if (window.location.href.includes("/careers")) {
+        document.querySelector('c4d-masthead-container').setAttribute("has-search","false");
+        document.querySelector('c4d-masthead-container').setAttribute("has-profile","false");
+    }
+    if (window.location.hostname.includes("businessofgovernment") ||  window.location.href.includes("/businessofgovernment")) {
+        // Start the function
+        updateTopNavHrefFromPlatform();
+    }
+
+    function updateTopNavHrefFromPlatform() {
+        // Step 1: get the masthead container
+        var mastheadContainer = document.querySelector('c4d-masthead-container');
+        if (!mastheadContainer) {
+            setTimeout(updateTopNavHrefFromPlatform, 5000); // retry if not yet loaded
+            return;
+        }
+
+        // Step 2: get the platform URL
+        var platformUrl = mastheadContainer.getAttribute('platformurl');
+        if (!platformUrl) {
+            console.log('No platformurl found');
+            return;
+        }
+
+        // Step 3: get the masthead shadow root
+        var masthead = document.querySelector('c4d-masthead');
+        if (!masthead || !masthead.shadowRoot) {
+            setTimeout(updateTopNavHrefFromPlatform, 5000);
+            return;
+        }
+
+        // Step 4: get the nav container inside shadow DOM
+        var navContainer = masthead.shadowRoot.querySelector('.cds--header__nav-container');
+        if (!navContainer) {
+            setTimeout(updateTopNavHrefFromPlatform, 5000);
+            return;
+        }
+
+        // Step 5: get the slot inside nav container
+        var slot = navContainer.querySelector('slot');
+        if (!slot) {
+            setTimeout(updateTopNavHrefFromPlatform, 5000);
+            return;
+        }
+
+        // Step 6: get all assigned nodes to the slot
+        var assignedNodes = slot.assignedNodes();
+        for (var i = 0; i < assignedNodes.length; i++) {
+            var node = assignedNodes[i];
+            if (node.tagName && node.tagName.toLowerCase() === 'c4d-top-nav-name') {
+                // Step 7: set href from platformurl
+                node.setAttribute('href', platformUrl);
+                console.log('Updated href to', platformUrl);
+            }
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const mastheadContainer = document.querySelector("c4d-masthead-container");
+        const langIcon = document.querySelector('.earth-language-icon');
+
+        // Hide locale selector (globe icon) for Take Back Program pages
+        const takeBackPattern = /.*(?:\/[a-zA-Z]{2}(?:[-/][a-zA-Z]{2})?)?\/take-back-programs(\.html)?(\?.*)?$/;
+        function isValidTakeBackUrl(url) {
+            return takeBackPattern.test(url);
+        }
+
+        const handleMastheadLangIcon = () => {
+            if (mastheadContainer) {
+                if (isValidTakeBackUrl(window.location.href)) {
+                    mastheadContainer.setAttribute("has-global", "false");
+                    document.querySelector('.earth-language-icon').style.display = 'none';
+                }
+                mastheadObserver.disconnect();
+            }
+        };
+        const mastheadObserver = new MutationObserver(handleMastheadLangIcon);
+        mastheadObserver.observe(mastheadContainer, { subtree: true, childList: true });
+
+        if (langIcon) {
+            if (mastheadContainer && mastheadContainer.getAttribute("has-global") === "false") {
+                langIcon.style.setProperty('display', 'none', 'important');
+            } else {
+                langIcon.style.setProperty('display', 'block', 'important');
+            }
+        }
+
+        if (mastheadContainer && mastheadContainer.getAttribute("brand") === "businessofgovernment") {
+            const isMobile = window.matchMedia("(max-width: 671px)").matches;
+            if (isMobile) {
+                const langIcon = document.querySelector('.earth-language-icon');
+                if (langIcon) {
+                    langIcon.style.setProperty('display', 'none', 'important');
+                }
+            } else {
+                const globalBar = document.querySelector('c4d-masthead-global-bar');
+                if (globalBar) globalBar.style.display = 'none';
+            }
+        }
+    });
+</script>
+</div>
+<div class="container responsivegrid">
+
+    
+    
+    
+    <div id="container-f36cf52b76" class="cmp-container " data-region="content">
+        
+        
+        
+    </div>
+
+</div>
+<div data-region="hero" class="leadspace-container container responsivegrid" id="mbox-leadspace">
+
+    
+    
+    
+    <div id="leadspace-container-5d45154797" class="cmp-container ">
+        
+        <div data-component-name="leadspace-with-foreground-asset" class="leadspace-expanded leadspace">
+
+
+
+
+
+<section class="cds--grid theme-white  leadspace-expanded__container leadspace-expanded__container--medium leadspace-expanded__container--no-aside">
+    <div class="cds--row leadspace-expanded__row">
+        <div class="cds--col-lg-8 leadspace-expanded__column leadspace-expanded__column--content">
+            <div>
+                
+                <div class="leadspace-expanded__navigation leadspace-expanded__navigation--tags">
+                    
+<nav class="cmp-breadcrumb" aria-label="Breadcrumb" role="navigation">
+    <ol class="cmp-breadcrumb__list" itemscope itemtype="http://schema.org/BreadcrumbList">
+        <li class="cmp-breadcrumb__item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a class="cmp-breadcrumb__item-link" itemprop="item" href="/homepage">
+                <span class="body-short-01" itemprop="name">Home</span>
+            </a>
+            <meta itemprop="position" content="1"/>
+        </li>
+    
+        <li class="cmp-breadcrumb__item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a class="cmp-breadcrumb__item-link" itemprop="item" href="/think">
+                <span class="body-short-01" itemprop="name">Think</span>
+            </a>
+            <meta itemprop="position" content="2"/>
+        </li>
+    
+        <li class="cmp-breadcrumb__item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a class="cmp-breadcrumb__item-link" itemprop="item" href="/think/architectures">
+                <span class="body-short-01" itemprop="name">Architectures</span>
+            </a>
+            <meta itemprop="position" content="3"/>
+        </li>
+    
+        <li class="cmp-breadcrumb__item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            <a class="cmp-breadcrumb__item-link" itemprop="item" href="/think/architectures/patterns">
+                <span class="body-short-01" itemprop="name">Architecture Patterns</span>
+            </a>
+            <meta itemprop="position" content="4"/>
+        </li>
+    
+        <li class="cmp-breadcrumb__item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+            
+                <span class="body-short-01" itemprop="name">Retrieval Augmented Generation</span>
+            
+            <meta itemprop="position" content="5"/>
+        </li>
+    </ol>
+</nav>
+
+    
+
+
+                </div>
+
+                <div id="mbox-heading">
+                    <h1 class="leadspace-expanded__heading expressive-heading-05" id="leadspaceSimpleTitle">
+                        
+
+
+  
+  
+    
+    Retrieval Augmented Generation
+
+  
+
+
+
+
+
+    
+
+
+                    </h1>
+                </div>
+            </div>
+            <div>
+                <span class="lead-in">
+                    <div id="mbox-subheading">
+                        
+                    
+                    </div>
+                </span>
+                
+                
+                    <div id="mbox-leadspace_cta">
+                        <c4d-button-group class="leadspace-expanded__action leadspace-expanded__action--button-group">
+                            
+                                
+                                
+
+
+
+
+<!-- Determine if selector includes 'tagName=c4d-button-group-item' -->
+
+
+
+<!-- C4D Markup for publish mode -->
+
+    
+
+    
+	
+
+    
+    
+	
+	
+	
+		
+		
+		
+		
+		
+			<c4d-button-group-item target="_blank" kind="primary" cta-type="contact" data-ibm-contact="contact-link" x-cq-linkchecker="skip" data-aem-autoid="aem--leadspace_cta-0" data-video-modal-type="media-center" href="#">
+				
+				
+					<span data-ibm-contact="contact-text"></span>
+					
+    
+    
+    <svg xmlns="http://www.w3.org/2000/svg" class="cds--card__cta c4d-ce--cta__icon" slot="icon" width="20" height="20" focusable="false" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M17.74,30,16,29l4-7h6a2,2,0,0,0,2-2V8a2,2,0,0,0-2-2H6A2,2,0,0,0,4,8V20a2,2,0,0,0,2,2h9v2H6a4,4,0,0,1-4-4V8A4,4,0,0,1,6,4H26a4,4,0,0,1,4,4V20a4,4,0,0,1-4,4H21.16Z"/>
+        <path d="M8 10H24V12H8zM8 16H18V18H8z"/>
+    </svg>
+
+    
+    
+
+				
+				
+				
+				<div slot="cta" class="cta-slot">
+                    
+                    
+                </div>
+			</c4d-button-group-item>
+		
+		
+		
+		
+			
+    
+
+		
+	
+
+   
+
+   
+
+
+    
+
+    
+	
+
+    
+    
+	
+	
+	
+		
+		
+		
+		
+		<a target="_blank">
+			
+		</a>
+		
+		
+		
+			
+    
+
+		
+	
+
+   
+
+   
+
+
+
+
+<!-- Fallback for author/edit mode -->
+
+                            
+                        </c4d-button-group>
+                    </div>
+                
+
+                
+
+                
+            </div>
+        </div>
+        <div class="cds--col-lg-8 leadspace-expanded__column leadspace-expanded__column--media">
+            <div class="leadspace-expanded__column-inner">
+                <div id="mbox-leadspace_visual">
+                    
+                        
+
+                        
+
+    
+
+	
+
+	<div data-cmp-aspectratio="3x2" data-cmp-hook-image="imageV3IBM" data-cmp-is="image" data-cmp-widths="256,320,384,512,640,768,960,1024,1152,1280,1536" data-cmp-dmimage data-cmp-src="https://assets.ibm.com/is/image/ibm/generative-ai-medium-leadspace?ts=1787568882401&amp;dpr=off" data-asset-id="e3c4a06e-92be-4348-8ea3-5a16436ca6c2" data-cmp-filereference="/content/dam/connectedassets-adobe-cms/worldwide-content/creative-assets/s-migr/ul/g/e3/c4/generative-ai-medium-leadspace.png" id="image-dm-da08aaf4d4" data-cmp-data-layer="{&#34;image-dm-da08aaf4d4&#34;:{&#34;@type&#34;:&#34;adobe-cms/components/content/atoms/image-dm&#34;,&#34;repo:modifyDate&#34;:&#34;2026-07-20T16:42:56Z&#34;,&#34;dc:title&#34;:&#34;Generative AI leadspace&#34;,&#34;image&#34;:{&#34;repo:id&#34;:&#34;e3c4a06e-92be-4348-8ea3-5a16436ca6c2&#34;,&#34;repo:modifyDate&#34;:&#34;2026-08-24T10:54:42Z&#34;,&#34;@type&#34;:&#34;image/png&#34;,&#34;repo:path&#34;:&#34;/content/dam/connectedassets-adobe-cms/worldwide-content/creative-assets/s-migr/ul/g/e3/c4/generative-ai-medium-leadspace.png&#34;,&#34;xdm:tags&#34;:[&#34;properties:orientation/landscape&#34;],&#34;xdm:smartTags&#34;:{&#34;template&#34;:0.816,&#34;computer equipment&#34;:0.766,&#34;graphic design&#34;:0.843,&#34;banner&#34;:0.758,&#34;graphics&#34;:0.787,&#34;network&#34;:0.854,&#34;diagram&#34;:0.893,&#34;minimalist photography&#34;:0.862,&#34;touchpad&#34;:0.787,&#34;linedrawing&#34;:0.851,&#34;rectangle&#34;:0.804,&#34;lap&#34;:0.77,&#34;webpage&#34;:0.839,&#34;business card&#34;:0.796}}}}" class="cmp-image overlaywatermark">
+		<script type="application/json">
+			{
+				"widths": [256,320,384,512,640,768,960,1024,1152,1280,1536],
+				"maximagesize": "5000",
+				"aspectratio": "3x2",
+				"urls": {
+					"dynamicmedia": "https://assets.ibm.com/is/image/ibm/generative-ai-medium-leadspace?fmt=png-alpha",
+					"adaptiveservlet": "/content/adobe-cms/us/en/think/architectures/patterns/genai-rag/jcr:content/root/leadspace_container/leadspace_expanded/image.coreimg.png/1787568882401/generative-ai-medium-leadspace.png",
+					"assetdelivery": "/adobe/dynamicmedia/deliver/dm-aid--e3c4a06e-92be-4348-8ea3-5a16436ca6c2/generative-ai-medium-leadspace.png?preferwebp=true"
+				},
+				"usecustomcrop": "false",
+				"customcrops": {
+					"1x1": "",
+					"2x1": "",
+					"3x2": "",
+					"4x3": "",
+					"5x2": "",
+					"16x9": ""
+				}
+			}
+		</script>
+		
+
+            
+                
+                    
+                        
+                        <img src="https://assets.ibm.com/is/image/ibm/generative-ai-medium-leadspace?ts=1787568882401&dpr=off" srcset="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" fetchpriority="high" class="cmp-image__image " itemprop="contentUrl" width="3170" height="961" alt=" A flowchart with various shapes and symbols, including a blue speech bubble, a question mark, and a check mark " title="Minimalist flowchart with blue highlighted branch"/>
+                    
+                
+                
+
+                
+
+            
+        
+        
+
+        
+        
+    </div>
+    
+    
+
+
+
+
+    
+
+
+                    
+
+                    
+                    
+
+                    
+
+                    
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    
+    
+
+</section>
+</div>
+
+        
+    </div>
+
+</div>
+<div class="table-of-contents container responsivegrid">
+<c4d-table-of-contents data-cmp-is="table-of-contents" data-autoid="c4d--tableofcontents" class="cmp-table-of-contents  " stickyoffset="96">
+    
+    
+    <div id="table-of-contents-674f82c569" class="cmp-table-of-contents">
+        
+        <div class="content-section-styled content-section container responsivegrid">
+
+
+
+<div data-region="content">
+    
+        
+            <div class="cds--grid">
+                <div class="cds--row">
+                    <div class="cds--col-lg-16 cds--no-gutter">
+                        <div class="cds--content-section">
+                            
+                            
+                                
+
+    
+    
+    
+    <div id="container-cc0efd37c2" class="cmp-container " data-region="content">
+        
+        <div data-component-name="simple-narrative" class="simple-narrative">
+
+<c4d-content-block-simple data-autoid="c4d--content-block-simple" class=" " content-section-body>
+    <div slot="heading">
+        
+        
+  
+    
+    <a data-title="Overview" name="Overview"></a>
+  
+
+        <c4d-content-block-heading data-autoid="c4d--content-block__heading" role="heading">
+            
+                
+                    
+
+     
+    Overview
+
+
+
+
+    
+
+
+                
+                
+            
+        </c4d-content-block-heading>
+    </div>
+    <c4d-content-block-copy data-autoid="c4d--content-block__copy" slot="copy" size="sm">
+        
+            <div class="cms-richtext  " id="rich-text-27278ad6c1" data-dynamic-inner-content="description">
+    <p>Large Language Models (LLMs) are often surprisingly knowledgeable about a wide range of topics but they are limited to only the data they were trained on. This means that clients looking to use LLMs with private or proprietary business information cannot use LLMs &#39;out of the box&#39; to answer questions, generate correspondence, or the like.</p>
+<p>Retrieval augmented generation (RAG) is an architectural pattern that enables foundation models to produce factually correct outputs for specialized or proprietary topics that were not part of the model&#39;s training data. By augmenting users&#39; questions and prompts with relevant data retrieved from external data sources RAG gives the model &#39;new&#39; (to the model) facts and details on which to base its response.</p>
+<p> </p>
+<p> </p>
+<h1>Conceptual Architecture</h1>
+
+    
+    
+    
+    
+
+</div>
+        
+    </c4d-content-block-copy>
+    
+        
+            <div class="image-dm image">
+
+    
+
+	
+
+	<div data-cmp-hook-image="imageV3IBM" slot="media" data-cmp-is="image" data-cmp-widths="256,320,384,512,640,768,960,1024,1152,1280,1536" data-cmp-dmimage data-cmp-src="https://assets.ibm.com/is/image/ibm/rag?ts=1784565778776&amp;dpr=off" data-asset-id="72dd2ab5-6b36-46e2-abe1-b0492e21eb75" data-cmp-filereference="/content/dam/connectedassets-adobe-cms/worldwide-content/sys/cf/ul/g/72/dd/rag.png" id="image-dm-44fd8a872e" data-cmp-data-layer="{&#34;image-dm-44fd8a872e&#34;:{&#34;@type&#34;:&#34;adobe-cms/components/content/atoms/image-dm&#34;,&#34;repo:modifyDate&#34;:&#34;2026-07-20T16:42:58Z&#34;,&#34;dc:title&#34;:&#34;The conceptual architecture of a RAG solution showing the major components and the flow of interactions between them to respond to a user query.&#34;,&#34;image&#34;:{&#34;repo:id&#34;:&#34;72dd2ab5-6b36-46e2-abe1-b0492e21eb75&#34;,&#34;repo:modifyDate&#34;:&#34;2023-12-11T22:17:47Z&#34;,&#34;@type&#34;:&#34;image/png&#34;,&#34;repo:path&#34;:&#34;/content/dam/connectedassets-adobe-cms/worldwide-content/sys/cf/ul/g/72/dd/rag.png&#34;}}}" class="cmp-image overlaywatermark">
+		<script type="application/json">
+			{
+				"widths": [256,320,384,512,640,768,960,1024,1152,1280,1536],
+				"maximagesize": "5000",
+				"aspectratio": "",
+				"urls": {
+					"dynamicmedia": "https://assets.ibm.com/is/image/ibm/rag?fmt=png-alpha",
+					"adaptiveservlet": "/content/adobe-cms/us/en/think/architectures/patterns/genai-rag/jcr:content/root/table_of_contents/content_section_styl_301866017/content-section-body/simple_narrative_cop/image.coreimg.png/1784565778776/rag.png",
+					"assetdelivery": "/adobe/dynamicmedia/deliver/dm-aid--72dd2ab5-6b36-46e2-abe1-b0492e21eb75/rag.png?preferwebp=true"
+				},
+				"usecustomcrop": "false",
+				"customcrops": {
+					"1x1": "",
+					"2x1": "",
+					"3x2": "",
+					"4x3": "",
+					"5x2": "",
+					"16x9": ""
+				}
+			}
+		</script>
+		
+
+            <div class="image-border">
+                
+                    
+                        
+                        <img src="https://assets.ibm.com/is/image/ibm/rag?ts=1784565778776&dpr=off" srcset="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" loading="lazy" fetchpriority="auto" class="cmp-image__image " itemprop="contentUrl" width="8960" height="5048" alt="The conceptual architecture of a RAG solution showing the major components and the flow of interactions between them to respond to a user query."/>
+                    
+                
+                
+
+                <div class="cmp-image__zoom-button">
+                    <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="white" aria-hidden="true" width="20" height="20" viewBox="0 0 32 32">
+                        <path d="M20 2L20 4 26.586 4 18 12.582 19.414 14 28 5.414 28 12 30 12 30 2 20 2zM14 19.416L12.592 18 4 26.586 4 20 2 20 2 30 12 30 12 28 5.414 28 14 19.416z"></path>
+                    </svg>
+                </div>
+
+            </div>
+        
+        <span class="cmp-image__title c4d--image__caption" itemprop="caption">
+            The conceptual architecture of a RAG solution showing the major components and the flow of interactions between them to respond to a user query.
+        </span>
+
+        <c4d-expressive-modal expressive-size="full-width">
+            <c4d-expressive-modal-close-button></c4d-expressive-modal-close-button>
+            <c4d-lightbox-media-viewer alt="The conceptual architecture of a RAG solution showing the major components and the flow of interactions between them to respond to a user query." default-src="/content/adobe-cms/us/en/think/architectures/patterns/genai-rag/jcr:content/root/table_of_contents/content_section_styl_301866017/content-section-body/simple_narrative_cop/image.coreimg.png/1784565778776/rag.png" title="The conceptual architecture of a RAG solution showing the major components and the flow of interactions between them to respond to a user query.">
+                
+            </c4d-lightbox-media-viewer>
+        </c4d-expressive-modal>
+        
+    </div>
+    
+    
+
+
+
+
+    
+
+</div>
+
+        
+        
+            
+        
+        
+    
+    <div slot="complementary">
+        
+        
+        
+            
+
+    
+    
+    
+    <div id="link-list-custom-container-bce425d108" class="cmp-container">
+        
+        
+        <div class="link-list-custom-aside link-list-simple">
+    <span class="custom-link-list-heading">
+        Generative AI architecture patterns </span>
+    <p></p>
+    
+    <ul class="link-list-simple__list-">
+        <li class="link-list-simple__list-item">
+            <a class="cds--link cds--link--lg cds--link-with-icon" href="https://www.ibm.com/think/architectures/patterns/genai-rag" target="_blank">
+                    <span class="cds--link-text" data-link-text>Retrieval augmented generation</span>
+                
+    <!-- LTR - Left to Right version -->
+    
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" focusable="false" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M11.8 2.8L10.8 3.8 16.2 9.3 1 9.3 1 10.7 16.2 10.7 10.8 16.2 11.8 17.2 19 10z"></path>
+    </svg>
+
+    <!-- RTL - Right to Left version -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+            </a>
+        </li>
+<li class="link-list-simple__list-item">
+            <a class="cds--link cds--link--lg cds--link-with-icon" href="https://www.ibm.com/think/architectures/patterns/genai-agent-assist" target="_blank">
+                    <span class="cds--link-text" data-link-text>Conversation with agent assist</span>
+                
+    <!-- LTR - Left to Right version -->
+    
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" focusable="false" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M11.8 2.8L10.8 3.8 16.2 9.3 1 9.3 1 10.7 16.2 10.7 10.8 16.2 11.8 17.2 19 10z"></path>
+    </svg>
+
+    <!-- RTL - Right to Left version -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+            </a>
+        </li>
+<li class="link-list-simple__list-item">
+            <a class="cds--link cds--link--lg cds--link-with-icon" href="https://www.ibm.com/think/architectures/patterns/genai-generative-search" target="_blank">
+                    <span class="cds--link-text" data-link-text>Generative search</span>
+                
+    <!-- LTR - Left to Right version -->
+    
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" focusable="false" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M11.8 2.8L10.8 3.8 16.2 9.3 1 9.3 1 10.7 16.2 10.7 10.8 16.2 11.8 17.2 19 10z"></path>
+    </svg>
+
+    <!-- RTL - Right to Left version -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+            </a>
+        </li>
+<li class="link-list-simple__list-item">
+            <a class="cds--link cds--link--lg cds--link-with-icon" href="https://www.ibm.com/think/architectures/patterns/agentic-ai" target="_blank">
+                    <span class="cds--link-text" data-link-text>Agentic AI</span>
+                
+    <!-- LTR - Left to Right version -->
+    
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" focusable="false" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M11.8 2.8L10.8 3.8 16.2 9.3 1 9.3 1 10.7 16.2 10.7 10.8 16.2 11.8 17.2 19 10z"></path>
+    </svg>
+
+    <!-- RTL - Right to Left version -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+            </a>
+        </li>
+<li class="link-list-simple__list-item">
+            <a class="cds--link cds--link--lg cds--link-with-icon" href="https://www.ibm.com/think/architectures/patterns/genai-document-summarization" target="_blank">
+                    <span class="cds--link-text" data-link-text>Document summarization</span>
+                
+    <!-- LTR - Left to Right version -->
+    
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" focusable="false" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M11.8 2.8L10.8 3.8 16.2 9.3 1 9.3 1 10.7 16.2 10.7 10.8 16.2 11.8 17.2 19 10z"></path>
+    </svg>
+
+    <!-- RTL - Right to Left version -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+            </a>
+        </li>
+<li class="link-list-simple__list-item">
+            <a class="cds--link cds--link--lg cds--link-with-icon" href="https://www.ibm.com/think/architectures/patterns/genai-modernization-and-code-generation" target="_blank">
+                    <span class="cds--link-text" data-link-text>Modernization and code generation</span>
+                
+    <!-- LTR - Left to Right version -->
+    
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" focusable="false" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M11.8 2.8L10.8 3.8 16.2 9.3 1 9.3 1 10.7 16.2 10.7 10.8 16.2 11.8 17.2 19 10z"></path>
+    </svg>
+
+    <!-- RTL - Right to Left version -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+            </a>
+        </li>
+<li class="link-list-simple__list-item">
+            <a class="cds--link cds--link--lg cds--link-with-icon" href="https://www.ibm.com/think/architectures/patterns/genai-code-generation-ansible" target="_blank">
+                    <span class="cds--link-text" data-link-text>Code generation for Ansible</span>
+                
+    <!-- LTR - Left to Right version -->
+    
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" focusable="false" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M11.8 2.8L10.8 3.8 16.2 9.3 1 9.3 1 10.7 16.2 10.7 10.8 16.2 11.8 17.2 19 10z"></path>
+    </svg>
+
+    <!-- RTL - Right to Left version -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+            </a>
+        </li>
+<li class="link-list-simple__list-item">
+            <a class="cds--link cds--link--lg cds--link-with-icon" href="https://www.ibm.com/think/architectures/patterns/genai-code-generation-z" target="_blank">
+                    <span class="cds--link-text" data-link-text>Code generation for Z</span>
+                
+    <!-- LTR - Left to Right version -->
+    
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" focusable="false" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M11.8 2.8L10.8 3.8 16.2 9.3 1 9.3 1 10.7 16.2 10.7 10.8 16.2 11.8 17.2 19 10z"></path>
+    </svg>
+
+    <!-- RTL - Right to Left version -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+            </a>
+        </li>
+<li class="link-list-simple__list-item">
+            <a class="cds--link cds--link--lg cds--link-with-icon" href="https://www.ibm.com/think/architectures/patterns/genai-augmented-software-development" target="_blank">
+                    <span class="cds--link-text" data-link-text>AI Augmented Software Development with Agents</span>
+                
+    <!-- LTR - Left to Right version -->
+    
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" focusable="false" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M11.8 2.8L10.8 3.8 16.2 9.3 1 9.3 1 10.7 16.2 10.7 10.8 16.2 11.8 17.2 19 10z"></path>
+    </svg>
+
+    <!-- RTL - Right to Left version -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+            </a>
+        </li>
+
+    </ul>
+    
+        <hr class="cds--hr"/>
+    
+
+
+    
+</div>
+
+        
+    </div>
+
+
+        
+    </div>
+    
+    
+	
+	
+    
+
+
+    
+
+
+</c4d-content-block-simple>
+
+
+    
+    
+
+</div>
+<div data-component-name="simple-narrative" class="simple-narrative">
+
+<c4d-content-block-simple data-autoid="c4d--content-block-simple" class=" " content-section-body>
+    <div slot="heading">
+        
+        
+  
+
+        
+    </div>
+    <c4d-content-block-copy data-autoid="c4d--content-block__copy" slot="copy" size="sm">
+        
+            <div class="cms-richtext  " id="rich-text-704f88eff5" data-dynamic-inner-content="description">
+    <p>The RAG pattern, shown in the diagram below, is made up of two parts: data embedding during build time, and user prompting (or returning search results) during runtime.</p>
+<ol><li><p>An AI Engineer prepares the client data (for example, procedure manuals, product documentation, or help desk tickets, etc.) during Data Preprocessing. Client data is transformed and/or enriched to make it suitable for model augmentation. Transformations might include simple format conversions such as converting PDF documents to text, or more complex transformations such as translating complex table structures into if-then type statements. Enrichment may include expanding common abbreviations, adding meta-data such as currency information, and other additions to improve the relevancy of search results.</p>
+<p> </p>
+</li><li><p>An embedding model is used to convert the source data into a series of vectors that represent the words in the client data. Embeddings make it easier to do machine learning on large inputs like sparse vectors representing words. The embeddings are stored as passages (called chunks) of client data, think of sub-sections or paragraphs, to make it easier to find information.</p>
+<p> </p>
+</li><li><p>The generated embeddings are stored in a vector database. Any data source that supports &#39;fuzzy&#39; queries that return results based on likely relevance, for example watsonx Discovery, can be used in the RAG architecture but the most common implementation uses a vector database such as Milvus, FAISS, or Chroma.<br />
+<br />
+<strong>The system is now ready for use by end-users.<br />
+  </strong></p>
+</li><li><p>End-users interact with a GenAI enabled application and enter a query.</p>
+<p> </p>
+</li><li><p>The GenAI application receives the query, and performs a search on the vector database to obtain the top most (we call this top K) pieces of information that most closely match the user&#39;s query. For example, if the user&#39;s query is &#34;What is the daily withdrawal limit on the MaxSavers account&#34;, the search may return passages such as &#34;The MaxSavers account is…&#34;, &#34;Daily withdrawal limits are…&#34;. and &#34;…account limits…&#34;.</p>
+<p> </p>
+</li><li><p>The top passages, along with a prompt curated for the specific application are sent to the LLM.</p>
+<p> </p>
+</li><li><p>The LLM returns a human-like response based on the user&#39;s query, prompt, and context information which is presented to the end-user.</p>
+</li></ol>
+
+    
+    
+    
+    
+
+</div>
+        
+    </c4d-content-block-copy>
+    
+        
+            
+        
+        
+            
+        
+        
+    
+    <div slot="complementary">
+        
+            
+            
+                
+
+    
+    
+        
+    
+
+    
+        
+    
+
+    
+
+    
+
+            
+        
+        
+        
+    </div>
+    
+    
+	
+	
+    
+
+
+    
+
+
+</c4d-content-block-simple>
+
+
+    
+    
+
+</div>
+<div data-component-name="complex-narrative" class="complex-narrative">
+
+	<c4d-content-block-segmented content-section-body no-aside class="complex-narrative-container">
+		<div slot="heading">
+			
+			
+  
+    
+    <a data-title="IBM Product Architecture" name="IBM+Product+Architecture"></a>
+  
+
+			<c4d-content-block-heading data-autoid="c4d--content-block__heading" role="heading">
+				
+
+     
+    IBM Product Architecture
+
+
+
+
+    
+
+
+			</c4d-content-block-heading>
+		</div>
+		
+		<div class="c4d-image-with-caption--author" slot="media"><div class="image-dm image">
+
+    
+
+	
+
+	<div data-cmp-hook-image="imageV3IBM" slot="media" data-cmp-is="image" data-cmp-widths="256,320,384,512,640,768,960,1024,1152,1280,1536" data-cmp-dmimage data-cmp-src="https://assets.ibm.com/is/image/ibm/rag-product-mapping?ts=1784565785906&amp;dpr=off" data-asset-id="ba8a3265-c815-4c0d-a9ea-8381274dcc66" data-cmp-filereference="/content/dam/connectedassets-adobe-cms/worldwide-content/sys/cf/ul/g/ba/8a/rag-product-mapping.png" id="image-dm-ca92c22ee9" data-cmp-data-layer="{&#34;image-dm-ca92c22ee9&#34;:{&#34;@type&#34;:&#34;adobe-cms/components/content/atoms/image-dm&#34;,&#34;repo:modifyDate&#34;:&#34;2026-07-20T16:43:05Z&#34;,&#34;dc:title&#34;:&#34;An illustration of how IBM watsonx Discovery, IBM watsonx Assistant, and the SaaS version of watsonx.ai realize the RAG solution architecture.&#34;,&#34;image&#34;:{&#34;repo:id&#34;:&#34;ba8a3265-c815-4c0d-a9ea-8381274dcc66&#34;,&#34;repo:modifyDate&#34;:&#34;2023-12-11T22:17:19Z&#34;,&#34;@type&#34;:&#34;image/png&#34;,&#34;repo:path&#34;:&#34;/content/dam/connectedassets-adobe-cms/worldwide-content/sys/cf/ul/g/ba/8a/rag-product-mapping.png&#34;}}}" class="cmp-image overlaywatermark">
+		<script type="application/json">
+			{
+				"widths": [256,320,384,512,640,768,960,1024,1152,1280,1536],
+				"maximagesize": "5000",
+				"aspectratio": "",
+				"urls": {
+					"dynamicmedia": "https://assets.ibm.com/is/image/ibm/rag-product-mapping?fmt=png-alpha",
+					"adaptiveservlet": "/content/adobe-cms/us/en/think/architectures/patterns/genai-rag/jcr:content/root/table_of_contents/content_section_styl_301866017/content-section-body/complex_narrative/image.coreimg.png/1784565785906/rag-product-mapping.png",
+					"assetdelivery": "/adobe/dynamicmedia/deliver/dm-aid--ba8a3265-c815-4c0d-a9ea-8381274dcc66/rag-product-mapping.png?preferwebp=true"
+				},
+				"usecustomcrop": "false",
+				"customcrops": {
+					"1x1": "",
+					"2x1": "",
+					"3x2": "",
+					"4x3": "",
+					"5x2": "",
+					"16x9": ""
+				}
+			}
+		</script>
+		
+
+            <div class="image-border">
+                
+                    
+                        
+                        <img src="https://assets.ibm.com/is/image/ibm/rag-product-mapping?ts=1784565785906&dpr=off" srcset="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" loading="lazy" fetchpriority="auto" class="cmp-image__image " itemprop="contentUrl" width="8960" height="5048" alt="An illustration of how IBM watsonx Discovery, IBM watsonx Assistant, and the SaaS version of watsonx.ai realize the RAG solution architecture."/>
+                    
+                
+                
+
+                <div class="cmp-image__zoom-button">
+                    <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="white" aria-hidden="true" width="20" height="20" viewBox="0 0 32 32">
+                        <path d="M20 2L20 4 26.586 4 18 12.582 19.414 14 28 5.414 28 12 30 12 30 2 20 2zM14 19.416L12.592 18 4 26.586 4 20 2 20 2 30 12 30 12 28 5.414 28 14 19.416z"></path>
+                    </svg>
+                </div>
+
+            </div>
+        
+        <span class="cmp-image__title c4d--image__caption" itemprop="caption">
+            An illustration of how IBM watsonx Discovery, IBM watsonx Assistant, and the SaaS version of watsonx.ai realize the RAG solution architecture.
+        </span>
+
+        <c4d-expressive-modal expressive-size="full-width">
+            <c4d-expressive-modal-close-button></c4d-expressive-modal-close-button>
+            <c4d-lightbox-media-viewer alt="An illustration of how IBM watsonx Discovery, IBM watsonx Assistant, and the SaaS version of watsonx.ai realize the RAG solution architecture." default-src="/content/adobe-cms/us/en/think/architectures/patterns/genai-rag/jcr:content/root/table_of_contents/content_section_styl_301866017/content-section-body/complex_narrative/image.coreimg.png/1784565785906/rag-product-mapping.png" title="An illustration of how IBM watsonx Discovery, IBM watsonx Assistant, and the SaaS version of watsonx.ai realize the RAG solution architecture.">
+                
+            </c4d-lightbox-media-viewer>
+        </c4d-expressive-modal>
+        
+    </div>
+    
+    
+
+
+
+
+    
+
+</div>
+</div>
+		
+
+		
+
+    
+    
+    
+    
+
+
+  <c4d-content-block-segmented-item>
+    
+    <c4d-content-item-copy>
+      <div class="cms-richtext  " id="rich-text-dc7497c0fd" data-dynamic-inner-content="description">
+    <p>The mapping of the IBM Watson and watsonx family of products to the RAG pattern is shown in the diagram above. </p>
+<p>watsonx Discovery implements the pre-processing, embedding generation, and relevancy storage and retrieval functions of the pattern. For certain types of solutions, watsonx Discovery can also be used as the front-end generative AI application for users. Beyond simply replacing a vector database, watsonx Discovery offers out-of-the-box NLP enrichments including entity extraction, sentiment analysis, emotion analysis, keyword extractions, category classification, concept tagging and others.</p>
+<p>Finally, watsonx.ai provides a selection of large language models clients can chose from in a cloud hosting environment. With watsonx.ai, clients can train, validate, tune and deploy generative AI, foundation models and machine learning capabilities with ease and build AI applications in a fraction of the time with a fraction of the data.</p>
+
+    
+    
+    
+    
+
+</div>
+    </c4d-content-item-copy>
+    
+    
+    
+  </c4d-content-block-segmented-item>
+
+
+
+    
+    
+
+
+
+
+
+  <c4d-content-block-segmented-item>
+    <c4d-content-group-heading>
+      
+
+
+  
+  
+    
+    On-premise / private deployments
+
+  
+
+
+
+
+
+    
+
+
+    </c4d-content-group-heading>
+    <c4d-content-item-copy>
+      <div class="cms-richtext  " id="rich-text-fa4dc4a1bd" data-dynamic-inner-content="description">
+    <p>Some clients do not have watsonx.ai available in their local region, or may have security concerns or regulatory requirements that prevent them from using the watsonx.ai SaaS solution. For these clients, we offer watsonx.ai as a set of containerized services that can be deployed on Red Hat Openshift running within the clients&#39; data centers, or within a virtual private cloud (VPC) within a cloud-service provider&#39;s infrastructure.</p>
+
+    
+    
+    
+    
+
+</div>
+    </c4d-content-item-copy>
+    
+      <div class="image-dm image">
+
+    
+
+	
+
+	<div data-cmp-hook-image="imageV3IBM" data-cmp-is="image" data-cmp-widths="256,320,384,512,640,768,960,1024,1152,1280,1536" data-cmp-dmimage data-cmp-src="https://assets.ibm.com/is/image/ibm/rag-on-premise?ts=1784565788154&amp;dpr=off" data-asset-id="0255ec7e-8d14-447e-a942-236148f8ccff" data-cmp-filereference="/content/dam/connectedassets-adobe-cms/worldwide-content/sys/cf/ul/g/02/55/rag-on-premise.png" id="image-dm-b3f146ecb4" data-cmp-data-layer="{&#34;image-dm-b3f146ecb4&#34;:{&#34;@type&#34;:&#34;adobe-cms/components/content/atoms/image-dm&#34;,&#34;repo:modifyDate&#34;:&#34;2026-07-20T16:43:08Z&#34;,&#34;dc:title&#34;:&#34;An illustration of how IBM watsonx Discovery, IBM watsonx Assistant, and watsonx.ai can be deployed on-premises to realize the RAG solution architecture.&#34;,&#34;image&#34;:{&#34;repo:id&#34;:&#34;0255ec7e-8d14-447e-a942-236148f8ccff&#34;,&#34;repo:modifyDate&#34;:&#34;2023-12-11T22:17:33Z&#34;,&#34;@type&#34;:&#34;image/png&#34;,&#34;repo:path&#34;:&#34;/content/dam/connectedassets-adobe-cms/worldwide-content/sys/cf/ul/g/02/55/rag-on-premise.png&#34;}}}" class="cmp-image overlaywatermark">
+		<script type="application/json">
+			{
+				"widths": [256,320,384,512,640,768,960,1024,1152,1280,1536],
+				"maximagesize": "5000",
+				"aspectratio": "",
+				"urls": {
+					"dynamicmedia": "https://assets.ibm.com/is/image/ibm/rag-on-premise?fmt=png-alpha",
+					"adaptiveservlet": "/content/adobe-cms/us/en/think/architectures/patterns/genai-rag/jcr:content/root/table_of_contents/content_section_styl_301866017/content-section-body/complex_narrative/items/content_group/image.coreimg.png/1784565788154/rag-on-premise.png",
+					"assetdelivery": "/adobe/dynamicmedia/deliver/dm-aid--0255ec7e-8d14-447e-a942-236148f8ccff/rag-on-premise.png?preferwebp=true"
+				},
+				"usecustomcrop": "false",
+				"customcrops": {
+					"1x1": "",
+					"2x1": "",
+					"3x2": "",
+					"4x3": "",
+					"5x2": "",
+					"16x9": ""
+				}
+			}
+		</script>
+		
+
+            <div class="image-border">
+                
+                    
+                        
+                        <img src="https://assets.ibm.com/is/image/ibm/rag-on-premise?ts=1784565788154&dpr=off" srcset="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" loading="lazy" fetchpriority="auto" class="cmp-image__image " itemprop="contentUrl" width="8960" height="5048" alt="An illustration of how IBM watsonx Discovery, IBM watsonx Assistant, and watsonx.ai can be deployed on-premises to realize the RAG solution architecture."/>
+                    
+                
+                
+
+                <div class="cmp-image__zoom-button">
+                    <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="white" aria-hidden="true" width="20" height="20" viewBox="0 0 32 32">
+                        <path d="M20 2L20 4 26.586 4 18 12.582 19.414 14 28 5.414 28 12 30 12 30 2 20 2zM14 19.416L12.592 18 4 26.586 4 20 2 20 2 30 12 30 12 28 5.414 28 14 19.416z"></path>
+                    </svg>
+                </div>
+
+            </div>
+        
+        <span class="cmp-image__title c4d--image__caption" itemprop="caption">
+            An illustration of how IBM watsonx Discovery, IBM watsonx Assistant, and watsonx.ai can be deployed on-premises to realize the RAG solution architecture.
+        </span>
+
+        <c4d-expressive-modal expressive-size="full-width">
+            <c4d-expressive-modal-close-button></c4d-expressive-modal-close-button>
+            <c4d-lightbox-media-viewer alt="An illustration of how IBM watsonx Discovery, IBM watsonx Assistant, and watsonx.ai can be deployed on-premises to realize the RAG solution architecture." default-src="/content/adobe-cms/us/en/think/architectures/patterns/genai-rag/jcr:content/root/table_of_contents/content_section_styl_301866017/content-section-body/complex_narrative/items/content_group/image.coreimg.png/1784565788154/rag-on-premise.png" title="An illustration of how IBM watsonx Discovery, IBM watsonx Assistant, and watsonx.ai can be deployed on-premises to realize the RAG solution architecture.">
+                
+            </c4d-lightbox-media-viewer>
+        </c4d-expressive-modal>
+        
+    </div>
+    
+    
+
+
+
+
+    
+
+</div>
+
+    
+    
+    
+  </c4d-content-block-segmented-item>
+
+
+
+    
+    
+
+
+
+
+
+  <c4d-content-block-segmented-item>
+    <c4d-content-group-heading>
+      
+
+
+  
+  
+    
+    Multiple language support
+
+  
+
+
+
+
+
+    
+
+
+    </c4d-content-group-heading>
+    <c4d-content-item-copy>
+      <div class="cms-richtext  " id="rich-text-1fcfcd8496" data-dynamic-inner-content="description">
+    <p>The majority of LLMs are trained on English language dominant text that contains a small percentage of text in other, often Western European, languages. For applications requiring multi-lingual or localized language support can implement a pre- and post-query translation step to translate inputs to the pre-processed documents&#39; &#39;base&#39; language, English for example, and translating the model outputs to the target language, eg. Spanish. This approach is shown in the diagram below.</p>
+
+    
+    
+    
+    
+
+</div>
+    </c4d-content-item-copy>
+    
+      <div class="image-dm image">
+
+    
+
+	
+
+	<div data-cmp-aspectratio="16x9" data-cmp-hook-image="imageV3IBM" data-cmp-is="image" data-cmp-widths="256,320,384,512,640,768,960,1024,1152,1280,1536" data-cmp-dmimage data-cmp-src="https://assets.ibm.com/is/image/ibm/rag-multi-lingual?ts=1784565789245&amp;dpr=off" data-asset-id="073704ea-32c4-4f02-9203-54a85c9a9383" data-cmp-filereference="/content/dam/connectedassets-adobe-cms/worldwide-content/sys/cf/ul/g/07/37/rag-multi-lingual.png" id="image-dm-512a2f5b8f" data-cmp-data-layer="{&#34;image-dm-512a2f5b8f&#34;:{&#34;@type&#34;:&#34;adobe-cms/components/content/atoms/image-dm&#34;,&#34;repo:modifyDate&#34;:&#34;2026-07-20T16:43:09Z&#34;,&#34;dc:title&#34;:&#34;A walkthrough of the RAG solution architecture illustrating the component interactions and flows to enable support multiple languages.&#34;,&#34;image&#34;:{&#34;repo:id&#34;:&#34;073704ea-32c4-4f02-9203-54a85c9a9383&#34;,&#34;repo:modifyDate&#34;:&#34;2023-12-11T22:17:05Z&#34;,&#34;@type&#34;:&#34;image/png&#34;,&#34;repo:path&#34;:&#34;/content/dam/connectedassets-adobe-cms/worldwide-content/sys/cf/ul/g/07/37/rag-multi-lingual.png&#34;}}}" class="cmp-image overlaywatermark">
+		<script type="application/json">
+			{
+				"widths": [256,320,384,512,640,768,960,1024,1152,1280,1536],
+				"maximagesize": "5000",
+				"aspectratio": "16x9",
+				"urls": {
+					"dynamicmedia": "https://assets.ibm.com/is/image/ibm/rag-multi-lingual?fmt=png-alpha",
+					"adaptiveservlet": "/content/adobe-cms/us/en/think/architectures/patterns/genai-rag/jcr:content/root/table_of_contents/content_section_styl_301866017/content-section-body/complex_narrative/items/content_group_1798143566/image.coreimg.png/1784565789245/rag-multi-lingual.png",
+					"assetdelivery": "/adobe/dynamicmedia/deliver/dm-aid--073704ea-32c4-4f02-9203-54a85c9a9383/rag-multi-lingual.png?preferwebp=true"
+				},
+				"usecustomcrop": "false",
+				"customcrops": {
+					"1x1": "",
+					"2x1": "",
+					"3x2": "",
+					"4x3": "",
+					"5x2": "",
+					"16x9": ""
+				}
+			}
+		</script>
+		
+
+            <div class="image-border">
+                
+                    
+                        
+                        <img src="https://assets.ibm.com/is/image/ibm/rag-multi-lingual?ts=1784565789245&dpr=off" srcset="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" loading="lazy" fetchpriority="auto" class="cmp-image__image " itemprop="contentUrl" width="8960" height="5048" alt="A walkthrough of the RAG solution architecture illustrating the component interactions and flows to enable support multiple languages."/>
+                    
+                
+                
+
+                <div class="cmp-image__zoom-button">
+                    <svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" fill="white" aria-hidden="true" width="20" height="20" viewBox="0 0 32 32">
+                        <path d="M20 2L20 4 26.586 4 18 12.582 19.414 14 28 5.414 28 12 30 12 30 2 20 2zM14 19.416L12.592 18 4 26.586 4 20 2 20 2 30 12 30 12 28 5.414 28 14 19.416z"></path>
+                    </svg>
+                </div>
+
+            </div>
+        
+        <span class="cmp-image__title c4d--image__caption" itemprop="caption">
+            A walkthrough of the RAG solution architecture illustrating the component interactions and flows to enable support multiple languages.
+        </span>
+
+        <c4d-expressive-modal expressive-size="full-width">
+            <c4d-expressive-modal-close-button></c4d-expressive-modal-close-button>
+            <c4d-lightbox-media-viewer alt="A walkthrough of the RAG solution architecture illustrating the component interactions and flows to enable support multiple languages." default-src="/content/adobe-cms/us/en/think/architectures/patterns/genai-rag/jcr:content/root/table_of_contents/content_section_styl_301866017/content-section-body/complex_narrative/items/content_group_1798143566/image.coreimg.png/1784565789245/rag-multi-lingual.png" title="A walkthrough of the RAG solution architecture illustrating the component interactions and flows to enable support multiple languages.">
+                
+            </c4d-lightbox-media-viewer>
+        </c4d-expressive-modal>
+        
+    </div>
+    
+    
+
+
+
+
+    
+
+</div>
+
+    
+    
+    
+  </c4d-content-block-segmented-item>
+
+
+
+    
+    
+
+
+
+
+
+  <c4d-content-block-segmented-item>
+    
+    <c4d-content-item-copy>
+      <div class="cms-richtext  " id="rich-text-881ca00629" data-dynamic-inner-content="description">
+    <p>This approach alters the base RAG pattern as follows (setting the embedding generation steps aside):</p>
+<ol><li><p>A user enters a query in a language that differs from the dominant language of the pre-processed documentation. For example, a query in Spanish and an English dominant documentation base.</p>
+</li><li><p>The generative AI application prompts a large language model to translate the user query to the language of the documentation base. In our example, from Spanish to English.</p>
+</li><li><p>The translated query is used to retrieve the top K passages of information that are most relevant to the user&#39;s query.</p>
+</li><li><p>The translated query and the retrieved context are sent to the LLM to generate a response.</p>
+</li><li><p>The generative AI application again uses a large language model to translate the generated response to the user&#39;s target language. In our example, from English to Spanish.</p>
+</li><li><p>The translated response, in Spanish, is presented to the end-user.</p>
+</li></ol>
+<p>Experience suggests that 80% or higher accuracy, depending on the context and types of queries being submitted, in non-base-language results can be achieved using this approach. Emerging multi-language models, trained on larger percentages of different languages, are expected to achieve even higher accuracy.</p>
+
+    
+    
+    
+    
+
+</div>
+    </c4d-content-item-copy>
+    
+    
+    
+  </c4d-content-block-segmented-item>
+
+
+
+    
+    
+
+
+
+    
+
+
+
+		
+		
+    
+	
+	
+    
+
+
+    
+
+
+	</c4d-content-block-segmented>
+
+	
+
+	
+    
+
+</div>
+<div data-component-name="simple-narrative" class="simple-narrative">
+
+<c4d-content-block-simple data-autoid="c4d--content-block-simple" class=" " no-aside content-section-body>
+    <div slot="heading">
+        
+        
+  
+    
+    <a data-title="Use Cases" name="Use+Cases"></a>
+  
+
+        <c4d-content-block-heading data-autoid="c4d--content-block__heading" role="heading">
+            
+                
+                    
+
+     
+    Use Cases
+
+
+
+
+    
+
+
+                
+                
+            
+        </c4d-content-block-heading>
+    </div>
+    <c4d-content-block-copy data-autoid="c4d--content-block__copy" slot="copy" size="sm">
+        
+            <div class="cms-richtext  " id="rich-text-d0b24a07c1" data-dynamic-inner-content="description">
+    <p>RAG is a candidate solution for any business scenario where there is a large body of documentation and business rules that a user must consult to provide authoritative answers. It is also a strong solution for infusing LLM-based chatbots with proprietary or domain-specific knowledge and preventing hallucinations.</p>
+<p>Candidate uses include:</p>
+<ul><li><p><strong>Insurance underwriting and claims adjudication.</strong> RAG has many potential applications within the insurance industry. Underwriters and brokers require deep knowledge of thousands of pages of documentation covering the terms and conditions of hundreds of insurance products. Similarly, claims adjudicators may be required to have deep knowledge of the same documentation, as well as contracts with overrides and additional terms specific to individual clients. The RAG architecture pattern can serve as the architecture &#39;backbone&#39; of solutions to assist underwrites, brokers, and adjusters with querying product and contract documentation to better respond to client queries and improve process productivity.<br />
+ </p>
+</li><li><p><strong>Call center agent support.</strong> Call center agents require deep knowledge of potentially hundreds of products and services, as well as commonly occurring product issues and their resolution. The RAG pattern is a strong architecture foundation on which to create solutions to assist agents in quickly finding answers to client requests.<br />
+ </p>
+</li><li><p><strong>Customer chatbots.</strong> RAG is strong enabler for creating customer-facing chatbots to answer questions. Combining the natural language abilities of Large Language Models and the enterprise-specific responses of RAG can deliver a compelling, conversational customer experience. Note that RAG on its own only delivers question-and-answer capabilities; it does not have the ability to &#39;transact&#39;, ie. interact with enterprise systems to pull information or update records. Additional components must be added to detect user intent and to interact with enterprise systems.<br />
+ </p>
+</li><li><p><strong>Support / helpdesk.</strong> Like call center agents, IT operations and support personnel require deep knowledge of the configuration of complex systems deployments along with knowledge of common and previously seen issues and their resolution. The RAG pattern is a strong architecture foundation on which to create solutions to assist support personnel with quickly finding relevant answers to reported problems and observed issues.</p>
+</li></ul>
+
+    
+    
+    
+    
+
+</div>
+        
+    </c4d-content-block-copy>
+    
+        
+            
+        
+        
+            
+        
+        
+    
+    
+    
+    
+	
+	
+    
+
+
+    
+
+
+</c4d-content-block-simple>
+
+
+    
+    
+
+</div>
+<div class="accordion-container">
+
+
+<div class="cds--content-block cds--content-block-12-col">
+
+    
+        
+            <h2 class="cds--content-block__heading">
+                
+
+     
+  
+    
+    <a data-title="Architecture Decisions and Considerations" name="Architecture+Decisions+and+Considerations"></a>
+  
+
+
+     
+    Architecture Decisions and Considerations
+
+
+
+
+    
+
+
+            </h2>
+        
+
+        
+
+        
+    
+
+    
+
+    <div class="cds--content-item cds--inside-content-section-styled" data-autoid="c4d--content-item">
+        
+
+
+
+    <div class="cmp-accordion cds--accordion" data-cmp-data-layer="{&#34;accordion-item-929dbe7f15&#34;:{&#34;shownItems&#34;:[],&#34;@type&#34;:&#34;adobe-cms/components/content/organisms/accordion/accordion-item&#34;,&#34;repo:modifyDate&#34;:&#34;2026-07-20T16:43:15Z&#34;}}" data-cmp-is="accordion" data-panelcontainer="accordion" id="accordion-item-929dbe7f15" role="list">
+        <div class="cmp-accordion__item cds--accordion__item" data-cmp-data-layer="{&#34;accordion-item-929dbe7f15-item-7fa0ec5729&#34;:{&#34;@type&#34;:&#34;adobe-cms/components/content/organisms/accordion/accordion-item/item&#34;,&#34;dc:title&#34;:&#34;Choice of Generation Model&#34;}}" data-cmp-hook-accordion="item" id="accordion-item-929dbe7f15-item-7fa0ec5729" role="listitem">
+            <div class="cmp-accordion__header" style="display: contents">
+                <button aria-controls="accordion-item-929dbe7f15-item-7fa0ec5729-panel" class="cds--accordion__heading cmp-accordion__button" data-cmp-hook-accordion="button" id="accordion-item-929dbe7f15-item-7fa0ec5729-button">
+                    <svg aria-hidden="true" class="cds--accordion__arrow cmp-accordion__icon" fill="currentColor" focusable="false" height="16" preserveAspectRatio="xMidYMid meet" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 8L6 13 5.3 12.3 9.6 8 5.3 3.7 6 3z"></path>
+                    </svg>
+                    <div class="cds--accordion__title cmp-accordion__title">
+                        Choice of Generation Model
+                    </div>
+                </button>
+            </div>
+            <div aria-labelledby="accordion-item-929dbe7f15-item-7fa0ec5729-button" class="cmp-accordion__panel cmp-accordion__panel--hidden" data-cmp-hook-accordion="panel" id="accordion-item-929dbe7f15-item-7fa0ec5729-panel" role="region"><div class="accordion-item-container nested-container container responsivegrid cds--accordion-item__body">
+
+
+
+    
+        <div class="cms-richtext  " id="rich-text-2155aa829f" data-dynamic-inner-content="description">
+    <p>Many factors go into choosing a models that will work well for your project.</p>
+<p>The model&#39;s license may restrict how it can be used. For example, a model&#39;s license may prevent it from being used as part of a commercial application.</p>
+<p>The data set used to train the model training has a direct impact how well the model works for a specific application and significantly affects the risk that the model may generate non-sensical, offensive, or simply unwanted responses. Similarly, models trained on copyrighted or private data may open their users to legal liability. IBM provides full training data transparency and indemnification from legal claims arising from its models.</p>
+<p>The size of the model, how many parameters it is trained with, and the size of its context window (how long of a passage of text can the model accept) affect model performance, resource requirements, and throughput. While it&#39;s tempting to go with a &#34;bigger is better&#34; philosophy and choose a 20 billion parameter model, the resource requirements and improvement (if any) in accuracy may not justify it. Recent studies have shown that smaller models can significantly outperform larger ones for some solutions.</p>
+<p>Any fine-tuning applied to a model can affect its suitability for a task. For example, IBM offers two versions of the Granite model: one tuned for general chat applications, and another tuned to follow instructions.</p>
+<p>Other considerations when choosing a model include:</p>
+<ul><li><p><strong>Selection of model parameters</strong>, eg. the model temperature, to balance the creation of human-like text and factual responses. Setting the model temperature to a high value will generate consistent but potentially uninteresting or overly terse responses, while setting the temperature to a low value will introduce more variety into the responses but will add unpredictability in the response length and content.</p>
+</li><li><p><strong>Selection and implementation of model guardrails</strong> to guard against ineffective or offensive results.</p>
+</li></ul>
+
+    
+    
+    
+    
+
+</div>
+    
+
+
+
+</div>
+</div>
+        </div>
+<div class="cmp-accordion__item cds--accordion__item" data-cmp-data-layer="{&#34;accordion-item-929dbe7f15-item-fea9cde7cf&#34;:{&#34;@type&#34;:&#34;adobe-cms/components/content/organisms/accordion/accordion-item/item&#34;,&#34;dc:title&#34;:&#34;Choice of Embedding Model&#34;}}" data-cmp-hook-accordion="item" id="accordion-item-929dbe7f15-item-fea9cde7cf" role="listitem">
+            <div class="cmp-accordion__header" style="display: contents">
+                <button aria-controls="accordion-item-929dbe7f15-item-fea9cde7cf-panel" class="cds--accordion__heading cmp-accordion__button" data-cmp-hook-accordion="button" id="accordion-item-929dbe7f15-item-fea9cde7cf-button">
+                    <svg aria-hidden="true" class="cds--accordion__arrow cmp-accordion__icon" fill="currentColor" focusable="false" height="16" preserveAspectRatio="xMidYMid meet" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 8L6 13 5.3 12.3 9.6 8 5.3 3.7 6 3z"></path>
+                    </svg>
+                    <div class="cds--accordion__title cmp-accordion__title">
+                        Choice of Embedding Model
+                    </div>
+                </button>
+            </div>
+            <div aria-labelledby="accordion-item-929dbe7f15-item-fea9cde7cf-button" class="cmp-accordion__panel cmp-accordion__panel--hidden" data-cmp-hook-accordion="panel" id="accordion-item-929dbe7f15-item-fea9cde7cf-panel" role="region"><div class="accordion-item-container nested-container container responsivegrid cds--accordion-item__body">
+
+
+
+    
+        <div class="cms-richtext  " id="rich-text-259decf0ba" data-dynamic-inner-content="description">
+    <p>The choice of model depends on the application, type of data and language support requirements. Embedding models may have to be extended to accurately encode and search on industry or client specific terms or acronyms.</p>
+
+    
+    
+    
+    
+
+</div>
+    
+
+
+
+</div>
+</div>
+        </div>
+<div class="cmp-accordion__item cds--accordion__item" data-cmp-data-layer="{&#34;accordion-item-929dbe7f15-item-ca3b0486f6&#34;:{&#34;@type&#34;:&#34;adobe-cms/components/content/organisms/accordion/accordion-item/item&#34;,&#34;dc:title&#34;:&#34;Database&#34;}}" data-cmp-hook-accordion="item" id="accordion-item-929dbe7f15-item-ca3b0486f6" role="listitem">
+            <div class="cmp-accordion__header" style="display: contents">
+                <button aria-controls="accordion-item-929dbe7f15-item-ca3b0486f6-panel" class="cds--accordion__heading cmp-accordion__button" data-cmp-hook-accordion="button" id="accordion-item-929dbe7f15-item-ca3b0486f6-button">
+                    <svg aria-hidden="true" class="cds--accordion__arrow cmp-accordion__icon" fill="currentColor" focusable="false" height="16" preserveAspectRatio="xMidYMid meet" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 8L6 13 5.3 12.3 9.6 8 5.3 3.7 6 3z"></path>
+                    </svg>
+                    <div class="cds--accordion__title cmp-accordion__title">
+                        Database
+                    </div>
+                </button>
+            </div>
+            <div aria-labelledby="accordion-item-929dbe7f15-item-ca3b0486f6-button" class="cmp-accordion__panel cmp-accordion__panel--hidden" data-cmp-hook-accordion="panel" id="accordion-item-929dbe7f15-item-ca3b0486f6-panel" role="region"><div class="accordion-item-container nested-container container responsivegrid cds--accordion-item__body">
+
+
+
+    
+        <div class="cms-richtext  " id="rich-text-74854316a4" data-dynamic-inner-content="description">
+    <p>Vectors databases are only one option for implementing the embedding data store. Watson Discovery provides additional tools and functionality that can improve the performance and accuracy of a RAG solution; and some &#39;traditional&#39; databases provide vector storage and searching, and/or similarity searching that will support a RAG solution.</p>
+<p>There are also numerous options for vector databases. Simple in-memory databases that are embedded directly in GenAI applications provide excellent run-time performance but may not scale well to large data sets, and may introduce significant operational challenges to keep current, or to scale to multi-server configurations. Other databases that use a central server architecture are easier to operate and scale but may not meet the performance needs of the specific solution.</p>
+
+    
+    
+    
+    
+
+</div>
+    
+
+
+
+</div>
+</div>
+        </div>
+<div class="cmp-accordion__item cds--accordion__item" data-cmp-data-layer="{&#34;accordion-item-929dbe7f15-item-fd803665b5&#34;:{&#34;@type&#34;:&#34;adobe-cms/components/content/organisms/accordion/accordion-item/item&#34;,&#34;dc:title&#34;:&#34;Augmentation Method&#34;}}" data-cmp-hook-accordion="item" id="accordion-item-929dbe7f15-item-fd803665b5" role="listitem">
+            <div class="cmp-accordion__header" style="display: contents">
+                <button aria-controls="accordion-item-929dbe7f15-item-fd803665b5-panel" class="cds--accordion__heading cmp-accordion__button" data-cmp-hook-accordion="button" id="accordion-item-929dbe7f15-item-fd803665b5-button">
+                    <svg aria-hidden="true" class="cds--accordion__arrow cmp-accordion__icon" fill="currentColor" focusable="false" height="16" preserveAspectRatio="xMidYMid meet" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 8L6 13 5.3 12.3 9.6 8 5.3 3.7 6 3z"></path>
+                    </svg>
+                    <div class="cds--accordion__title cmp-accordion__title">
+                        Augmentation Method
+                    </div>
+                </button>
+            </div>
+            <div aria-labelledby="accordion-item-929dbe7f15-item-fd803665b5-button" class="cmp-accordion__panel cmp-accordion__panel--hidden" data-cmp-hook-accordion="panel" id="accordion-item-929dbe7f15-item-fd803665b5-panel" role="region"><div class="accordion-item-container nested-container container responsivegrid cds--accordion-item__body">
+
+
+
+    
+        <div class="cms-richtext  " id="rich-text-583af25e30" data-dynamic-inner-content="description">
+    <p>There are a number of methods available to integrate the retrieval and generation model. Retrieving the top K passages and using them to augment the user query is simple and expedient but it can lack the nuance necessary to answer complex questions. Simple searching by keyword may also yield satisfactory results.</p>
+<p>More complex solutions may use an LLM to generate multiple queries from the user&#39;s original query and use them to retrieve a larger set of passages. Additional logic may added to further sort and select the retrieved passages with the highest relevancy.</p>
+
+    
+    
+    
+    
+
+</div>
+    
+
+
+
+</div>
+</div>
+        </div>
+<div class="cmp-accordion__item cds--accordion__item" data-cmp-data-layer="{&#34;accordion-item-929dbe7f15-item-7a32592494&#34;:{&#34;@type&#34;:&#34;adobe-cms/components/content/organisms/accordion/accordion-item/item&#34;,&#34;dc:title&#34;:&#34;Data Preprocessing&#34;}}" data-cmp-hook-accordion="item" id="accordion-item-929dbe7f15-item-7a32592494" role="listitem">
+            <div class="cmp-accordion__header" style="display: contents">
+                <button aria-controls="accordion-item-929dbe7f15-item-7a32592494-panel" class="cds--accordion__heading cmp-accordion__button" data-cmp-hook-accordion="button" id="accordion-item-929dbe7f15-item-7a32592494-button">
+                    <svg aria-hidden="true" class="cds--accordion__arrow cmp-accordion__icon" fill="currentColor" focusable="false" height="16" preserveAspectRatio="xMidYMid meet" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 8L6 13 5.3 12.3 9.6 8 5.3 3.7 6 3z"></path>
+                    </svg>
+                    <div class="cds--accordion__title cmp-accordion__title">
+                        Data Preprocessing
+                    </div>
+                </button>
+            </div>
+            <div aria-labelledby="accordion-item-929dbe7f15-item-7a32592494-button" class="cmp-accordion__panel cmp-accordion__panel--hidden" data-cmp-hook-accordion="panel" id="accordion-item-929dbe7f15-item-7a32592494-panel" role="region"><div class="accordion-item-container nested-container container responsivegrid cds--accordion-item__body">
+
+
+
+    
+        <div class="cms-richtext  " id="rich-text-ddd15bf1e1" data-dynamic-inner-content="description">
+    <p>Preprocessing the data before feeding it into the RAG system is an important step to ensure that the input data is in a suitable format for the model. Simple methods invole breaking input data into fixed-size chunks with overlaps, eg. the last 10 characters of a chunk is the same first 10 characters of the next one, but this can miss nuances in the input data.</p>
+<p>More advanced pre-processing could manipulate the input text to remove common word ending, eg. stopper, stopping, and stopped all become stop; remove un-informative &#39;stop&#39; words such as the, as, is, and the like; and other techniques. These can substantially improve the relevancy of retrieved information but adds complexity to both the data embedding and user prompting phases.</p>
+<p>Even more advanced techniques may operate on full sentences, to keep as much of the meaning as possible in the text.</p>
+
+    
+    
+    
+    
+
+</div>
+    
+
+
+
+</div>
+</div>
+        </div>
+<div class="cmp-accordion__item cds--accordion__item" data-cmp-data-layer="{&#34;accordion-item-929dbe7f15-item-78ce05c958&#34;:{&#34;@type&#34;:&#34;adobe-cms/components/content/organisms/accordion/accordion-item/item&#34;,&#34;dc:title&#34;:&#34;Evaluation Metrics&#34;}}" data-cmp-hook-accordion="item" id="accordion-item-929dbe7f15-item-78ce05c958" role="listitem">
+            <div class="cmp-accordion__header" style="display: contents">
+                <button aria-controls="accordion-item-929dbe7f15-item-78ce05c958-panel" class="cds--accordion__heading cmp-accordion__button" data-cmp-hook-accordion="button" id="accordion-item-929dbe7f15-item-78ce05c958-button">
+                    <svg aria-hidden="true" class="cds--accordion__arrow cmp-accordion__icon" fill="currentColor" focusable="false" height="16" preserveAspectRatio="xMidYMid meet" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 8L6 13 5.3 12.3 9.6 8 5.3 3.7 6 3z"></path>
+                    </svg>
+                    <div class="cds--accordion__title cmp-accordion__title">
+                        Evaluation Metrics
+                    </div>
+                </button>
+            </div>
+            <div aria-labelledby="accordion-item-929dbe7f15-item-78ce05c958-button" class="cmp-accordion__panel cmp-accordion__panel--hidden" data-cmp-hook-accordion="panel" id="accordion-item-929dbe7f15-item-78ce05c958-panel" role="region"><div class="accordion-item-container nested-container container responsivegrid cds--accordion-item__body">
+
+
+
+    
+        <div class="cms-richtext  " id="rich-text-b9171332fd" data-dynamic-inner-content="description">
+    <p>Evaluating the performance of a RAG system can be challenging due to the complex nature of the task. Common evaluation metrics include perplexity, fluency, relevance, and coherence - as well the BLU and ROUGE metrics. It&#39;s important to choose metrics that align with the specific goals of the task and the desired outcomes.</p>
+
+    
+    
+    
+    
+
+</div>
+    
+
+
+
+</div>
+</div>
+        </div>
+<div class="cmp-accordion__item cds--accordion__item" data-cmp-data-layer="{&#34;accordion-item-929dbe7f15-item-a10f535805&#34;:{&#34;@type&#34;:&#34;adobe-cms/components/content/organisms/accordion/accordion-item/item&#34;,&#34;dc:title&#34;:&#34;File Conversion&#34;}}" data-cmp-hook-accordion="item" id="accordion-item-929dbe7f15-item-a10f535805" role="listitem">
+            <div class="cmp-accordion__header" style="display: contents">
+                <button aria-controls="accordion-item-929dbe7f15-item-a10f535805-panel" class="cds--accordion__heading cmp-accordion__button" data-cmp-hook-accordion="button" id="accordion-item-929dbe7f15-item-a10f535805-button">
+                    <svg aria-hidden="true" class="cds--accordion__arrow cmp-accordion__icon" fill="currentColor" focusable="false" height="16" preserveAspectRatio="xMidYMid meet" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 8L6 13 5.3 12.3 9.6 8 5.3 3.7 6 3z"></path>
+                    </svg>
+                    <div class="cds--accordion__title cmp-accordion__title">
+                        File Conversion
+                    </div>
+                </button>
+            </div>
+            <div aria-labelledby="accordion-item-929dbe7f15-item-a10f535805-button" class="cmp-accordion__panel cmp-accordion__panel--hidden" data-cmp-hook-accordion="panel" id="accordion-item-929dbe7f15-item-a10f535805-panel" role="region"><div class="accordion-item-container nested-container container responsivegrid cds--accordion-item__body">
+
+
+
+    
+        <div class="cms-richtext  " id="rich-text-d67f33c3aa" data-dynamic-inner-content="description">
+    <p>RAG requires plain text, and the choice of conversion methods has a big impact on data quality. For example, when converting PDF files, how are tables, images and other metadata elements handled.</p>
+
+    
+    
+    
+    
+
+</div>
+    
+
+
+
+</div>
+</div>
+        </div>
+<div class="cmp-accordion__item cds--accordion__item" data-cmp-data-layer="{&#34;accordion-item-929dbe7f15-item-b448fec330&#34;:{&#34;@type&#34;:&#34;adobe-cms/components/content/organisms/accordion/accordion-item/item&#34;,&#34;dc:title&#34;:&#34;Response Caching&#34;}}" data-cmp-hook-accordion="item" id="accordion-item-929dbe7f15-item-b448fec330" role="listitem">
+            <div class="cmp-accordion__header" style="display: contents">
+                <button aria-controls="accordion-item-929dbe7f15-item-b448fec330-panel" class="cds--accordion__heading cmp-accordion__button" data-cmp-hook-accordion="button" id="accordion-item-929dbe7f15-item-b448fec330-button">
+                    <svg aria-hidden="true" class="cds--accordion__arrow cmp-accordion__icon" fill="currentColor" focusable="false" height="16" preserveAspectRatio="xMidYMid meet" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 8L6 13 5.3 12.3 9.6 8 5.3 3.7 6 3z"></path>
+                    </svg>
+                    <div class="cds--accordion__title cmp-accordion__title">
+                        Response Caching
+                    </div>
+                </button>
+            </div>
+            <div aria-labelledby="accordion-item-929dbe7f15-item-b448fec330-button" class="cmp-accordion__panel cmp-accordion__panel--hidden" data-cmp-hook-accordion="panel" id="accordion-item-929dbe7f15-item-b448fec330-panel" role="region"><div class="accordion-item-container nested-container container responsivegrid cds--accordion-item__body">
+
+
+
+    
+        <div class="cms-richtext  " id="rich-text-c6dcbe9995" data-dynamic-inner-content="description">
+    <p>Generating a human-like response from an LLM requires substantial computing resources and can often take several seconds depending on the size of the model, the complexity of the user query, and the amount of augmented information passed to the model. Solutions that need to service large groups of users or require quick response times may need to implement a mechanism to cache model responses to frequently occurring queries.</p>
+
+    
+    
+    
+    
+
+</div>
+    
+
+
+
+</div>
+</div>
+        </div>
+<div class="cmp-accordion__item cds--accordion__item" data-cmp-data-layer="{&#34;accordion-item-929dbe7f15-item-f907a163e1&#34;:{&#34;@type&#34;:&#34;adobe-cms/components/content/organisms/accordion/accordion-item/item&#34;,&#34;dc:title&#34;:&#34;Proprietary, Confidential, and Personal Information&#34;}}" data-cmp-hook-accordion="item" id="accordion-item-929dbe7f15-item-f907a163e1" role="listitem">
+            <div class="cmp-accordion__header" style="display: contents">
+                <button aria-controls="accordion-item-929dbe7f15-item-f907a163e1-panel" class="cds--accordion__heading cmp-accordion__button" data-cmp-hook-accordion="button" id="accordion-item-929dbe7f15-item-f907a163e1-button">
+                    <svg aria-hidden="true" class="cds--accordion__arrow cmp-accordion__icon" fill="currentColor" focusable="false" height="16" preserveAspectRatio="xMidYMid meet" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 8L6 13 5.3 12.3 9.6 8 5.3 3.7 6 3z"></path>
+                    </svg>
+                    <div class="cds--accordion__title cmp-accordion__title">
+                        Proprietary, Confidential, and Personal Information
+                    </div>
+                </button>
+            </div>
+            <div aria-labelledby="accordion-item-929dbe7f15-item-f907a163e1-button" class="cmp-accordion__panel cmp-accordion__panel--hidden" data-cmp-hook-accordion="panel" id="accordion-item-929dbe7f15-item-f907a163e1-panel" role="region"><div class="accordion-item-container nested-container container responsivegrid cds--accordion-item__body">
+
+
+
+    
+        <div class="cms-richtext  " id="rich-text-72e1a99542" data-dynamic-inner-content="description">
+    <p>Embedding proprietary, potentially confidential, and potentially personally identifiable information into LLM prompts is core and necessary to the RAG pattern. Organizations using hosted model platforms must be aware of provider policies such as prompt data retention and usage policies (eg. does the provider capture prompt data and use it for model re-training?), controls to prevent prompt data from &#39;leaking&#39; to other users, etc; and balance these against their own information security policies and controls.</p>
+<p>While transmission of some proprietary information is unavoidable, organizations can limit their exposure by including only document or URL references to the most sensitive information in the processed data. For example, rather than embedding a price discounting table into the RAG data, include only a description of the table and a reference or link to an internal document or website in the content.</p>
+
+    
+    
+    
+    
+
+</div>
+    
+
+
+
+</div>
+</div>
+        </div>
+<div class="cmp-accordion__item cds--accordion__item" data-cmp-data-layer="{&#34;accordion-item-929dbe7f15-item-a99e41b093&#34;:{&#34;@type&#34;:&#34;adobe-cms/components/content/organisms/accordion/accordion-item/item&#34;,&#34;dc:title&#34;:&#34;Encrypting Data in Transit&#34;}}" data-cmp-hook-accordion="item" id="accordion-item-929dbe7f15-item-a99e41b093" role="listitem">
+            <div class="cmp-accordion__header" style="display: contents">
+                <button aria-controls="accordion-item-929dbe7f15-item-a99e41b093-panel" class="cds--accordion__heading cmp-accordion__button" data-cmp-hook-accordion="button" id="accordion-item-929dbe7f15-item-a99e41b093-button">
+                    <svg aria-hidden="true" class="cds--accordion__arrow cmp-accordion__icon" fill="currentColor" focusable="false" height="16" preserveAspectRatio="xMidYMid meet" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 8L6 13 5.3 12.3 9.6 8 5.3 3.7 6 3z"></path>
+                    </svg>
+                    <div class="cds--accordion__title cmp-accordion__title">
+                        Encrypting Data in Transit
+                    </div>
+                </button>
+            </div>
+            <div aria-labelledby="accordion-item-929dbe7f15-item-a99e41b093-button" class="cmp-accordion__panel cmp-accordion__panel--hidden" data-cmp-hook-accordion="panel" id="accordion-item-929dbe7f15-item-a99e41b093-panel" role="region"><div class="accordion-item-container nested-container container responsivegrid cds--accordion-item__body">
+
+
+
+    
+        <div class="cms-richtext  " id="rich-text-8c5db952d1" data-dynamic-inner-content="description">
+    <p>Simple transport level security (TLS) on inter-zone communications may be enough to satisfy data security requirements but architects may need to consider providing additional protection by adding components to encrypt and decrypt prompts and responses before passing them across the zone-boundary.</p>
+
+    
+    
+    
+    
+
+</div>
+    
+
+
+
+</div>
+</div>
+        </div>
+<div class="cmp-accordion__item cds--accordion__item" data-cmp-data-layer="{&#34;accordion-item-929dbe7f15-item-52c5da8200&#34;:{&#34;@type&#34;:&#34;adobe-cms/components/content/organisms/accordion/accordion-item/item&#34;,&#34;dc:title&#34;:&#34;Inter-zone Connectivity&#34;}}" data-cmp-hook-accordion="item" id="accordion-item-929dbe7f15-item-52c5da8200" role="listitem">
+            <div class="cmp-accordion__header" style="display: contents">
+                <button aria-controls="accordion-item-929dbe7f15-item-52c5da8200-panel" class="cds--accordion__heading cmp-accordion__button" data-cmp-hook-accordion="button" id="accordion-item-929dbe7f15-item-52c5da8200-button">
+                    <svg aria-hidden="true" class="cds--accordion__arrow cmp-accordion__icon" fill="currentColor" focusable="false" height="16" preserveAspectRatio="xMidYMid meet" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 8L6 13 5.3 12.3 9.6 8 5.3 3.7 6 3z"></path>
+                    </svg>
+                    <div class="cds--accordion__title cmp-accordion__title">
+                        Inter-zone Connectivity
+                    </div>
+                </button>
+            </div>
+            <div aria-labelledby="accordion-item-929dbe7f15-item-52c5da8200-button" class="cmp-accordion__panel cmp-accordion__panel--hidden" data-cmp-hook-accordion="panel" id="accordion-item-929dbe7f15-item-52c5da8200-panel" role="region"><div class="accordion-item-container nested-container container responsivegrid cds--accordion-item__body">
+
+
+
+    
+        <div class="cms-richtext  " id="rich-text-62fad91b69" data-dynamic-inner-content="description">
+    <p>The type of connection between the deployment zones has impacts on several non-functional requirements. Using a virtual private network (VPN) connection over the public Internet is a low-cost option but it may not fully allay security concerns, and may not be able to meet the solution&#39;s response time or throughput requirements. A private network connection to the model hosting environment comes at a much higher cost but offers significantly better security and provides architects with the ability to control for network latency and bandwidth.</p>
+
+    
+    
+    
+    
+
+</div>
+    
+
+
+
+</div>
+</div>
+        </div>
+
+    </div>
+
+
+    </div>
+
+    
+</div></div>
+<div data-component-name="block-card-container" class="block-card-container container responsivegrid">
+    
+	
+
+    
+
+    
+
+
+
+    <c4d-content-block-cards class="none " content-section-body>
+        
+            
+                
+  
+    
+    <a data-title="Resources" name="Resources" slot="heading"></a>
+  
+
+                <c4d-content-block-heading>
+                    
+                        
+                            
+
+     
+    Resources
+
+
+
+
+    
+
+
+                        
+                        
+                    
+                </c4d-content-block-heading>
+            
+
+            
+        
+        
+
+        <c4d-card-group class="  " grid-mode="narrow" cards-per-row="3" style="--c4d--card-group--cards-in-row: 3;">
+                
+
+    
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <a target="_blank" style="display: contents;" href="https://www.ibm.com/docs/en/watsonx/saas">
+        <c4d-card-group-item target="_blank" pictogram-placement="top" cta-type="local" grid-mode="narrow" no-poster="true" href="https://www.ibm.com/docs/en/watsonx/saas">
+            
+            
+            <!--*/ Added condition to not load heading for video as it is coming from video name also - ICIUC- 116*/-->
+            <c4d-card-heading role="heading" aria-level="3" slot="heading" class="cds--card__heading">
+                Quick start: Prompt a foundation model with the retrieval-augmented generation pattern
+            </c4d-card-heading>
+            <div>
+                You can use foundation models in IBM watsonx.ai to generate factually accurate output grounded in information in a knowledge base by applying the retrieval-augmented generation pattern. 
+            </div>
+            <c4d-card-footer icon-placement="right" cta-type="local" slot="footer" aria-hidden="true" target="_blank" class="cds--card__footer-icon-size" href="https://www.ibm.com/docs/en/watsonx/saas">
+                
+                    
+                
+    
+    
+    
+    
+
+                
+                <div slot="cta" class="cta-slot">
+                    
+                    
+                </div>
+            </c4d-card-footer>
+
+            
+        </c4d-card-group-item>
+        
+    </a>
+    
+    
+
+    
+    
+
+
+
+    
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <a target="_blank" style="display: contents;" href="https://it.architect-assistant.ibm.com/architectures/Social/arch_SsLkSnajD">
+        <c4d-card-group-item target="_blank" pictogram-placement="top" cta-type="local" grid-mode="narrow" no-poster="true" href="https://it.architect-assistant.ibm.com/architectures/Social/arch_SsLkSnajD">
+            
+            
+            <!--*/ Added condition to not load heading for video as it is coming from video name also - ICIUC- 116*/-->
+            <c4d-card-heading role="heading" aria-level="3" slot="heading" class="cds--card__heading">
+                IBM Generative AI Architecture
+            </c4d-card-heading>
+            <div>
+                
+IBM&#39;s Generative AI Architecture is the complete IBM Generative AI Architecture in IBM IT Architect Assistant (IIAA), an architecture development and management tool. Using IIAA, architects can elaborate and customize the architecture to create their own generative AI solutions.
+            </div>
+            <c4d-card-footer icon-placement="right" cta-type="local" slot="footer" aria-hidden="true" target="_blank" class="cds--card__footer-icon-size" href="https://it.architect-assistant.ibm.com/architectures/Social/arch_SsLkSnajD">
+                
+                    
+                
+    
+    
+    
+    
+
+                
+                <div slot="cta" class="cta-slot">
+                    
+                    
+                </div>
+            </c4d-card-footer>
+
+            
+        </c4d-card-group-item>
+        
+    </a>
+    
+    
+
+    
+    
+
+
+
+
+
+
+        </c4d-card-group>
+
+        
+
+        
+            <div class="mobile-cta" slot="footer">
+                
+	
+	
+	
+		
+		
+		
+		
+		<a>
+			
+		</a>
+		
+		
+		
+			
+    
+
+		
+	
+
+            </div>
+        
+
+        
+    
+    
+                    
+                    
+                    
+                    <div slot="cta" class="cta-slot">
+                        
+                        
+                    </div>
+                </c4d-card-footer>
+            </a>
+        </c4d-card>
+        
+    
+    
+    
+
+    
+    
+    
+
+    
+
+
+
+    </c4d-content-block-cards>
+    
+
+
+
+    
+    
+
+</div>
+
+        
+    </div>
+
+
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        
+    
+</div>
+
+    
+    
+
+</div>
+<div data-component-name="next-steps" class="next-steps-container" data-section-id="next-steps">
+
+<div data-cmp-is="next-steps-container" class="ibmcom-next-steps" id="mbox-next-steps1">
+    <div class="ibmcom-next-steps__section
+                ibmcom-next-steps__section--g10
+                ibmcom-next-steps__section--non-fw" id="mbox-next-steps1__section" data-dynamic-content-type="ADOBE_TARGET" data-component-name="next-steps" data-region="content" data-component-identifier="next-steps">
+
+        <div class="ibmcom-next-steps__primary" id="mbox-next-steps1__primary">
+
+            
+
+            
+
+                <div class="ibmcom-next-steps__cta
+                            " id="mbox-next-steps1__cta">
+
+                    <div role="heading" aria-level="2" class="ibmcom-next-steps__heading" id="mbox-next-steps1__heading">
+                        
+
+  
+    
+    <a data-title="Next steps" name="Next+steps"></a>
+  
+
+<span class="enhanced-title ">Next steps</span>
+
+
+
+    
+
+                    </div>
+
+                    <div class="ibmcom-next-steps__body" size="lg">
+                        <div class="ibmcom-next-steps__copy" id="mbox-next-steps1__copy">
+                            <div class="cms-richtext  " id="rich-text-acb7c10846" data-dynamic-inner-content="description">
+    <p>Talk to our experts about how you can accelerate your adoption of generative AI.</p>
+
+    
+    
+    
+    
+
+</div>
+                        </div>
+                    </div>
+
+                    
+                        
+
+
+    
+    
+
+    
+    <ol class="ibmcom--buttongroup" role="list" style="--cmp--button-group--item-count:1">
+
+        <li class="ibmcom--buttongroup-item" role="listitem">
+            
+
+    
+	
+
+    
+    
+   
+	
+	
+	
+		
+		
+		
+		
+			<a target="_self" kind="primary" class="cds--btn cds--btn--primary" data-link-type="contact" cta-type="contact" data-ibm-contact="contact-link" x-cq-linkchecker="skip" data-video-modal-type="media-center" href="#">
+				
+				<span data-ibm-contact="contact-text"></span>
+				
+    <!-- LTR - Left to Right version -->
+    
+    <!-- RTL - Right to Left version -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <svg xmlns="http://www.w3.org/2000/svg" class="cds--card__cta c4d-ce--cta__icon" width="20" height="20" focusable="false" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M17.74,30,16,29l4-7h6a2,2,0,0,0,2-2V8a2,2,0,0,0-2-2H6A2,2,0,0,0,4,8V20a2,2,0,0,0,2,2h9v2H6a4,4,0,0,1-4-4V8A4,4,0,0,1,6,4H26a4,4,0,0,1,4,4V20a4,4,0,0,1-4,4H21.16Z"/>
+        <path d="M8 10H24V12H8zM8 16H18V18H8z"/>
+    </svg>
+
+    
+    
+
+
+            </a>
+		
+		
+	
+
+
+   
+
+
+        </li>
+
+        
+    </ol>
+
+    
+        
+    
+
+    
+
+                    
+                </div>
+
+                
+
+            
+        </div>
+
+        <div class="ibmcom-next-steps__secondary" id="mbox-next-steps1__secondary">
+
+            
+
+            
+    <div>
+        
+
+    
+    <div class="ibmcom-link-list" type="end" data-attribute1="link-list">
+        
+        
+        
+        
+            <div class="ibmcom-link-list-cols">
+
+                
+                <div class="ibmcom-link-list-cols__col">
+                    <div class="ibmcom-link-list-heading__col" role="heading" aria-level="4">
+                        
+
+
+  
+  
+      More ways to explore
+  
+
+
+
+
+    
+
+
+                    </div>
+                    <ul class="ibmcom-ce--link-list__list--end">
+                        
+                            <li/>
+    
+    
+        
+        
+    
+    
+    
+    
+    <a target="_blank" style="display: contents;" href="https://www.ibm.com/think/architectures"></a>
+        <c4d-link-list-item cta-type="local" target="_blank" data-video-modal-type="media-center" data-attribute3="1" href="https://www.ibm.com/think/architectures">
+            IBM Architecture Center
+            
+            
+            
+        </c4d-link-list-item>
+    </a>
+    
+    
+    
+
+    
+
+        
+    
+
+    
+    
+
+
+                        
+                            <li/>
+    
+    
+        
+        
+    
+    
+    
+    
+    <a target="_blank" style="display: contents;" href="https://www.ibm.com/think/architectures/diagram-tools"></a>
+        <c4d-link-list-item cta-type="local" target="_blank" data-video-modal-type="media-center" data-attribute3="2" href="https://www.ibm.com/think/architectures/diagram-tools">
+            Diagram tools and templates
+            
+            
+            
+        </c4d-link-list-item>
+    </a>
+    
+    
+    
+
+    
+
+        
+    
+
+    
+    
+
+
+                        
+                            <li/>
+    
+    
+        
+        
+    
+    
+    
+    
+    <a target="_blank" style="display: contents;" href="https://www.ibm.com/think/architectures/well-architected"></a>
+        <c4d-link-list-item cta-type="local" target="_blank" data-video-modal-type="media-center" data-attribute3="3" href="https://www.ibm.com/think/architectures/well-architected">
+            IBM Well-Architected Framework
+            
+            
+            
+        </c4d-link-list-item>
+    </a>
+    
+    
+    
+
+    
+
+        
+    
+
+    
+    
+
+
+                        
+                    </ul>
+                </div>
+
+                
+                
+
+                
+                
+
+                
+                
+
+            </div>
+                
+    </div>
+    
+        
+    
+
+    
+
+    
+
+    </div>
+
+
+            
+
+        </div>
+
+    </div>
+</div></div>
+
+        
+    </div>
+
+</c4d-table-of-contents>
+
+    
+    
+</div>
+<div class="container responsivegrid">
+
+    
+    
+    
+    <div id="container-8ac614e5f6" class="cmp-container " data-region="content">
+        
+        <div data-component-name="footnotes" data-region="content" class="footnotes"><div>
+    <div data-autoid="c4d--content-block" class="cds--content-block">
+        <div class="cds--grid cds--no-gutter">
+            <div class="cds--row">
+                <div class="cds--col-lg-4">
+                    <div data-autoid="c4d--content-block-segmented" class="cds--content-block-segmented">
+                        <h5>
+                            
+
+
+  
+      
+
+  
+    
+    <a data-title="Contributors" name="Contributors"></a>
+  
+
+<span class="enhanced-title ">Contributors</span>
+
+
+
+    
+
+  
+  
+
+
+
+
+
+    
+
+
+                        </h5>
+                    </div>
+                </div>
+                
+                <div class="cds--col-lg-12">
+                    <div data-autoid="c4d--content-block-segmented" class="cds--content-block-segmented">
+                        <div class="cms-richtext  " id="rich-text-e75ba4ef2d" data-dynamic-inner-content="description">
+    <h4><span style="	font-weight: 400;
+"><a target="_blank" href="https://www.linkedin.com/in/mgupta76/" rel="noopener noreferrer">Manav Gupta<span class="ibm_icon_launch_external_after"></span></a>, <a target="_blank" href="https://www.linkedin.com/in/cwkirby/" rel="noopener noreferrer">Chris Kirby<span class="ibm_icon_launch_external_after"></span></a>, <a target="_blank" href="https://www.linkedin.com/in/crivetimihai/" rel="noopener noreferrer">Mihai Criveti<span class="ibm_icon_launch_external_after"></span></a>, <a target="_blank" href="https://www.linkedin.com/in/petenuwayser/" rel="noopener noreferrer">Pete Nuwayser<span class="ibm_icon_launch_external_after"></span></a>, <a target="_blank" href="https://www.linkedin.com/in/david-anthony-massey/" rel="noopener noreferrer">David Massey<span class="ibm_icon_launch_external_after"></span></a></span></h4>
+<h4><span style="	font-weight: 400;
+">Updated: November 28, 2023</span></h4>
+
+    
+    
+    
+    
+
+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+        
+    </div>
+
+</div>
+<div data-component-name="footer" data-region="footer" class="footer">
+
+
+    <div>
+
+
+
+
+    
+        
+            <c4d-footer-container selected-language="" size="regular" data-footer-json="{&#34;footerMenu&#34;:[{&#34;title&#34;:&#34;Discover&#34;,&#34;links&#34;:[{&#34;title&#34;:&#34;Products&#34;,&#34;url&#34;:&#34;https://www.ibm.com/products?lnk=flatitem&#34;},{&#34;title&#34;:&#34;Consulting services&#34;,&#34;url&#34;:&#34;https://www.ibm.com/consulting?lnk=flatitem&#34;},{&#34;title&#34;:&#34;Industries&#34;,&#34;url&#34;:&#34;https://www.ibm.com/industries?lnk=flatitem&#34;},{&#34;title&#34;:&#34;Case studies&#34;,&#34;url&#34;:&#34;https://www.ibm.com/case-studies?lnk=flatitem&#34;},{&#34;title&#34;:&#34;Financing&#34;,&#34;url&#34;:&#34;https://www.ibm.com/financing?lnk=flatitem&#34;},{&#34;title&#34;:&#34;Research&#34;,&#34;url&#34;:&#34;https://research.ibm.com/?lnk=flatitem&#34;}]},{&#34;title&#34;:&#34;Follow&#34;,&#34;links&#34;:[{&#34;title&#34;:&#34;LinkedIn&#34;,&#34;url&#34;:&#34;https://www.linkedin.com/company/ibm&#34;},{&#34;title&#34;:&#34;X&#34;,&#34;url&#34;:&#34;https://www.twitter.com/ibm&#34;},{&#34;title&#34;:&#34;Instagram&#34;,&#34;url&#34;:&#34;https://www.instagram.com/ibm&#34;},{&#34;title&#34;:&#34;YouTube&#34;,&#34;url&#34;:&#34;https://www.youtube.com/@IBM&#34;},{&#34;title&#34;:&#34;Podcasts&#34;,&#34;url&#34;:&#34;https://www.ibm.com/think/podcasts&#34;}]},{&#34;title&#34;:&#34;Connect&#34;,&#34;links&#34;:[{&#34;title&#34;:&#34;Business partners&#34;,&#34;url&#34;:&#34;https://www.ibm.com/partnerplus/directory/companies&#34;},{&#34;title&#34;:&#34;Documentation&#34;,&#34;url&#34;:&#34;https://www.ibm.com/docs/en?lnk=flathl&#34;},{&#34;title&#34;:&#34;Events&#34;,&#34;url&#34;:&#34;https://www.ibm.com/events/&#34;},{&#34;title&#34;:&#34;Newsletters&#34;,&#34;url&#34;:&#34;https://www.ibm.com/subscribe/&#34;},{&#34;title&#34;:&#34;Support&#34;,&#34;url&#34;:&#34;https://www.ibm.com/mysupport/s/?language=en_US&amp;lnk=flathl&#34;},{&#34;title&#34;:&#34;TechXchange community&#34;,&#34;url&#34;:&#34;https://community.ibm.com/community/user/home?lnk=fpo&#34;}]},{&#34;title&#34;:&#34;About&#34;,&#34;links&#34;:[{&#34;title&#34;:&#34;Overview&#34;,&#34;url&#34;:&#34;https://www.ibm.com/about/?lnk=flatitem&#34;},{&#34;title&#34;:&#34;Careers&#34;,&#34;url&#34;:&#34;https://www.ibm.com/careers/us-en?lnk=flathl&#34;},{&#34;title&#34;:&#34;Investor relations&#34;,&#34;url&#34;:&#34;https://www.ibm.com/investor?lnk=flatitem&#34;},{&#34;title&#34;:&#34;Leadership&#34;,&#34;url&#34;:&#34;https://newsroom.ibm.com/executive-bios&#34;},{&#34;title&#34;:&#34;Newsroom&#34;,&#34;url&#34;:&#34;https://newsroom.ibm.com/?lnk=flatitem&#34;},{&#34;title&#34;:&#34;Security, privacy and trust&#34;,&#34;url&#34;:&#34;https://www.ibm.com/trust?lnk=flatitem&#34;}]}],&#34;footerThin&#34;:[{&#34;title&#34;:&#34;Contact IBM&#34;,&#34;url&#34;:&#34;https://www.ibm.com/contact/global&#34;},{&#34;title&#34;:&#34;Privacy&#34;,&#34;url&#34;:&#34;https://www.ibm.com/us-en/privacy&#34;},{&#34;title&#34;:&#34;Terms of use&#34;,&#34;url&#34;:&#34;https://www.ibm.com/legal?lnk=flg-tous-usen&#34;},{&#34;title&#34;:&#34;Accessibility&#34;,&#34;url&#34;:&#34;https://www.ibm.com/able/?lnk=flg-acce-usen&#34;}]}"></c4d-footer-container>
+        
+
+
+    
+    
+
+
+    
+<script src="/etc.clientlibs/adobe-cms/components/structure/footer-configuration/clientlibs/site.lc-b4a62f4105057beb9158cca91124e50e-lc.min.js"></script>
+
+
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        const localeButton = document.querySelector("c4d-locale-button");
+        if (localeButton) {
+            localeButton.style.display = "none";
+        }
+    });
+
+     if(window.location.hostname.includes("businessofgovernment") ||  window.location.href.includes("/businessofgovernment"))
+        {
+
+              hideCookiePreferencesInSlot();
+        }
+
+     function hideCookiePreferencesInSlot() {
+            // Step 1: get the legal nav component
+            var legalNav = document.querySelector('c4d-legal-nav');
+            if (!legalNav) {
+                setTimeout(hideCookiePreferencesInSlot, 3000);
+                return;
+            }
+
+            // Step 2: get its shadow root
+            var shadow = legalNav.shadowRoot;
+            if (!shadow) {
+                setTimeout(hideCookiePreferencesInSlot, 3000);
+                return;
+            }
+
+            // Step 3: find the slot inside the shadow DOM
+            var slot = shadow.querySelector('slot');
+            if (!slot) {
+                setTimeout(hideCookiePreferencesInSlot, 3000);
+                return;
+            }
+
+            // Step 4: get all assigned nodes from the slot
+            var assignedNodes = slot.assignedNodes({ flatten: true });
+
+            // Step 5: loop through assigned nodes to find the cookie placeholder
+            assignedNodes.forEach(node => {
+                if (node.tagName && node.tagName.toLowerCase() === 'c4d-legal-nav-cookie-preferences-placeholder') {
+                    // Hide the element
+                    node.style.display = 'none';
+                    console.log('Cookie preferences placeholder hidden!');
+                }
+            });
+        }
+</script>
+</div>
+
+
+
+
+    
+    
+</div>
+
+        
+    </div>
+
+</div>
+
+     
+    
+</c4d-video-cta-container>
+<div class="video-modal-overlay" aria-hidden="true">
+    <div class="video-modal-overlay__dialog">
+        <div class="video-modal-overlay__dialog--body">
+            <div class="video-modal-overlay__dialog--body__close-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="24" height="24" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+                    <path id="Vector" d="M13.0606 12L19.5 5.56058L18.4394 4.5L12 10.9394L5.56072 4.5L4.5 5.56058L10.9394 12L4.5 18.4394L5.56072 19.5L12 13.0606L18.4394 19.5L19.5 18.4394L13.0606 12Z" fill="#161616"/>
+                </svg>
+            </div>
+            <div class="video-modal-overlay__dialog--body-content">
+
+                <div class="video-modal-overlay__loading-container">
+                    <cds-loading></cds-loading>
+                </div>
+
+                <div class="video-wms hide">
+                    <iframe class="video-modal-content" data-original-src="https://video.ibm.com/embed/$[wmsChanneId]?volume=0&autoplay=true&controls=true" src="about:blank" webkitallowfullscreen allowfullscreen frameborder="no" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+
+                <div class="video-media-center hide">
+                    <c4d-video-player-container-v7 video-id="" aspect-ratio="16x9" auto-play muted playing-mode="inline"></c4d-video-player-container-v7>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+    
+
+
+
+
+
+<c4d-lightbox-video-player-container></c4d-lightbox-video-player-container>
+
+    
+    
+
+
+    
+	
+    
+    
+    
+    
+<script src="/etc.clientlibs/adobe-cms/clientlibs/clientlib-idlBundle.lc-d0d8f36e0e99910456f774244e2f42fe-lc.min.js"></script>
+
+
+
+    
+
+
+    
+    <script src="/etc.clientlibs/adobe-cms/clientlibs/clientlib-ibm-logger.lc-36e5d2891df65964c169c81e085bcb76-lc.min.js"></script>
+<script src="/etc.clientlibs/adobe-cms/clientlibs/clientlib-base.lc-c7d8c8a31404fb2a97939ee4096001bf-lc.min.js"></script>
+<script src="/etc.clientlibs/adobe-cms/clientlibs/clientlib-components-main.lc-aeb14cca9709489ae20169669684231f-lc.min.js"></script>
+<script src="/etc.clientlibs/adobe-cms/clientlibs/clientlib-idlStyles.lc-28565b58bd1054fc8b12df7e256b96d8-lc.min.js"></script>
+<script src="/etc.clientlibs/adobe-cms/components/content/atoms/image-dm/clientlibs/site.lc-c69b601a7c9fe6df55ae2abc12cb7f46-lc.min.js"></script>
+
+
+
+
+
+<script src="https://www.ibm.com/common/digitaladvisor/cm-app/latest/cm-app.min.js" defer async></script>
+
+
+
+    
+    
+
+
+    
+    
+    <script defer src="/etc.clientlibs/adobe-cms/clientlibs/clientlib-pdfviewer.lc-8bfe9f0acb55448748772c5b315c99bb-lc.min.js"></script>
+
+
+    
+
+
+    
+    <script async defer src="/etc.clientlibs/adobe-cms/clientlibs/clientlib-adobe-data-layer.lc-a27dd47fa802878abcfd8cfc0ead27f8-lc.min.js"></script>
+
+
+
+    
+
+    
+
+    
+
+
+
+    
+    
+<script src="/etc.clientlibs/core/wcm/components/commons/datalayer/v1/clientlibs/core.wcm.components.commons.datalayer.v1.lc-70264651675213ed7f7cc5a02a00f621-lc.min.js"></script>
+
+
+
+
+    
+
+
+
+
+
+<!-- Added for Adobe analytics implementation ADCMS-5834 & ADCMS-6152 !-->
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        var templatePath = "\/conf\/adobe\u002Dcms\u002Deditable\/settings\/wcm\/templates\/generic\u002Denhanced";
+        var templateName = templatePath.split('/').pop();
+        var pageType = document.getElementsByName('pageType')[0]?.content?.trim() || '';
+        const currentUrl = document.URL;
+        const [baseUrl, queryString] = currentUrl.split('?');
+        const urlWithoutProtocolAndDomain = baseUrl.replace(/^https?:\/\/[^\/]+\//, '');
+        const segments = urlWithoutProtocolAndDomain.split('/').filter(segment => segment);
+        const localePattern = /^[a-z]{2}-[a-z]{2}$/;
+        const cleanedSegments = segments.filter(segment => !localePattern.test(segment));
+        const firstSegment = cleanedSegments[0] || "";
+        const secondSegment = cleanedSegments[1] || "";
+        const thirdSegment = cleanedSegments[2] || "";
+        const lastModified = "Mon Jul 20 16:43:24 UTC 2026";
+        var isoDate="";
+        if (lastModified.includes("UTC")) {
+               const date = new Date(lastModified);
+               isoDate = date.toISOString();
+        } else {
+                 isoDate = lastModified;
+        }
+
+        if (currentUrl.includes("/products")) {
+            callProductPageLoadEvent();
+        }
+
+        function callProductPageLoadEvent(){
+            adobeDataLayer.push({
+                "event": "productPageLoad",
+                "commerce": {
+                    "productViews": {
+                        "value": 1
+                     }
+                },
+                "productListItems": {
+                    "name": secondSegment,
+                    "productCategories": {
+                        "categoryName": thirdSegment
+                    }
+                },
+                "web": {
+                    "webPageDetails": {
+                        "URL": document.URL,
+                        "name": cleanUrl(window.location.host) + " | " + templateName + " | Retrieval Augmented Generation",
+                        "siteSection": firstSegment
+                    },
+                    "webReferrer": {
+                        "URL": document.referrer
+                    }
+                }
+            });
+        }
+
+        function getCookieByName(name) {
+            const cookieArr = document.cookie.split(';');
+            for (let i = 0; i < cookieArr.length; i++) {
+                const cookie = cookieArr[i].trim();
+                if (cookie.startsWith(name + "=")) {
+                    return cookie.substring(name.length + 1);
+                }
+            }
+            return null;
+        }
+
+        function getContextCookie(name) {
+  		    const cookieArr = document.cookie.split(';');
+            for (let i = 0; i < cookieArr.length; i++) {
+              const cookie = cookieArr[i].trim();
+              if (cookie.startsWith(name + "=")) {
+                  const value = cookie.substring(name.length + 1);
+                  if (value.includes("0:")) return "false";
+                  return (value.includes("2:") || value.includes("1:")) ? "true" : "false";
+              }
+            }
+            return "false";
+        }
+
+        function cleanUrl(url) {
+            let modifiedUrl = url;
+            if (modifiedUrl.startsWith("www")) {
+                modifiedUrl = modifiedUrl.replace(/^www\.?/, "");
+            }
+            return modifiedUrl;
+        }
+
+
+        function getVisitDepth() {
+            let pageVisitCount = sessionStorage.getItem('pageVisitCount');
+            pageVisitCount = pageVisitCount ? parseInt(pageVisitCount, 10) : 0;
+            pageVisitCount++;
+            sessionStorage.setItem('pageVisitCount', pageVisitCount);
+            return pageVisitCount;
+        }
+
+        function getAmPm() {
+            const date = new Date();
+            const hours = date.getHours();
+            return hours >= 12 ? "PM" : "AM";
+        }
+
+        function getCurrentDay() {
+            const date = new Date();
+            return new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(date);
+        }
+
+        function getDayOfMonth() {
+            const date = new Date();
+            return date.getDate();
+        }
+
+        function getDayOfWeekAsInteger() {
+            const date = new Date();
+            return date.getDay();
+        }
+
+        function getDayOfYear() {
+            const date = new Date();
+            const startOfYear = new Date(date.getFullYear(), 0, 1);
+            const diffInMillis = date - startOfYear;
+            const dayOfYear = Math.floor(diffInMillis / (1000 * 60 * 60 * 24)) + 1;
+            return dayOfYear;
+        }
+
+        function getCurrentHour() {
+            var currentHour = new Date().getHours();
+            var formattedHour = (currentHour === 0 ? 24 : currentHour);
+            return formattedHour + ":00";
+        }
+
+        function getCurrentHourInADay() {
+            const date = new Date();
+            let hours = date.getHours();
+            const period = hours >= 12 ? "PM" : "AM";
+            hours = hours % 12 || 12;
+            return hours +":00" +" " + period;
+        }
+
+        function getCurrentMinute() {
+            const date = new Date();
+            return date.getMinutes();
+        }
+
+        function getCurrentMonth() {
+            const date = new Date();
+            return date.getMonth() + 1;
+        }
+
+        function printCurrentMonthName() {
+            const months = ["January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"];
+            const date = new Date();
+            const monthName = months[date.getMonth()];
+            return monthName;
+        }
+
+        function getQuarter(date = new Date()) {
+            var year = date.getFullYear();
+            var quarters = [
+                            { start: "Jan", end: "Mar" },
+                            { start: "Apr", end: "Jun" },
+                            { start: "Jul", end: "Sep" },
+                            { start: "Oct", end: "Dec" }
+                           ];
+
+            var quarterIndex = Math.floor(date.getMonth() / 3);
+            var start = quarters[quarterIndex].start;
+            var end = quarters[quarterIndex].end;
+            return start + " " + year + " - " + end + " " + year;
+        }
+
+        function getCurrentQuarter() {
+            const date = new Date();
+            const month = date.getMonth();
+            const quarter = Math.floor(month / 3) + 1;
+            return quarter;
+        }
+
+        function getCurrentWeek() {
+            const date = new Date();
+            const startOfYear = new Date(date.getFullYear(), 0, 1);
+            const diff = date - startOfYear;
+            const oneWeekInMillis = 1000 * 60 * 60 * 24 * 7;
+            const weekNumber = Math.ceil(diff / oneWeekInMillis);
+            return weekNumber;
+        }
+
+        function getDayType() {
+            const date = new Date();
+            const dayOfWeek = date.getDay();
+             if (dayOfWeek === 0 || dayOfWeek === 6) {
+                return "Weekend";
+             } else {
+                        return "Weekday";
+                    }
+        }
+
+        function getCurrentYear() {
+            const date = new Date();
+            return date.getFullYear();
+        }
+
+        function generateUtCodesObject() {
+            const utCodesMeta = document.querySelector('meta[name="ut-codes"]');
+            const utCodesIdMeta = document.querySelector('meta[name="ut-codes-id"]');
+            if (utCodesMeta && utCodesIdMeta) {
+                const utCodesContent = utCodesMeta.getAttribute('content');
+                const utCodesIdContent = utCodesIdMeta.getAttribute('content');
+                const utCodesArray = utCodesContent.split(" > ");
+                const utCodesIdArray = utCodesIdContent.split(" > ");
+                let utCodes = {};
+                utCodesArray.forEach((code, index) => {
+                    const firstTwoLetters = code.substring(0, 2);
+                    let prefix = '';
+                    switch (firstTwoLetters) {
+                        case '10':
+                        prefix = 'BusinessUnit';
+                        break;
+                        case '15':
+                        prefix = 'LineOfBusiness';
+                        break;
+                        case '17':
+                        prefix = 'Market';
+                        break;
+                        case '20':
+                        prefix = 'OfferingPortfolio';
+                        break;
+                        case '30':
+                        prefix = 'Offering';
+                        break;
+                        default:
+                        prefix = 'Unknown';
+                    }
+
+                    const codeKey = 'ut' + firstTwoLetters + prefix;
+                    const codeName = code + ':' + (utCodesIdArray[index] || "");
+                    utCodes[codeKey] = codeName;
+                });
+
+                return utCodes;
+            }
+
+            return {};
+        }
+
+        function isFirstPageVisited() {
+            const domainKey = 'firstPageVisited_' + window.location.hostname;
+            if (!localStorage.getItem(domainKey)) {
+                localStorage.setItem(domainKey, 'true');
+                return true;
+            }
+            return false;
+        }
+
+        function getQueryParamWithKey(paramName) {
+            const urlObj = new URL(window.location.href);
+            const value = urlObj.searchParams.get(paramName);
+            if (urlObj.searchParams.has(paramName)) {
+                return paramName + '=' + value;
+            }
+            return '';
+        }
+
+        function getQueryParam(name) {
+            const queryString = window.location.search.substring(1);
+            if (name === '?') {
+                return queryString;
+            }
+
+            const urlParams = new URLSearchParams(queryString);
+            return urlParams.get(name);
+        }
+
+        const utCodes = generateUtCodesObject();
+        const pmpDataScript = "{\x22platforms\x22:[]}";
+        let pmpItems = [];
+        if (pmpDataScript) {
+               try {
+                   pmpItems = JSON.parse(pmpDataScript);
+               } catch (e) {
+                      console.error("error: " + e);
+               }
+        }
+
+        var journeyStep = "\u002D\u002D\u002D Select an option \u002D\u002D";
+
+        var pageObj = {
+                    utCodes: utCodes,
+                    "pageQueryString":{
+                            "pageQueryString": getQueryParam('?') || "" ,
+                            "utm_content": getQueryParam('utm_content') || "",
+                            "utm_term": getQueryParam('utm_term') || "",
+                            "utm_medium": getQueryParam('utm_medium') || "",
+                            "utm_source": getQueryParam('utm_source') || "",
+                            "utm_campaign": getQueryParam('utm_campaign') || "",
+                            "utm_id": getQueryParam('utm_id') || "",
+                            "p1": getQueryParam('p1') || "",
+                            "p2": getQueryParam('p2') || "",
+                            "p3": getQueryParam('p3') || "",
+                            "p4": getQueryParam('p4') || "",
+                            "p5": getQueryParam('p5') || "",
+                            "p6": getQueryParam('p6') || "",
+                            "p7": getQueryParam('p7') || "",
+                            "p8": getQueryParam('p8') || "",
+                            "p9": getQueryParam('p9') || "",
+                    },
+                    "firstPageFlag": isFirstPageVisited(),
+                    "internalCampaign": getQueryParamWithKey("intcmp"),
+                    "siteSection2": secondSegment,
+                    "siteSection3": thirdSegment,
+                    "pageType": pageType,
+                    "domain": cleanUrl(window.location.host),
+                    "siteLanguage": "en",
+                    "pageName": "Retrieval Augmented Generation",
+                    "siteCountry": "us"
+        };
+
+        if (journeyStep) {
+            pageObj.journeyStep = journeyStep;
+        }
+
+        adobeDataLayer.push({
+            "event": "pageLoad",
+            "_ibm": {
+                "page": pageObj,
+
+                "siteActivity": {
+                    "visitDepth": getVisitDepth()
+        	    },
+                "timeParting": {
+                    "t_AmPM": getAmPm(),
+                    "t_Day": getCurrentDay(),
+                    "t_DayOfMonth": getDayOfMonth(),
+                    "t_DayOfWeek": getDayOfWeekAsInteger(),
+                    "t_DayOfYear": getDayOfYear(),
+                    "t_Hour": getCurrentHour(),
+ 		            "t_HourOfDay": getCurrentHourInADay(),
+                    "t_Minute": getCurrentMinute(),
+                    "t_Month": getCurrentMonth(),
+                    "t_MonthOfYear": printCurrentMonthName(),
+                    "t_Quarter": getQuarter(date = new Date()),
+                    "t_QuarterOfYear": getCurrentQuarter(),
+                    "t_Week": getCurrentWeek(),
+                    "t_Weekday_Weekend": getDayType(),
+                    "t_Year": getCurrentYear()
+        	    }
+
+            },
+            paidMediaPlatforms: pmpItems.platforms || [],
+            "web": {
+                "webPageDetails": {
+                    "pageViews": { "value": 1 },
+                    "URL": document.URL,
+                    "name": cleanUrl(window.location.host) + " | " + templateName + " | Retrieval Augmented Generation",
+                    "siteSection": firstSegment
+                },
+                "webReferrer": {
+                    "URL": document.referrer
+                }
+            }
+        });
+
+
+
+        var firstH1 = document.querySelector("h1");
+        if (firstH1) {
+                var h1Content = firstH1.textContent.trim();
+                window.digitalData.page.taxonomy.pageHeading=h1Content;
+        }
+    });
+</script>
+
+    
+
+<script type="text/javascript"  src="/ezFcxFF9P/N/ukFqEqzQ/7S9imwhchLLpQL/Yy41AxIr/D0peSytP/ZWQ"></script><link rel="stylesheet" type="text/css"  href="/ezFcxFF9P/N/ukFqEqzQ/tk/TSgqAxIr/NCVlQx98/TQ9Y"><script  src="/ezFcxFF9P/N/ukFqEqzQ/tk/TSgqAxIr/JxwUPBYm/Kzwo" async defer></script><div id="sec-overlay" style="display:none;"><div id="sec-container"></div></div></body>
+</html>
