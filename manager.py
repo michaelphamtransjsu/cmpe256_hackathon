@@ -32,7 +32,7 @@ AGENT_SCOPES = {
     "clinical": "Clinical research, trials, laboratory capabilities and Agilent clinical evidence; not patient-specific advice.",
     "corporate_responsibility": "SOFI food security, hunger, nutrition and affordability; not general corporate or SEC filings.",
     "technology": "Cisco router specifications, connectivity and infrastructure; Google Cloud/GCP and IBM technical documentation, MCP and retrieval-augmented generation (RAG) architecture. Not financial filings.",
-    "sec": "Cisco and Agilent FY2025 Form 10-K financial figures, reporting periods, business and operational risks. Other companies/filing years are not indexed.",
+    "sec": "Cisco FY2025/FY2026, Agilent FY2025, and Alphabet (Google) FY2024/FY2025 Form 10-K financial figures, reporting periods, business and operational risks; cross-company and cross-year comparisons and general questions about available SEC filings. Other issuers/years are not indexed.",
 }
 
 
@@ -125,8 +125,9 @@ class ManagerAgent:
                     "agents just to return an answer. SEC/financial filings are unsupported unless a registered "
                     "specialist explicitly covers them. For mixed questions, select supported domains and "
                     "select both Technology and SEC when Cisco hardware/infrastructure requirements and "
-                    "financial or filing-risk analysis are requested. SEC requires a named Cisco or Agilent; "
-                    "request clarification in limitations if the issuer is unspecified. "
+                    "financial or filing-risk analysis are requested. SEC supports the issuers and years in its scope, "
+                    "including cross-company/year comparisons and general questions about available SEC filings "
+                    "without requiring a named issuer. Never substitute unrelated issuers for an unsupported one; "
                     "record unsupported parts in limitations. Available scopes: " + json.dumps({
                         name: AGENT_SCOPES.get(name, name) for name in self.registry}))),
                 HumanMessage(content=json.dumps({"question": request.question})),

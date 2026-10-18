@@ -54,12 +54,42 @@ def test_cached_views_reuse_existing_embeddings(sec):
     assert view.model is sec.index.model
 
 
-def test_ingestion_scope_is_only_the_two_requested_filings():
+def test_ingestion_scope_covers_all_five_requested_filings():
     assert {(f["company"], f["fiscal_year"], f["filing_type"]) for f in FILINGS} == {
-        ("Cisco", 2025, "10-K"), ("Agilent", 2025, "10-K")}
+        ("Cisco", 2025, "10-K"), ("Agilent", 2025, "10-K"),
+        ("Cisco", 2026, "10-K"), ("Alphabet", 2024, "10-K"), ("Alphabet", 2025, "10-K")}
 
 
 def test_short_signature_fragments_are_not_ranked(sec):
     sec.index.documents[0].page_content = "COMPANY NAME By:"
     sec.index.documents[0].metadata["table_refs"] = []
     assert sec.retrieve("Revenue", company="Cisco", fiscal_year=2025) == []
+
+
+def test_incremental_embedding_reuse_only_encodes_new_text():
+    from shared.sec_retrieval import _ReuseEmbeddings
+    class Model:
+        def encode(self, texts, **kwargs):
+            assert texts == ["new"]
+            return np.array([[0., 1.]])
+    model = _ReuseEmbeddings(Model(), [{"page_content": "old"}], np.array([[1., 0.]]))
+    vectors = model.encode(["old", "new", "old"], normalize_embeddings=True)
+    assert np.array_equal(vectors, [[1., 0.], [0., 1.], [1., 0.]])
+
+
+def test_multiple_company_and_year_filters(sec):
+    rows = sec.retrieve("Revenue", company=["Cisco", "Agilent"], fiscal_year=[2024, 2025])
+    assert len(rows) == 3
+    assert len(sec.retrieve("Revenue", company=["Cisco"], fiscal_year=[2024, 2025])) == 2
+    assert sec.retrieve("Revenue", company=["Microsoft"], fiscal_year=[2025]) == []
+
+
+def test_duplicate_text_keeps_each_original_vector_exactly():
+    from shared.sec_retrieval import _ReuseEmbeddings
+    class Model:
+        def encode(self, *args, **kwargs):
+            pytest.fail("Existing vectors must not be regenerated")
+    previous = [{"page_content": "duplicate"}, {"page_content": "duplicate"}]
+    vectors = np.array([[1., 0.], [1., 0.00000001]])
+    model = _ReuseEmbeddings(Model(), previous, vectors)
+    assert np.array_equal(model.encode(["duplicate", "duplicate"]), vectors)

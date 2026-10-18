@@ -53,7 +53,9 @@ def digests():
 before=digests()
 tech=build_cisco_retriever()
 sec=build_sec_retriever()
-assert len(tech.documents)==830 and len(sec.index.documents)==2967
+assert len(tech.documents)==830
+from shared.sec_retrieval import FILINGS
+assert {(d.metadata["company"],d.metadata["fiscal_year"]) for d in sec.index.documents} == {(f["company"],f["fiscal_year"]) for f in FILINGS}
 results = [tech.retrieve('Which Catalyst 8300 routers have two 10Gbps Ethernet ports?'),
            sec.retrieve('What were Cisco and Agilent FY2025 revenues?',company='Cisco',fiscal_year=2025)]
 assert all(not Path(x['metadata']['source']).is_absolute() and (ROOT/x['metadata']['source']).is_file() for group in results for x in group)
