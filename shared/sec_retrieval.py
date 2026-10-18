@@ -10,9 +10,11 @@ from pathlib import Path
 import numpy as np
 
 from langchain_core.documents import Document
-from sentence_transformers import SentenceTransformer
 
-from shared.hybrid_retrieval import MODEL, MODEL_REVISION, ROOT, Retriever
+from shared.hybrid_retrieval import (
+    MODEL, MODEL_REVISION, ROOT, Retriever, load_embedding_model, require_prepared_cache,
+)
+from shared.query_context import answering_only
 
 DATA = ROOT / "data/UnitedStatesSecuritiesandExchangeCommission(SEC)"
 CACHE = ROOT / "storage/sec"
@@ -115,23 +117,24 @@ class SECRetriever:
 
 
 def build_sec_retriever(data_dir=DATA, cache_dir=CACHE):
-    from docling.chunking import HybridChunker
-    from docling.datamodel.base_models import ConversionStatus, InputFormat
-    from docling.datamodel.pipeline_options import PdfPipelineOptions
-    from docling.document_converter import DocumentConverter, PdfFormatOption
-    from docling_core.transforms.chunker.tokenizer.huggingface import HuggingFaceTokenizer
-    from docling_core.types.doc import DoclingDocument
-    import pypdfium2 as pdfium
-
     cache_dir = Path(cache_dir)
-    cache_dir.mkdir(parents=True, exist_ok=True)
     paths = [Path(data_dir) / f["company"] / f["filename"] for f in FILINGS]
     fingerprints = {p.relative_to(data_dir).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     key = json.dumps({"files": fingerprints, "config": CONFIG, "filings": FILINGS}, sort_keys=True)
-    model = SentenceTransformer(MODEL, revision=CONFIG["model_revision"], device="cpu")
-    chunker = HybridChunker(tokenizer=HuggingFaceTokenizer(tokenizer=model.tokenizer, max_tokens=CONFIG["max_tokens"]),
-                            merge_peers=CONFIG["merge_peers"], repeat_table_header=CONFIG["repeat_table_header"])
+    prepared = require_prepared_cache(cache_dir, key)
     contexts = {}
+    if prepared:
+        for filing in FILINGS:
+            source_id = f"{filing['company'].lower()}-{filing['fiscal_year']}-{filing['filing_type']}"
+            context_path = cache_dir / f"{source_id}-context.json"
+            try:
+                context = json.loads(context_path.read_text())
+                if not isinstance(context["tables"], dict) or not isinstance(context["pages"], dict):
+                    raise ValueError("Invalid table/page context")
+                contexts[source_id] = context
+            except (OSError, ValueError, KeyError, TypeError) as error:
+                raise RuntimeError(f"SEC context is missing or invalid: {context_path}; prepare indexes separately") from error
+    model = load_embedding_model(revision=CONFIG["model_revision"])
     previous_path = cache_dir / "index.json"
     previous = json.loads(previous_path.read_text()) if previous_path.exists() else {}
     previous_key = json.loads(previous["key"]) if previous else {}
@@ -139,6 +142,16 @@ def build_sec_retriever(data_dir=DATA, cache_dir=CACHE):
     compatible = previous_key.get("config") == CONFIG
 
     def load():
+        from docling.chunking import HybridChunker
+        from docling.datamodel.base_models import ConversionStatus, InputFormat
+        from docling.datamodel.pipeline_options import PdfPipelineOptions
+        from docling.document_converter import DocumentConverter, PdfFormatOption
+        from docling_core.transforms.chunker.tokenizer.huggingface import HuggingFaceTokenizer
+        from docling_core.types.doc import DoclingDocument
+        import pypdfium2 as pdfium
+
+        chunker = HybridChunker(tokenizer=HuggingFaceTokenizer(tokenizer=model.tokenizer, max_tokens=CONFIG["max_tokens"]),
+                                merge_peers=CONFIG["merge_peers"], repeat_table_header=CONFIG["repeat_table_header"])
         documents, failures = [], []
         converter = DocumentConverter(format_options={InputFormat.PDF: PdfFormatOption(
             pipeline_options=PdfPipelineOptions(do_ocr=CONFIG["do_ocr"]))})
@@ -205,7 +218,7 @@ def build_sec_retriever(data_dir=DATA, cache_dir=CACHE):
     embedding_model = model
     vector_path = cache_dir / "embeddings.npy"
     previous_config = previous_key.get("config", {})
-    if (previous and vector_path.exists()
+    if (previous and previous["key"] != key and vector_path.exists()
             and all(previous_config.get(k) == CONFIG[k] for k in ("model", "model_revision"))):
         vectors = np.load(vector_path, allow_pickle=False)
         if vectors.shape != (len(previous["documents"]), model.get_sentence_embedding_dimension()):
@@ -222,7 +235,8 @@ def build_sec_retriever(data_dir=DATA, cache_dir=CACHE):
 
 @lru_cache(maxsize=1)
 def _default():
-    return build_sec_retriever()
+    with answering_only():
+        return build_sec_retriever()
 
 
 def retrieve(question, k=5, *, company=None, fiscal_year=None):
@@ -230,6 +244,13 @@ def retrieve(question, k=5, *, company=None, fiscal_year=None):
 
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--prepare", action="store_true", help="Explicitly prepare changed/missing SEC indexes")
+    if parser.parse_args().prepare:
+        build_sec_retriever()
+        raise SystemExit(0)
     for question, company in [
         ("What are Cisco's principal business and operational risks in FY2025?", "Cisco"),
         ("What are Agilent's principal risks in FY2025?", "Agilent"),

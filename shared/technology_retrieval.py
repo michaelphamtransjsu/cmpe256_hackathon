@@ -8,7 +8,7 @@ from pathlib import Path
 
 from langchain_core.documents import Document
 
-from shared.hybrid_retrieval import ROOT, SETTINGS, Retriever, build_cisco_retriever
+from shared.hybrid_retrieval import ROOT, SETTINGS, Retriever, build_cisco_retriever, require_prepared_cache
 from shared.html_evidence import extract_html_text
 from shared.query_context import cache_only
 
@@ -142,12 +142,20 @@ def build_technology_retriever(web_dir=WEB_DIR, cache_dir=CACHE):
         if digest != entry["sha256"] or entry["url"] != source["url"]:
             raise ValueError(f"Source changed: {source['id']}; refresh source preparation")
         files[source["id"]] = digest
-    cisco = build_cisco_retriever()
-    pdf_files = {Path(d.metadata["source"]).name for d in cisco.documents}
-    pdf_hashes = {name: hashlib.sha256((ROOT / "data/technology" / name).read_bytes()).hexdigest()
-                  for name in pdf_files}
+    pdf_paths = sorted((ROOT / "data/technology").glob("cisco_*.pdf"))
+    if not pdf_paths:
+        raise FileNotFoundError(f"Missing Cisco source PDFs: {ROOT / 'data/technology'}")
+    pdf_hashes = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in pdf_paths}
     key = json.dumps({"pdfs": pdf_hashes, "web": files, "sources": SOURCES,
                       "settings": SETTINGS, "web_settings": WEB_SETTINGS}, sort_keys=True)
+
+    require_prepared_cache(cache_dir, key)
+    cached_path = Path(cache_dir) / "index.json"
+    if (cached_path.exists() and (Path(cache_dir) / "embeddings.npy").is_file()
+            and json.loads(cached_path.read_text()).get("key") == key):
+        # The combined cache is self-contained; do not load the PDF-only index too.
+        return TechnologyRetriever(Retriever.from_documents([], cache_dir, key))
+    cisco = build_cisco_retriever()
 
     def load():
         from langchain_text_splitters import RecursiveCharacterTextSplitter

@@ -100,7 +100,7 @@ def test_content_and_processing_changes_invalidate_index(checkout, monkeypatch, 
     with pytest.raises(Stop):
         build(**kwargs)
     assert captured[-1] == old_key
-    monkeypatch.setattr(module, "SentenceTransformer", lambda *a, **kw: models[0])
+    monkeypatch.setattr(module, "load_embedding_model", lambda *a, **kw: models[0])
     source = next(data.rglob("*.pdf"))
     original = source.read_bytes()
     source.write_bytes(original + b"\n")

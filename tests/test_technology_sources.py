@@ -104,6 +104,9 @@ def test_unchanged_web_chunks_are_preserved(tmp_path, monkeypatch):
         'settings': tr.SETTINGS, 'web_settings': tr.WEB_SETTINGS,
         'sources': [source], 'web': {source['id']: digest}}), 'documents': [retained]}))
     monkeypatch.setattr(tr, 'SOURCES', [source])
+    monkeypatch.setattr(tr, 'ROOT', tmp_path)
+    (tmp_path / 'data/technology').mkdir(parents=True)
+    (tmp_path / 'data/technology/cisco_fixture.pdf').write_bytes(b'fixture')
     monkeypatch.setattr(tr, 'build_cisco_retriever', lambda: SimpleNamespace(documents=[], model=None))
     monkeypatch.setattr(tr, 'article_text', lambda _: pytest.fail('Existing source was reprocessed'))
     def build(documents, *args):
