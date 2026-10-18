@@ -1,6 +1,8 @@
 # Clinical and Corporate Responsibility specialists
 
-Two independent Python specialists for an enterprise management-consulting team. This package contains no manager, UI, SEC agent, or Technology agent.
+An evidence-based management-consulting project with a Manager Agent and Clinical, Corporate Responsibility, Technology, and SEC specialists.
+
+The React + Vite chat UI and FastAPI adapter call the existing Manager Agent. See [Manager Chat: exact WSL setup and start commands](frontend/README.md). Each question is independent; browser-session history is for display. Document ingestion remains a separate setup step.
 
 - **Clinical** retrieves clinical/Agilent evidence and searches source-attributed trial records in SQLite. Its model prompt distinguishes trial registration from efficacy and identifies missing clinical evidence.
 - **Corporate Responsibility** retrieves assigned SOFI 2023/2024 evidence. Its model prompt preserves geography, units, publication/observation years, and differences between revisions and trends.
@@ -26,6 +28,9 @@ shared/
   sources.py                    # Safe inventory, manifests, and ingestion
   html_evidence.py              # Passive HTML text extraction
 tests/                         # Unit/integration tests and real-source validator
+manager.py                     # Routing, specialist consultation, and synthesis
+backend/app.py                 # FastAPI adapter (manager only; no ingestion)
+frontend/                      # React + Vite chat and WSL start instructions
 ingest.py                      # Document/trial ingestion and inventory CLI
 requirements.txt               # Tested dependency pins
 .env.example
