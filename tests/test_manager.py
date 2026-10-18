@@ -267,7 +267,7 @@ def test_conflicting_specialists_are_both_supplied_to_synthesis_and_retained():
     assert any("conflict remains unresolved" in x for x in response.limitations)
 
 
-def test_public_entry_point_uses_team_model_factory_with_small_model(monkeypatch):
+def test_public_entry_point_honors_hosted_model_configuration(monkeypatch):
     import manager
 
     configurations = []
@@ -276,9 +276,10 @@ def test_public_entry_point_uses_team_model_factory_with_small_model(monkeypatch
         return Model([])
     monkeypatch.setattr(manager, "make_chat_model", make_model)
     monkeypatch.setenv("SPECIALIST_CHAT_MODEL", "another-model")
+    monkeypatch.setenv("SPECIALIST_LLM_PROVIDER", "openai")
     response = manager.consult("SEC filing analysis")
     assert isinstance(response, ManagerResponse)
-    assert configurations[0].chat_model == "gpt-4.1-mini"
+    assert configurations[0].chat_model == "another-model"
 
 
 def test_grouped_narrative_citations_cannot_introduce_unknown_evidence():
@@ -295,6 +296,24 @@ def test_grouped_narrative_citations_cannot_introduce_unknown_evidence():
     assert any("Synthesis unavailable" in x for x in response.limitations)
 
 
+def test_corporate_unknown_narrative_synthesis_preserves_evidence_and_logs_stack(caplog):
+    class InvalidCorporate(Model):
+        def invoke(self, messages):
+            result = super().invoke(messages)
+            if self.schema is Analysis:
+                result["answer"] = "Synthetic source claim [corporate_responsibility:E999]."
+            return result
+
+    response = ManagerAgent(Settings(), model=InvalidCorporate(["corporate_responsibility"]),
+        registry={"corporate_responsibility": specialist("corporate_responsibility", [])}).consult(
+            "What are the major causes of global food insecurity?")
+    assert "Synthesis unavailable (ValueError)" in response.answer
+    assert response.findings[0].evidence_ids == ["corporate_responsibility:E1"]
+    assert "E999" not in response.model_dump_json()
+    assert "Manager synthesis failed" in caplog.text
+    assert "ValueError" in caplog.text and 'in consult' in caplog.text
+
+
 def test_limitations_deduplicate_attribution_case_whitespace_and_punctuation():
     response = ManagerResponse(question="Question", agents_used=[], answer="No evidence",
         findings=[], recommendations=[], citations=[], limitations=[
@@ -304,6 +323,23 @@ def test_limitations_deduplicate_attribution_case_whitespace_and_punctuation():
     assert response.limitations == ["technology: Missing diagnostic logs.",
                                     "clinical: No trial outcomes.", "Different limitation."]
     assert ManagerResponse.model_validate_json(response.model_dump_json()) == response
+
+
+def test_identical_failures_from_different_specialists_keep_each_attribution():
+    response = ManagerAgent(Settings(), model=Model(["technology", "sec"]), registry={
+        name: specialist(name, [], fail=True) for name in ["technology", "sec"]
+    }).consult("Compare Cisco router ports and financial risks")
+    assert len(response.limitations) == 2
+    assert any(item.startswith("technology: specialist failed") for item in response.limitations)
+    assert any(item.startswith("sec: specialist failed") for item in response.limitations)
+
+
+def test_attributed_limitations_replace_bare_repeats_and_keep_distinct_domains():
+    response = ManagerResponse(question="Question", agents_used=[], answer="No evidence",
+        findings=[], recommendations=[], citations=[], limitations=[
+            "No evidence.", "clinical: No evidence.", "technology: No evidence.",
+            "No evidence.", "CLINICAL:  NO   evidence"])
+    assert response.limitations == ["clinical: No evidence.", "technology: No evidence."]
 
 
 @pytest.mark.parametrize(("source", "label"), [

@@ -4,6 +4,8 @@ An evidence-based management-consulting project with a Manager Agent and Clinica
 
 The React + Vite chat UI and FastAPI adapter call the existing Manager Agent. See [Manager Chat: exact WSL setup and start commands](frontend/README.md). Each question is independent; browser-session history is for display. Document ingestion remains a separate setup step.
 
+See the [system compatibility audit](docs/system-audit.md) for confirmed repairs, operational prerequisites, regression results and remaining blocked live checks. Prepared Technology/SEC queries need `.[retrieval-runtime]` and the pinned local MiniLM weights; they do not need Docling or rebuild indexes during queries.
+
 - **Clinical** retrieves clinical/Agilent evidence and searches source-attributed trial records in SQLite. Its model prompt distinguishes trial registration from efficacy and identifies missing clinical evidence.
 - **Corporate Responsibility** retrieves assigned SOFI 2023/2024 evidence. Its model prompt preserves geography, units, publication/observation years, and differences between revisions and trends.
 

@@ -12,6 +12,7 @@ from agents.clinical import ClinicalAgent
 from agents.corporate_responsibility import CorporateResponsibilityAgent
 from shared.model import Settings
 from shared.schemas import Analysis, SpecialistRequest, SpecialistResponse
+from shared.specialist import Specialist
 from shared.trials import TrialRecord
 
 
@@ -196,6 +197,67 @@ def test_unknown_model_citation_ids_are_rejected(settings):
     agent.index.replace([source("clinical", "fixture", "Synthetic nutrition evidence.")])
     with pytest.raises(ValidationError, match="unknown evidence identifier"):
         agent.invoke("nutrition")
+
+
+@pytest.mark.parametrize("agent_class", [ClinicalAgent, CorporateResponsibilityAgent])
+@pytest.mark.parametrize("field", ["answer", "finding", "recommendation", "limitation"])
+def test_unknown_model_narrative_citations_are_rejected(settings, agent_class, field):
+    class UnknownNarrativeModel(StructuredModelStub):
+        def invoke(self, messages):
+            result = super().invoke(messages)
+            if field == "answer":
+                result["answer"] += " [E1, E999]"
+            elif field == "finding":
+                result["findings"][0]["text"] += " [E999]"
+            elif field == "recommendation":
+                result["recommendations"][0]["rationale"] += " [E999]"
+            else:
+                result["limitations"].append("See [E999].")
+            return result
+
+    agent = agent_class(settings.model_copy(update={"llm_provider": "openai"}), model=UnknownNarrativeModel())
+    agent.index.replace([source(agent.name, "fixture", "Synthetic nutrition evidence.")])
+    with pytest.raises(ValueError, match="narrative references an unknown evidence identifier"):
+        agent.invoke("nutrition")
+
+
+def test_known_model_narrative_citations_are_accepted(settings):
+    class KnownNarrativeModel(StructuredModelStub):
+        def invoke(self, messages):
+            result = super().invoke(messages)
+            result["answer"] += " [E1]"
+            return result
+
+    agent = CorporateResponsibilityAgent(settings.model_copy(update={"llm_provider": "openai"}), model=KnownNarrativeModel())
+    agent.index.replace([source(agent.name, "fixture", "Synthetic nutrition evidence.")])
+    assert agent.invoke("nutrition").answer.endswith("[E1]")
+
+
+def test_extractive_evidence_preserves_source_bracketed_identifiers(settings):
+    agent = CorporateResponsibilityAgent(settings)
+    text = "Synthetic nutrition source text contains its own reference [E999]."
+    agent.index.replace([source(agent.name, "fixture", text)])
+    response = agent.invoke("nutrition")
+    assert response.findings[0].text == response.citations[0].excerpt == text
+
+
+@pytest.mark.parametrize("agent_name", ["technology", "sec"])
+def test_adapter_indexes_do_not_claim_to_use_configured_hash_embeddings(settings, agent_name):
+    class AdapterIndex:
+        def search(self, question, limit, *, report_year=None):
+            return [source(agent_name, "fixture", "Synthetic nutrition evidence.")]
+
+    class AdapterSpecialist(Specialist):
+        name = agent_name
+
+        def __init__(self):
+            self.settings = settings
+            self.model = None
+            self.index = AdapterIndex()
+
+    response = AdapterSpecialist().invoke("nutrition")
+    assert response.status == "evidence_found"
+    assert all("Hash embeddings" not in limitation for limitation in response.limitations)
 
 
 def test_no_evidence_does_not_call_optional_model(settings):

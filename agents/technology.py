@@ -7,6 +7,7 @@ from langchain_core.documents import Document
 
 from shared.hybrid_retrieval import retrieve
 from shared.model import Settings
+from shared.query_context import answering_only
 from shared.specialist import Specialist
 
 
@@ -14,7 +15,9 @@ class _CiscoEvidence:
     """Adapt hybrid results to the team's existing evidence-to-answer interface."""
 
     def search(self, question, limit, *, report_year=None):
-        results = retrieve(question, k=10)
+        # Standalone agents have the same read-only query contract as the web API.
+        with answering_only():
+            results = retrieve(question, k=10)
         documents = []
         for result in results[:limit]:
             metadata = dict(result["metadata"])

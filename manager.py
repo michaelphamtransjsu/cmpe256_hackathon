@@ -1,6 +1,7 @@
 """UI entry point: consult(question) -> ManagerResponse; serialize with model_dump()."""
 
 import json
+import logging
 import re
 from pathlib import PurePosixPath
 from typing import Literal
@@ -11,8 +12,11 @@ from pydantic import Field, create_model, model_validator
 
 from agents import create_specialist
 from shared.model import AgentName, Settings, make_chat_model
-from shared.schemas import Analysis, Citation, SpecialistRequest, SpecialistResponse, StrictModel
+from shared.schemas import Analysis, Citation, SpecialistRequest, SpecialistResponse, StrictModel, narrative_evidence_ids
 from shared.specialist import EVIDENCE_POLICY
+from shared.diagnostics import log_failure
+
+logger = logging.getLogger(__name__)
 
 
 def _technology(settings):
@@ -37,14 +41,23 @@ AGENT_SCOPES = {
 
 
 def _deduplicate_limitations(items):
-    result, seen = [], set()
+    result, seen, bare_positions = [], {}, {}
     for item in items:
         # Synthesis often repeats a specialist limitation without its attribution.
-        text = re.sub(r"^(?:clinical|corporate_responsibility|technology|sec):\s*", "", item, flags=re.I)
+        match = re.match(r"^(clinical|corporate_responsibility|technology|sec):\s*(.*)", item, flags=re.I)
+        agent, text = (match[1].casefold(), match[2]) if match else (None, item)
         key = " ".join(text.casefold().split()).rstrip(". ")
-        if key and key not in seen:
-            seen.add(key)
+        if not key or agent in seen.get(key, set()) or (agent is None and key in seen):
+            continue
+        # Preserve the scope of identical limitations from different specialists.
+        if agent is not None and key in bare_positions:
+            result[bare_positions.pop(key)] = item
+            seen[key].discard(None)
+        else:
+            if agent is None:
+                bare_positions[key] = len(result)
             result.append(item)
+        seen.setdefault(key, set()).add(agent)
     return result
 
 
@@ -115,8 +128,7 @@ class ManagerAgent:
 
     def consult(self, question: str) -> ManagerResponse:
         request = SpecialistRequest(question=question, max_sources=self.settings.top_k)
-        model = self.model if self.model is not None else make_chat_model(
-            self.settings.model_copy(update={"chat_model": "gpt-4.1-mini"}))
+        model = self.model if self.model is not None else make_chat_model(self.settings)
         route = self.route_schema.model_validate(model.with_structured_output(
             self.route_schema, method="json_schema").invoke([
                 SystemMessage(content=(
@@ -125,8 +137,8 @@ class ManagerAgent:
                     "agents just to return an answer. SEC/financial filings are unsupported unless a registered "
                     "specialist explicitly covers them. For mixed questions, select supported domains and "
                     "select both Technology and SEC when Cisco hardware/infrastructure requirements and "
-                    "financial or filing-risk analysis are requested. SEC requires a named Cisco or Agilent; "
-                    "request clarification in limitations if the issuer is unspecified. "
+                    "financial or filing-risk analysis are requested. SEC can survey the available Cisco "
+                    "and Agilent filings when no issuer is specified; disclose that limited corpus. "
                     "record unsupported parts in limitations. Available scopes: " + json.dumps({
                         name: AGENT_SCOPES.get(name, name) for name in self.registry}))),
                 HumanMessage(content=json.dumps({"question": request.question})),
@@ -145,6 +157,7 @@ class ManagerAgent:
                     limitations.append(f"{name}: insufficient evidence for this question.")
             except Exception as error:
                 # Provider exception text may contain request details; expose only its type.
+                log_failure(logger, f"{name}: specialist invocation failed", error)
                 limitations.append(f"{name}: specialist failed ({type(error).__name__}); its advice is unavailable.")
         payloads = [_namespace(response) for response in responses]
         citations = [Citation.model_validate(c) for p in payloads for c in p["citations"]]
@@ -218,14 +231,13 @@ class ManagerAgent:
             combined = list(dict.fromkeys([*limitations, *analysis.limitations]))
             result = ManagerResponse(**base, **{**analysis.model_dump(), "limitations": combined})
             # Reject invented bracketed references in narrative fields as well as structured IDs.
-            text = json.dumps(analysis.model_dump())
-            references = [reference for block in re.findall(r"\[([^\[\]]+)\]", text)
-                          for reference in re.findall(r"\b(?:[a-z_]+:)?E\d+\b", block)]
+            references = narrative_evidence_ids(analysis.model_dump())
             if not set(references).issubset({c.id for c in citations}):
                 raise ValueError("Unknown narrative citation")
             return result
         except Exception as error:
             # Return original grounded specialist content if synthesis fails validation/provider access.
+            log_failure(logger, "Manager synthesis failed", error)
             return separate_advice(f"Synthesis unavailable ({type(error).__name__}); specialist responses are shown separately and conflicts remain unresolved.")
 
 

@@ -63,3 +63,91 @@ def test_short_signature_fragments_are_not_ranked(sec):
     sec.index.documents[0].page_content = "COMPANY NAME By:"
     sec.index.documents[0].metadata["table_refs"] = []
     assert sec.retrieve("Revenue", company="Cisco", fiscal_year=2025) == []
+
+
+def _prepared_sec_fixture(tmp_path):
+    import hashlib
+    import json
+    from shared.sec_retrieval import CONFIG
+
+    data_dir, cache_dir = tmp_path / "filings", tmp_path / "sec-cache"
+    cache_dir.mkdir()
+    files, documents = {}, []
+    for filing in FILINGS:
+        relative = filing["company"] + "/" + filing["filename"]
+        path = data_dir / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"Synthetic source; parsing this fixture is forbidden.")
+        files[relative] = hashlib.sha256(path.read_bytes()).hexdigest()
+        source_id = filing["company"].lower() + "-2025-10-K"
+        documents.append({"page_content": "Synthetic risk disclosure and reporting context.",
+                          "metadata": {**filing, "source_id": source_id, "table_refs": [],
+                                       "pages": [1], "page": 1, "source": "fixture:" + source_id}})
+        (cache_dir / (source_id + "-context.json")).write_text(json.dumps(
+            {"tables": {}, "pages": {"1": "Synthetic page."}}))
+    key = json.dumps({"files": files, "config": CONFIG, "filings": FILINGS}, sort_keys=True)
+    (cache_dir / "index.json").write_text(json.dumps({"key": key, "documents": documents}))
+    np.save(cache_dir / "embeddings.npy", np.array([[1., 0.], [0., 1.]]), allow_pickle=False)
+    return data_dir, cache_dir
+
+
+def test_prepared_sec_cache_does_not_import_ingestion_dependencies(tmp_path, monkeypatch):
+    import builtins
+    from shared import sec_retrieval
+    from shared.query_context import answering_only
+
+    data_dir, cache_dir = _prepared_sec_fixture(tmp_path)
+
+    class Model:
+        def get_sentence_embedding_dimension(self):
+            return 2
+
+    monkeypatch.setattr(sec_retrieval, "load_embedding_model", lambda **kwargs: Model())
+    original_import = builtins.__import__
+
+    def forbid_ingestion(name, *args, **kwargs):
+        if name.startswith(("docling", "docling_core", "pypdfium2")):
+            raise AssertionError("Prepared SEC query imported ingestion dependency: " + name)
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", forbid_ingestion)
+    before = {p.name: p.read_bytes() for p in cache_dir.iterdir()}
+    with answering_only():
+        retriever = sec_retrieval.build_sec_retriever(data_dir, cache_dir)
+    assert len(retriever.index.documents) == 2
+    assert set(retriever.contexts) == {"cisco-2025-10-K", "agilent-2025-10-K"}
+    assert {p.name: p.read_bytes() for p in cache_dir.iterdir()} == before
+
+
+def test_missing_sec_cache_fails_before_model_or_ingestion(tmp_path, monkeypatch):
+    from shared import sec_retrieval
+    from shared.query_context import answering_only
+
+    data_dir, cache_dir = _prepared_sec_fixture(tmp_path)
+    (cache_dir / "index.json").unlink()
+
+    def forbidden_model():
+        pytest.fail("Missing SEC cache must be rejected before model initialization")
+
+    monkeypatch.setattr(sec_retrieval, "load_embedding_model", forbidden_model)
+    with answering_only(), pytest.raises(RuntimeError, match="cache"):
+        sec_retrieval.build_sec_retriever(data_dir, cache_dir)
+    assert not (cache_dir / "index.json").exists()
+
+
+def test_independent_sec_query_enables_cache_only(monkeypatch):
+    from shared import sec_retrieval
+    from shared.query_context import cache_only
+
+    marker = object()
+    def build():
+        assert cache_only.get() is True
+        return marker
+
+    sec_retrieval._default.cache_clear()
+    monkeypatch.setattr(sec_retrieval, "build_sec_retriever", build)
+    try:
+        assert sec_retrieval._default() is marker
+        assert cache_only.get() is False
+    finally:
+        sec_retrieval._default.cache_clear()
