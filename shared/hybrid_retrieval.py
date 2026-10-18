@@ -12,9 +12,11 @@ from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+MODEL_REVISION = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
 ROOT = Path(__file__).resolve().parents[1]
 SETTINGS = {"model": MODEL, "max_tokens": 220, "merge_peers": False,
-            "repeat_table_header": True, "do_ocr": False, "cache_version": 1}
+            "repeat_table_header": True, "do_ocr": False, "cache_version": 1,
+            "model_revision": MODEL_REVISION}
 
 
 def _lexical_text(text):
@@ -85,7 +87,7 @@ class Retriever:
     @classmethod
     def from_documents(cls, documents, cache_dir, cache_key, model=None):
         """Cache already-chunked documents and vectors; caller controls invalidation key."""
-        model = model if model is not None else SentenceTransformer(MODEL, device="cpu")
+        model = model if model is not None else SentenceTransformer(MODEL, revision=MODEL_REVISION, device="cpu")
         cache_dir = Path(cache_dir)
         cache_dir.mkdir(parents=True, exist_ok=True)
         manifest_path = cache_dir / "index.json"
@@ -135,25 +137,25 @@ def build_cisco_retriever(pdf_dir=ROOT / "data/technology",
     paths = sorted(Path(pdf_dir).glob("cisco_*.pdf"))
     if not paths:
         raise FileNotFoundError(f"No Cisco PDFs in {pdf_dir}")
-    model = SentenceTransformer(MODEL, device="cpu")
+    model = SentenceTransformer(MODEL, revision=SETTINGS["model_revision"], device="cpu")
     chunker = HybridChunker(
-        tokenizer=HuggingFaceTokenizer(tokenizer=model.tokenizer, max_tokens=220),
-        merge_peers=False, repeat_table_header=True,
+        tokenizer=HuggingFaceTokenizer(tokenizer=model.tokenizer, max_tokens=SETTINGS["max_tokens"]),
+        merge_peers=SETTINGS["merge_peers"], repeat_table_header=SETTINGS["repeat_table_header"],
     )
     cache_dir = Path(cache_dir)
     cache_dir.mkdir(parents=True, exist_ok=True)
-    fingerprints = {str(p.resolve()): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
+    fingerprints = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     key = json.dumps({"files": fingerprints, "settings": SETTINGS}, sort_keys=True)
 
     def load():
         # These digital PDFs already contain text; retain Docling table recognition.
         converter = DocumentConverter(format_options={InputFormat.PDF: PdfFormatOption(
-            pipeline_options=PdfPipelineOptions(do_ocr=False))})
+            pipeline_options=PdfPipelineOptions(do_ocr=SETTINGS["do_ocr"]))})
         failures = []
         documents = []
         for path in paths:
-            fingerprint = hashlib.sha256((fingerprints[str(path.resolve())] +
-                                         str(path.resolve()) + json.dumps(SETTINGS, sort_keys=True)).encode()).hexdigest()
+            fingerprint = hashlib.sha256((fingerprints[path.name] +
+                                         path.name + json.dumps(SETTINGS, sort_keys=True)).encode()).hexdigest()
             chunk_cache = cache_dir / f"{path.stem}-{fingerprint}.json"
             try:
                 if chunk_cache.exists():
@@ -164,6 +166,7 @@ def build_cisco_retriever(pdf_dir=ROOT / "data/technology",
                     if not chunks:
                         raise ValueError("Loader produced no chunks")
                     for chunk in chunks:
+                        chunk.metadata["source"] = f"data/technology/{path.name}"
                         items = chunk.metadata.get("dl_meta", {}).get("doc_items", [])
                         chunk.metadata["pages"] = sorted({prov["page_no"] for item in items
                                                           for prov in item.get("prov", [])})
