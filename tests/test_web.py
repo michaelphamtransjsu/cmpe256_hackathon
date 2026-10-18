@@ -105,3 +105,53 @@ def test_health_does_not_consult_or_construct_models(monkeypatch):
     monkeypatch.setattr(manager, "consult", lambda question: pytest.fail("Liveness called manager"))
     monkeypatch.setattr(manager, "make_chat_model", lambda settings: pytest.fail("Liveness loaded model"))
     assert client.get("/api/health").json() == {"status": "ok"}
+
+
+def test_chat_sets_and_resets_request_local_cache_policy(monkeypatch):
+    from shared.query_context import cache_only
+
+    observed = []
+
+    def consult(question):
+        observed.append(cache_only.get())
+        return manager.ManagerResponse(question=question, answer="No evidence",
+            findings=[], recommendations=[], limitations=[], citations=[], agents_used=[])
+
+    monkeypatch.setattr(manager, "consult", consult)
+    assert cache_only.get() is False
+    assert client.post("/api/chat", json={"question": "Question?"}).status_code == 200
+    assert observed == [True]
+    assert cache_only.get() is False
+
+
+def test_cache_only_policy_blocks_ingestion_and_reuses_valid_cache(tmp_path):
+    import json
+    import numpy as np
+    from shared.hybrid_retrieval import Retriever
+    from shared.query_context import answering_only, cache_only
+
+    class Embeddings:
+        def get_sentence_embedding_dimension(self):
+            return 2
+
+        def encode(self, *args, **kwargs):
+            pytest.fail("HTTP request must not embed a corpus")
+
+    def documents():
+        pytest.fail("HTTP request must not load or convert source documents")
+
+    # Both absent and stale caches refuse rebuilding before document loading.
+    with answering_only():
+        with pytest.raises(RuntimeError, match="prepare indexes"):
+            Retriever.from_documents(documents, tmp_path, "key", Embeddings())
+        (tmp_path / "index.json").write_text(json.dumps({"key": "stale"}))
+        np.save(tmp_path / "embeddings.npy", np.array([[1., 0.]]))
+        with pytest.raises(RuntimeError, match="prepare indexes"):
+            Retriever.from_documents(documents, tmp_path, "key", Embeddings())
+        manifest = {"key": "key", "documents": [{"page_content": "Documented router ports", "metadata": {}}]}
+        (tmp_path / "index.json").write_text(json.dumps(manifest))
+        before = {p.name: p.read_bytes() for p in tmp_path.iterdir()}
+        result = Retriever.from_documents(documents, tmp_path, "key", Embeddings())
+        assert len(result.documents) == 1
+        assert before == {p.name: p.read_bytes() for p in tmp_path.iterdir()}
+    assert cache_only.get() is False

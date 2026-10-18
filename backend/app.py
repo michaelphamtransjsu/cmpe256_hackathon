@@ -9,6 +9,7 @@ from pydantic import Field
 
 import manager
 from shared.schemas import StrictModel
+from shared.query_context import answering_only
 
 logger = logging.getLogger(__name__)
 app = FastAPI(title="CMPE 256 Manager Chat", version="1.0.0")
@@ -38,7 +39,8 @@ def chat(request: ChatRequest) -> manager.ManagerResponse:
     # FastAPI runs this synchronous route in its thread pool. The manager owns all
     # routing, retrieval, and synthesis; no ingestion or specialist calls live here.
     try:
-        return manager.consult(request.question)
+        with answering_only():
+            return manager.consult(request.question)
     except Exception as error:
         # Provider messages/tracebacks can contain credentials and private content.
         logger.warning("Manager consultation failed (%s)", type(error).__name__)

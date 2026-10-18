@@ -11,6 +11,8 @@ from langchain_core.documents import Document
 from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+from shared.query_context import cache_only
+
 MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 MODEL_REVISION = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
 ROOT = Path(__file__).resolve().parents[1]
@@ -101,6 +103,8 @@ class Retriever:
                     raise ValueError("Cached embeddings have an invalid shape")
                 print(f"Loaded {len(docs)} cached chunks and embeddings", flush=True)
                 return cls(docs, vectors, model)
+        if cache_only.get():
+            raise RuntimeError("Retrieval cache is missing or stale; prepare indexes before starting chat")
         docs = list(documents() if callable(documents) else documents)
         if not docs:
             raise ValueError("No documents available to index")
