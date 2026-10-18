@@ -1,0 +1,107 @@
+{
+  "google-mcp-overview": {
+    "id": "google-mcp-overview",
+    "vendor": "Google Cloud",
+    "title": "Google Cloud MCP servers overview",
+    "url": "https://docs.cloud.google.com/mcp/overview",
+    "final_url": "https://docs.cloud.google.com/mcp/overview",
+    "retrieved_at": "2026-10-18T08:14:05.950462+00:00",
+    "sha256": "6736cd27a450d459355cd6f82eeb668cf4720df23785e23179c905038864f451",
+    "filename": "google-mcp-overview.html"
+  },
+  "google-mcp-explainer": {
+    "id": "google-mcp-explainer",
+    "vendor": "Google Cloud",
+    "title": "What is Model Context Protocol?",
+    "url": "https://cloud.google.com/discover/what-is-model-context-protocol",
+    "final_url": "https://cloud.google.com/discover/what-is-model-context-protocol",
+    "retrieved_at": "2026-10-18T08:17:09.792590+00:00",
+    "sha256": "303857530d52499d7dc58c94d707d4dabf99323a29a4bdec74dde577042a6145",
+    "filename": "google-mcp-explainer.html"
+  },
+  "google-rag": {
+    "id": "google-rag",
+    "vendor": "Google Cloud",
+    "title": "Retrieval-augmented generation",
+    "url": "https://cloud.google.com/use-cases/retrieval-augmented-generation",
+    "final_url": "https://cloud.google.com/use-cases/retrieval-augmented-generation",
+    "retrieved_at": "2026-10-18T08:17:10.609673+00:00",
+    "sha256": "a9ec765cfd864dc7a9dbd746b50146905f2d9ac26a125e73b001ce402ba07107",
+    "filename": "google-rag.html"
+  },
+  "ibm-rag-architecture": {
+    "id": "ibm-rag-architecture",
+    "vendor": "IBM",
+    "title": "Retrieval-augmented generation architecture pattern",
+    "url": "https://www.ibm.com/think/architectures/patterns/genai-rag",
+    "final_url": "https://www.ibm.com/think/architectures/patterns/genai-rag",
+    "retrieved_at": "2026-10-18T08:17:11.285094+00:00",
+    "sha256": "7440b9f2d4ae1d0a26883d3b1dfc2c544e21e2ebd567cff7595914de49eab2a9",
+    "filename": "ibm-rag-architecture.html"
+  },
+  "ibm-mcp": {
+    "id": "ibm-mcp",
+    "vendor": "IBM",
+    "title": "What is Model Context Protocol?",
+    "url": "https://www.ibm.com/think/topics/model-context-protocol",
+    "final_url": "https://www.ibm.com/think/topics/model-context-protocol",
+    "retrieved_at": "2026-10-18T08:17:11.949524+00:00",
+    "sha256": "238bcaa07e3bee709728cfeb11a3d1cf479e5c7cc749a5b0fb8397cb03d9dd1f",
+    "filename": "ibm-mcp.html"
+  },
+  "cisco-8300-overview": {
+    "id": "cisco-8300-overview",
+    "product_family": "Catalyst 8300",
+    "vendor": "Cisco",
+    "title": "Cisco Catalyst 8300 Series Edge Platforms",
+    "url": "https://www.cisco.com/c/en/us/products/routers/catalyst-8300-series-edge-platforms/index.html",
+    "final_url": "https://www.cisco.com/c/en/us/products/routers/catalyst-8300-series-edge-platforms/index.html",
+    "retrieved_at": "2026-10-18T08:32:59.830554+00:00",
+    "sha256": "e3b8dd4a202d0dd01957ec9647a9cc47ef0a1ae03abc37c532ed876939a8dfb3",
+    "filename": "cisco-8300-overview.html"
+  },
+  "cisco-8200-overview": {
+    "id": "cisco-8200-overview",
+    "product_family": "Catalyst 8200",
+    "vendor": "Cisco",
+    "title": "Cisco Catalyst 8200 Series Edge Platforms",
+    "url": "https://www.cisco.com/c/en/us/products/routers/catalyst-8200-series-edge-platforms/index.html",
+    "final_url": "https://www.cisco.com/c/en/us/products/routers/catalyst-8200-series-edge-platforms/index.html",
+    "retrieved_at": "2026-10-18T08:32:59.935354+00:00",
+    "sha256": "c32f0439af5e69478f08a4527942cdd94d59a1bbf3bcf95e0343fea469deb41d",
+    "filename": "cisco-8200-overview.html"
+  },
+  "cisco-8000v-overview": {
+    "id": "cisco-8000v-overview",
+    "product_family": "Catalyst 8000V",
+    "vendor": "Cisco",
+    "title": "Cisco Catalyst 8000V Edge Software",
+    "url": "https://www.cisco.com/c/en/us/products/routers/catalyst-8000v-edge-software/index.html",
+    "final_url": "https://www.cisco.com/c/en/us/products/routers/catalyst-8000v-edge-software/index.html",
+    "retrieved_at": "2026-10-18T08:33:00.048555+00:00",
+    "sha256": "5714492942787c73279cfcfd48c4f769ef9db0e50c6d122e91f034d58d0fc997",
+    "filename": "cisco-8000v-overview.html"
+  },
+  "cisco-4000-overview": {
+    "id": "cisco-4000-overview",
+    "product_family": "ISR 4000",
+    "vendor": "Cisco",
+    "title": "Cisco 4000 Series Integrated Services Routers (ISR)",
+    "url": "https://www.cisco.com/c/en/us/products/routers/4000-series-integrated-services-routers-isr/index.html",
+    "final_url": "https://www.cisco.com/c/en/us/products/routers/4000-series-integrated-services-routers-isr/index.html",
+    "retrieved_at": "2026-10-18T08:33:00.074602+00:00",
+    "sha256": "d5e5801e958aeda4bfc8eb86fb7fee42a4bcaf0fc5bca5f1997baa4557294cd3",
+    "filename": "cisco-4000-overview.html"
+  },
+  "cisco-asr1000-overview": {
+    "id": "cisco-asr1000-overview",
+    "product_family": "ASR 1000",
+    "vendor": "Cisco",
+    "title": "Cisco ASR 1000 Series Aggregation Services Routers",
+    "url": "https://www.cisco.com/c/en/us/products/routers/asr-1000-series-aggregation-services-routers/index.html",
+    "final_url": "https://www.cisco.com/site/us/en/products/networking/sdwan-routers/asr-1000-series-aggregation-services-routers/index.html",
+    "retrieved_at": "2026-10-18T08:33:20.890301+00:00",
+    "sha256": "da642f5bb325b1a26b2cb33cf4f345ebbb6fc8161eb26b7fc399e3ecaae039d2",
+    "filename": "cisco-asr1000-overview.html"
+  }
+}

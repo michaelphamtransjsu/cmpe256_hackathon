@@ -8,10 +8,8 @@ from pathlib import Path
 
 import numpy as np
 from langchain_core.documents import Document
-from sentence_transformers import SentenceTransformer
-from sklearn.feature_extraction.text import TfidfVectorizer
 
-from shared.query_context import cache_only
+from shared.query_context import answering_only, cache_only
 
 MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 MODEL_REVISION = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
@@ -19,6 +17,42 @@ ROOT = Path(__file__).resolve().parents[1]
 SETTINGS = {"model": MODEL, "max_tokens": 220, "merge_peers": False,
             "repeat_table_header": True, "do_ocr": False, "cache_version": 1,
             "model_revision": MODEL_REVISION}
+
+
+def load_embedding_model(*, revision=MODEL_REVISION):
+    """Queries use only the pinned local snapshot; preparation may fetch it."""
+    try:
+        from sentence_transformers import SentenceTransformer
+    except ModuleNotFoundError as error:
+        raise RuntimeError("Semantic retrieval requires dependencies from '.[retrieval]'") from error
+    try:
+        return SentenceTransformer(MODEL, revision=revision, device="cpu",
+                                   local_files_only=cache_only.get())
+    except OSError as error:
+        raise RuntimeError(
+            f"Cannot load local model {MODEL} at revision {revision}; "
+            "prepare the model cache separately. Queries do not download weights."
+        ) from error
+
+
+def require_prepared_cache(cache_dir, cache_key):
+    """Validate read-only requests before importing or initializing models."""
+    if not cache_only.get():
+        return
+    cache_dir = Path(cache_dir)
+    try:
+        manifest = json.loads((cache_dir / "index.json").read_text())
+        if manifest.get("key") != cache_key:
+            raise RuntimeError(f"Retrieval cache is stale: {cache_dir}; prepare indexes separately")
+        vectors = np.load(cache_dir / "embeddings.npy", allow_pickle=False, mmap_mode="r")
+        if (not manifest["documents"] or vectors.ndim != 2
+                or vectors.shape[0] != len(manifest["documents"])):
+            raise ValueError("Invalid cached document/vector shape")
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        raise RuntimeError(
+            f"Retrieval cache is missing or invalid: {cache_dir}; prepare indexes separately"
+        ) from error
+    return manifest
 
 
 def _lexical_text(text):
@@ -46,6 +80,8 @@ class Retriever:
     """Accepts any loader's Documents. Hybrid scores are RRF, semantic scores cosine."""
 
     def __init__(self, documents, embeddings, model):
+        from sklearn.feature_extraction.text import TfidfVectorizer
+
         self.documents = documents
         self.embeddings = embeddings
         self.model = model
@@ -89,9 +125,9 @@ class Retriever:
     @classmethod
     def from_documents(cls, documents, cache_dir, cache_key, model=None):
         """Cache already-chunked documents and vectors; caller controls invalidation key."""
-        model = model if model is not None else SentenceTransformer(MODEL, revision=MODEL_REVISION, device="cpu")
         cache_dir = Path(cache_dir)
-        cache_dir.mkdir(parents=True, exist_ok=True)
+        require_prepared_cache(cache_dir, cache_key)
+        model = model if model is not None else load_embedding_model()
         manifest_path = cache_dir / "index.json"
         vectors_path = cache_dir / "embeddings.npy"
         if manifest_path.exists() and vectors_path.exists():
@@ -105,6 +141,7 @@ class Retriever:
                 return cls(docs, vectors, model)
         if cache_only.get():
             raise RuntimeError("Retrieval cache is missing or stale; prepare indexes before starting chat")
+        cache_dir.mkdir(parents=True, exist_ok=True)
         docs = list(documents() if callable(documents) else documents)
         if not docs:
             raise ValueError("No documents available to index")
@@ -130,28 +167,28 @@ class Retriever:
 def build_cisco_retriever(pdf_dir=ROOT / "data/technology",
                           cache_dir=ROOT / "storage/technology"):
     """Docling is confined to this adapter; generic Retriever accepts any documents."""
-    from docling.chunking import HybridChunker
-    from docling_core.transforms.chunker.tokenizer.huggingface import HuggingFaceTokenizer
-    from langchain_docling import DoclingLoader
-    from langchain_docling.loader import ExportType
-    from docling.datamodel.base_models import InputFormat
-    from docling.datamodel.pipeline_options import PdfPipelineOptions
-    from docling.document_converter import DocumentConverter, PdfFormatOption
-
     paths = sorted(Path(pdf_dir).glob("cisco_*.pdf"))
     if not paths:
         raise FileNotFoundError(f"No Cisco PDFs in {pdf_dir}")
-    model = SentenceTransformer(MODEL, revision=SETTINGS["model_revision"], device="cpu")
-    chunker = HybridChunker(
-        tokenizer=HuggingFaceTokenizer(tokenizer=model.tokenizer, max_tokens=SETTINGS["max_tokens"]),
-        merge_peers=SETTINGS["merge_peers"], repeat_table_header=SETTINGS["repeat_table_header"],
-    )
     cache_dir = Path(cache_dir)
-    cache_dir.mkdir(parents=True, exist_ok=True)
     fingerprints = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     key = json.dumps({"files": fingerprints, "settings": SETTINGS}, sort_keys=True)
+    require_prepared_cache(cache_dir, key)
+    model = load_embedding_model(revision=SETTINGS["model_revision"])
 
     def load():
+        from docling.chunking import HybridChunker
+        from docling_core.transforms.chunker.tokenizer.huggingface import HuggingFaceTokenizer
+        from langchain_docling import DoclingLoader
+        from langchain_docling.loader import ExportType
+        from docling.datamodel.base_models import InputFormat
+        from docling.datamodel.pipeline_options import PdfPipelineOptions
+        from docling.document_converter import DocumentConverter, PdfFormatOption
+
+        chunker = HybridChunker(
+            tokenizer=HuggingFaceTokenizer(tokenizer=model.tokenizer, max_tokens=SETTINGS["max_tokens"]),
+            merge_peers=SETTINGS["merge_peers"], repeat_table_header=SETTINGS["repeat_table_header"],
+        )
         # These digital PDFs already contain text; retain Docling table recognition.
         converter = DocumentConverter(format_options={InputFormat.PDF: PdfFormatOption(
             pipeline_options=PdfPipelineOptions(do_ocr=SETTINGS["do_ocr"]))})
@@ -191,7 +228,10 @@ def build_cisco_retriever(pdf_dir=ROOT / "data/technology",
 
 @lru_cache(maxsize=1)
 def _default_retriever():
-    return build_cisco_retriever()
+    from shared.technology_retrieval import build_technology_retriever
+
+    with answering_only():
+        return build_technology_retriever()
 
 
 def retrieve(question: str, k: int = 5, *, mode="hybrid", filter_family=True) -> list[dict]:

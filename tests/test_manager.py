@@ -169,6 +169,9 @@ def test_clinical_trial_synthesis_failures_keep_grounded_fallback(clinical_trial
     ("Assess nutrition trial evidence and SOFI food affordability.", ["clinical", "corporate_responsibility"]),
     ("What are Cisco's FY2025 financial risks?", ["sec"]),
     ("What was Agilent's FY2025 revenue?", ["sec"]),
+    ("Compare Cisco FY2025 and FY2026 risks.", ["sec"]),
+    ("What are Alphabet FY2024 and FY2025 financial risks?", ["sec"]),
+    ("What business risks and regulatory concerns are mentioned in the SEC reports?", ["sec"]),
     ("Assess Cisco router specifications and FY2025 financial risks.", ["technology", "sec"]),
 ])
 def test_routing_invocation_and_grounded_synthesis(question, selected):
@@ -365,6 +368,7 @@ def test_default_sec_registration_and_scope(monkeypatch):
     assert result.agents_used == ["sec"]
     route_schema = model.calls[0][0].content
     assert "Agilent FY2025" in route_schema
+    assert "Alphabet" in route_schema and "FY2026" in route_schema
     assert "Technology and SEC" in route_schema
 
 
@@ -443,3 +447,19 @@ def test_cross_domain_synthesis_policy_reconciles_supplied_specs_and_direct_supp
     assert result.recommendations == []
     assert result.findings[0].evidence_ids == ["technology:E1"]
     assert result.findings[1].evidence_ids == ["sec:E1"]
+
+
+def test_sec_routing_policy_allows_general_and_alphabet_questions():
+    class RoutingModel(Model):
+        def invoke(self, messages):
+            if self.schema is not Analysis:
+                policy = messages[0].content
+                assert "without requiring a named issuer" in policy
+                assert "requires a named Cisco or Agilent" not in policy
+                assert "Alphabet" in policy and "FY2026" in policy
+                assert "Never substitute unrelated issuers" in policy
+            return super().invoke(messages)
+    for question in ["Alphabet FY2024 risks", "What risks are mentioned in the SEC reports?"]:
+        response = ManagerAgent(Settings(), model=RoutingModel(["sec"]), registry={
+            "sec": specialist("sec", [])}).consult(question)
+        assert response.agents_used == ["sec"]
