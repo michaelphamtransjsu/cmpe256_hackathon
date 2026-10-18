@@ -1,4 +1,4 @@
-"""Local semantic/TF-IDF retrieval. Compare modes with python -m core.retrieval."""
+"""Local semantic/TF-IDF retrieval. Compare modes with python -m shared.hybrid_retrieval."""
 
 import hashlib
 import json
