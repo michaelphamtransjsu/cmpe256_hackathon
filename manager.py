@@ -81,7 +81,8 @@ class ManagerResponse(Analysis):
 
 
 def _namespace(response):
-    payload = response.model_dump()
+    # Synthesis JSON must encode trial update dates/times; keep the response untouched.
+    payload = response.model_dump(mode="json")
     mapping = {c.id: f"{response.agent}:{c.id}" for c in response.citations}
 
     def remap(value):
