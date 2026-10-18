@@ -1,0 +1,473 @@
+{
+  "scope": "corporate_responsibility",
+  "validation_mode": "offline_extractive_hash_embeddings_with_bm25_ranking",
+  "validation_command": ".venv/bin/python tests/validate_corporate_sources.py --manifest data/real-corporate/manifest.json --data-dir data --output data/real-corporate/validation.json",
+  "archive": {
+    "name": "FoodSecurity.zip",
+    "sha256": "cb0c7e1f20bc8151ca458923472d7bbaddb358fb029c9fd421a8b7d77d290f5a",
+    "status": "inspected"
+  },
+  "sources": [
+    {
+      "source_id": "c9ccb659635d03f13ebffa9f",
+      "source": "FoodSecurity.zip!/FoodSecurity/SOFI-2023.pdf",
+      "report_year": 2023,
+      "sha256": "9d29ae885c9d480a13f54c6f5e8a2a6e2e52bce761d8f3b8c72651815290a481",
+      "recorded_sha256": "9d29ae885c9d480a13f54c6f5e8a2a6e2e52bce761d8f3b8c72651815290a481",
+      "pdf_pages": 316,
+      "nonempty_pages": 316,
+      "characters": 1105077,
+      "status": "indexed",
+      "chunks": 1175
+    },
+    {
+      "source_id": "ff1fff469861c0521b44f35d",
+      "source": "FoodSecurity.zip!/FoodSecurity/SOFI-2024.pdf",
+      "report_year": 2024,
+      "sha256": "00752f3c65b803c13412f5075069f3c0e73da2e6e5cd38e225c4379bc9966b4a",
+      "recorded_sha256": "00752f3c65b803c13412f5075069f3c0e73da2e6e5cd38e225c4379bc9966b4a",
+      "pdf_pages": 286,
+      "nonempty_pages": 285,
+      "characters": 1000467,
+      "status": "indexed",
+      "chunks": 1063
+    }
+  ],
+  "indexed_chunks": 2238,
+  "checks": {
+    "nonempty_index": true,
+    "both_assigned_years": true,
+    "sources_indexed_in_manifest": true,
+    "original_pdf_hashes_preserved": true,
+    "corporate_metadata_only": true,
+    "assigned_sofi_only": true,
+    "publication_year_metadata": true,
+    "all_index_metadata_attributed": true,
+    "all_chunks_verbatim_on_pdf_pages": true,
+    "assignment_2023_has_evidence": true,
+    "assignment_2023_assigned_sources": true,
+    "assignment_2023_requested_report_only": true,
+    "assignment_2023_E1_verbatim_on_pdf_page": true,
+    "assignment_2023_E2_verbatim_on_pdf_page": true,
+    "assignment_2023_E3_verbatim_on_pdf_page": true,
+    "assignment_2023_E4_verbatim_on_pdf_page": true,
+    "assignment_2023_E5_verbatim_on_pdf_page": true,
+    "assignment_2024_explicit_has_evidence": true,
+    "assignment_2024_explicit_assigned_sources": true,
+    "assignment_2024_explicit_requested_report_only": true,
+    "assignment_2024_explicit_E1_verbatim_on_pdf_page": true,
+    "assignment_2024_explicit_E2_verbatim_on_pdf_page": true,
+    "assignment_2024_explicit_E3_verbatim_on_pdf_page": true,
+    "assignment_2024_explicit_E4_verbatim_on_pdf_page": true,
+    "assignment_2024_explicit_E5_verbatim_on_pdf_page": true,
+    "assignment_war_2023_has_evidence": true,
+    "assignment_war_2023_assigned_sources": true,
+    "assignment_war_2023_requested_report_only": true,
+    "assignment_war_2023_E1_verbatim_on_pdf_page": true,
+    "assignment_war_2023_E2_verbatim_on_pdf_page": true,
+    "assignment_war_2023_E3_verbatim_on_pdf_page": true,
+    "assignment_war_2023_E4_verbatim_on_pdf_page": true,
+    "assignment_war_2023_E5_verbatim_on_pdf_page": true,
+    "assignment_war_has_evidence": true,
+    "assignment_war_assigned_sources": true,
+    "assignment_war_E1_verbatim_on_pdf_page": true,
+    "assignment_war_E2_verbatim_on_pdf_page": true,
+    "assignment_war_E3_verbatim_on_pdf_page": true,
+    "assignment_war_E4_verbatim_on_pdf_page": true,
+    "assignment_war_E5_verbatim_on_pdf_page": true,
+    "assignment_prices_has_evidence": true,
+    "assignment_prices_assigned_sources": true,
+    "assignment_prices_E1_verbatim_on_pdf_page": true,
+    "assignment_prices_E2_verbatim_on_pdf_page": true,
+    "assignment_prices_E3_verbatim_on_pdf_page": true,
+    "assignment_prices_E4_verbatim_on_pdf_page": true,
+    "assignment_prices_E5_verbatim_on_pdf_page": true,
+    "focused_drivers_2023_has_evidence": true,
+    "focused_drivers_2023_assigned_sources": true,
+    "focused_drivers_2023_requested_report_only": true,
+    "focused_drivers_2023_E1_verbatim_on_pdf_page": true,
+    "focused_drivers_2023_E2_verbatim_on_pdf_page": true,
+    "focused_drivers_2023_E3_verbatim_on_pdf_page": true,
+    "focused_drivers_2023_E4_verbatim_on_pdf_page": true,
+    "focused_drivers_2023_E5_verbatim_on_pdf_page": true,
+    "focused_drivers_2024_has_evidence": true,
+    "focused_drivers_2024_assigned_sources": true,
+    "focused_drivers_2024_requested_report_only": true,
+    "focused_drivers_2024_E1_verbatim_on_pdf_page": true,
+    "focused_drivers_2024_E2_verbatim_on_pdf_page": true,
+    "focused_drivers_2024_E3_verbatim_on_pdf_page": true,
+    "focused_drivers_2024_E4_verbatim_on_pdf_page": true,
+    "focused_drivers_2024_E5_verbatim_on_pdf_page": true,
+    "focused_conflict_2023_has_evidence": true,
+    "focused_conflict_2023_assigned_sources": true,
+    "focused_conflict_2023_requested_report_only": true,
+    "focused_conflict_2023_E1_verbatim_on_pdf_page": true,
+    "focused_conflict_2023_E2_verbatim_on_pdf_page": true,
+    "focused_conflict_2023_E3_verbatim_on_pdf_page": true,
+    "focused_conflict_2023_E4_verbatim_on_pdf_page": true,
+    "focused_conflict_2023_E5_verbatim_on_pdf_page": true,
+    "focused_conflict_2024_has_evidence": true,
+    "focused_conflict_2024_assigned_sources": true,
+    "focused_conflict_2024_requested_report_only": true,
+    "focused_conflict_2024_E1_verbatim_on_pdf_page": true,
+    "focused_conflict_2024_E2_verbatim_on_pdf_page": true,
+    "focused_conflict_2024_E3_verbatim_on_pdf_page": true,
+    "focused_conflict_2024_E4_verbatim_on_pdf_page": true,
+    "focused_conflict_2024_E5_verbatim_on_pdf_page": true,
+    "focused_prices_2024_has_evidence": true,
+    "focused_prices_2024_assigned_sources": true,
+    "focused_prices_2024_requested_report_only": true,
+    "focused_prices_2024_E1_verbatim_on_pdf_page": true,
+    "focused_prices_2024_E2_verbatim_on_pdf_page": true,
+    "focused_prices_2024_E3_verbatim_on_pdf_page": true,
+    "focused_prices_2024_E4_verbatim_on_pdf_page": true,
+    "focused_prices_2024_E5_verbatim_on_pdf_page": true,
+    "focused_2023_driver_evidence": true,
+    "focused_2024_driver_evidence": true,
+    "focused_2023_conflict_evidence": true,
+    "focused_2024_conflict_evidence": true,
+    "focused_2024_price_evidence": true,
+    "new_process_same_response": true
+  },
+  "check_count": 93,
+  "passed_checks": 93,
+  "failed_checks": [],
+  "queries": {
+    "assignment_2023": {
+      "question": "List major Food insecurity reason in 2023 from within the context of State of Food Security and Nutrition in the World 2023 report.",
+      "status": "evidence_found",
+      "mode": "extractive",
+      "report_year": 2023,
+      "citations": [
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 31
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 173
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 274
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 78
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 34
+        }
+      ]
+    },
+    "assignment_2024_explicit": {
+      "question": "List major Food insecurity reason in 2024",
+      "status": "evidence_found",
+      "mode": "extractive",
+      "report_year": 2024,
+      "citations": [
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 9
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 33
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 9
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 43
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 168
+        }
+      ]
+    },
+    "assignment_war_2023": {
+      "question": "Explain malnutrition in war zones from within the context of State of Food Security and Nutrition in the World 2023",
+      "status": "evidence_found",
+      "mode": "extractive",
+      "report_year": 2023,
+      "citations": [
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 44
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 44
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 44
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 45
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 44
+        }
+      ]
+    },
+    "assignment_war": {
+      "question": "Explain malnutrition in war zones",
+      "status": "evidence_found",
+      "mode": "extractive",
+      "report_year": null,
+      "citations": [
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 44
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 43
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 43
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 96
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 44
+        }
+      ]
+    },
+    "assignment_prices": {
+      "question": "Explain increase prices impact on food security",
+      "status": "evidence_found",
+      "mode": "extractive",
+      "report_year": null,
+      "citations": [
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 54
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 236
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 268
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 127
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 36
+        }
+      ]
+    },
+    "focused_drivers_2023": {
+      "question": "major drivers conflict climate extremes economic slowdowns downturns",
+      "status": "evidence_found",
+      "mode": "extractive",
+      "report_year": 2023,
+      "citations": [
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 173
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 31
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 20
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 275
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 316
+        }
+      ]
+    },
+    "focused_drivers_2024": {
+      "question": "food insecurity drivers conflict climate economic inequality",
+      "status": "evidence_found",
+      "mode": "extractive",
+      "report_year": 2024,
+      "citations": [
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 97
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 24
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 95
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 98
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 88
+        }
+      ]
+    },
+    "focused_conflict_2023": {
+      "question": "humanitarian crises acute food insecurity conflict",
+      "status": "evidence_found",
+      "mode": "extractive",
+      "report_year": 2023,
+      "citations": [
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 44
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 45
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 44
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 44
+        },
+        {
+          "source_id": "c9ccb659635d03f13ebffa9f",
+          "report_year": 2023,
+          "pdf_page": 44
+        }
+      ]
+    },
+    "focused_conflict_2024": {
+      "question": "humanitarian crises acute food insecurity conflict",
+      "status": "evidence_found",
+      "mode": "extractive",
+      "report_year": 2024,
+      "citations": [
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 43
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 43
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 96
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 43
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 168
+        }
+      ]
+    },
+    "focused_prices_2024": {
+      "question": "cost healthy diet food prices 3.96",
+      "status": "evidence_found",
+      "mode": "extractive",
+      "report_year": 2024,
+      "citations": [
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 54
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 236
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 55
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 57
+        },
+        {
+          "source_id": "ff1fff469861c0521b44f35d",
+          "report_year": 2024,
+          "pdf_page": 21
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "Extractive mode returns source quotes, not synthesized consulting advice.",
+    "Lexical retrieval can include tangential excerpts; correct source year alone does not establish answer quality.",
+    "Publication years differ from observation years. Bare query years are not automatically report filters.",
+    "Hosted model synthesis is not exercised by this offline validation."
+  ]
+}
