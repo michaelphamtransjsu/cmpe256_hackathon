@@ -401,6 +401,37 @@ def test_cross_domain_narrative_validation_checks_raw_fields(food_security_case,
         assert result.recommendations == []
 
 
+@pytest.mark.parametrize(("failure", "error_type"), [
+    ("provider", "ValueError"), ("malformed", "ValidationError"),
+    ("unknown-evidence", "ValidationError"),
+])
+def test_food_security_synthesis_failures_preserve_safe_fallback(food_security_case, caplog, failure, error_type):
+    question, _, originals, registry, FoodModel = food_security_case
+    private_detail = "synthetic-private-provider-detail"
+
+    class FailingModel(FoodModel):
+        def invoke(self, messages):
+            result = super().invoke(messages)
+            if self.schema is Analysis:
+                if failure == "provider":
+                    raise ValueError(private_detail)
+                if failure == "malformed":
+                    return {"answer": private_detail}
+                result["recommendations"][0]["evidence_ids"] = ["technology:E999"]
+            return result
+
+    model = FailingModel(list(registry))
+    result = ManagerAgent(Settings(), model=model, registry=registry).consult(question)
+    assert len(model.calls) == 2
+    assert f"Synthesis unavailable ({error_type})" in result.answer
+    assert [r.model_dump() for r in result.specialist_responses] == [r.model_dump() for r in originals.values()]
+    assert [f.evidence_ids for f in result.findings] == [["corporate_responsibility:E1"], ["technology:E1"]]
+    assert result.recommendations == []
+    assert private_detail not in result.model_dump_json() + caplog.text
+    assert "E999" not in result.model_dump_json() + caplog.text
+    assert question not in caplog.text
+
+
 def test_limitations_deduplicate_attribution_case_whitespace_and_punctuation():
     response = ManagerResponse(question="Question", agents_used=[], answer="No evidence",
         findings=[], recommendations=[], citations=[], limitations=[
