@@ -11,4 +11,4 @@ data/
 work/
 *:Zone.Identifier
 .DS_Store
-main
+storage/
