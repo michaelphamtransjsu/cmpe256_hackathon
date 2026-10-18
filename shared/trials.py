@@ -12,8 +12,10 @@ from __future__ import annotations
 import re
 import sqlite3
 from contextlib import closing
-from datetime import datetime
+from datetime import date, datetime
+import os
 from pathlib import Path
+import tempfile
 from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, StringConstraints, field_validator
@@ -28,7 +30,7 @@ class TrialRecord(BaseModel):
     Registry IDs such as ``NCT01234567`` and explicit project-local identifiers
     are accepted. ``source`` is required even when finer citations are unknown.
     List fields contain only known values, with empty lists representing unknowns.
-    ``updated_at`` is the source's update time, not a fabricated retrieval time.
+    ``updated_at`` is the source's update date/time, not a retrieval timestamp.
     """
 
     model_config = ConfigDict(extra="forbid", validate_assignment=True, allow_inf_nan=False)
@@ -42,7 +44,7 @@ class TrialRecord(BaseModel):
     phase: NonemptyText | None = None
     sponsor: NonemptyText | None = None
     summary: NonemptyText | None = None
-    updated_at: datetime | None = None
+    updated_at: date | datetime | None = None
     citations: list[NonemptyText] = Field(default_factory=list)
     metadata: dict[str, JsonValue] = Field(default_factory=dict)
 
@@ -142,6 +144,60 @@ class TrialStore:
                 "SELECT record_json FROM clinical_trials WHERE trial_id = ?", (trial_id.strip(),)
             ).fetchone()
         return TrialRecord.model_validate_json(row[0]) if row else None
+
+    def import_records(self, records: list[TrialRecord], *, replace_existing: bool = False) -> dict:
+        """Validate a complete batch, then commit atomically without silent loss.
+
+        Identical records are skipped. Changed existing IDs require explicit
+        replacement and a SQLite backup created before any changes. IDs absent
+        from the batch are never removed. CSV duplicates retain all attributions.
+        """
+        from .trial_csv import consolidate_records, same_csv_facts
+
+        validated = consolidate_records([TrialRecord.model_validate(row.model_dump()) for row in records])
+        backup = None
+        with closing(self._connect()) as connection:
+            try:
+                connection.execute("BEGIN IMMEDIATE")
+                pending = []
+                skipped = 0
+                changed = 0
+                for record in validated:
+                    existing = connection.execute("SELECT record_json FROM clinical_trials WHERE trial_id = ?", (record.trial_id,)).fetchone()
+                    if existing:
+                        previous = TrialRecord.model_validate_json(existing[0])
+                        # Matching CSV facts can gain additional verified origins.
+                        combined = consolidate_records([previous, record])[0] if same_csv_facts(previous, record) else record
+                        if combined == previous:
+                            skipped += 1
+                            continue
+                        record = combined
+                        if not same_csv_facts(previous, record):
+                            changed += 1
+                    pending.append(record)
+                if changed and not replace_existing:
+                    raise ValueError(f"{changed} existing trial record(s) differ; database preserved. Use --replace-existing to back up and replace them")
+                if changed:
+                    directory = self.path.parent / "backups"
+                    directory.mkdir(exist_ok=True)
+                    descriptor, name = tempfile.mkstemp(prefix="trials-", suffix=".sqlite3", dir=directory)
+                    os.close(descriptor)
+                    backup = Path(name)
+                    # A separate read connection snapshots the committed state
+                    # while BEGIN IMMEDIATE prevents another writer changing it.
+                    with closing(self._connect()) as source, closing(sqlite3.connect(backup)) as target:
+                        source.backup(target)
+                connection.executemany(
+                    """INSERT INTO clinical_trials (trial_id, title, search_text, record_json)
+                       VALUES (?, ?, ?, ?) ON CONFLICT(trial_id) DO UPDATE SET
+                       title=excluded.title, search_text=excluded.search_text, record_json=excluded.record_json""",
+                    [(r.trial_id, r.title, self._search_text(r), r.model_dump_json()) for r in pending],
+                )
+                connection.commit()
+            except Exception:
+                connection.rollback()
+                raise
+        return {"imported": len(pending), "skipped": skipped, "replaced": changed, "unique_records": len(validated), "backup": str(backup) if backup else None}
 
     def search(self, query: str, limit: int = 5) -> list[TrialRecord]:
         """Find records by meaningful query terms, ranked by matching term count.

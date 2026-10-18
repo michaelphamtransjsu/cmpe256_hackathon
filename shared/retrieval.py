@@ -116,7 +116,7 @@ class SpecialistIndex:
             if any(row["metadata"].get("agent") != agent for row in self.store.store.values()):
                 raise ValueError("Index contains a different specialist's sources")
 
-    def replace(self, documents: list[Document]) -> int:
+    def replace(self, documents: list[Document], *, allow_empty: bool = True) -> int:
         if any(doc.metadata.get("agent") != self.agent for doc in documents):
             raise ValueError("Refusing to index sources assigned to a different specialist")
         for doc in documents:
@@ -130,6 +130,8 @@ class SpecialistIndex:
         chunks = splitter.split_documents([doc for doc in documents if doc.page_content.strip()])
         if self.settings.embeddings_provider == "hash":
             chunks = [doc for doc in chunks if meaningful_words(doc.page_content)]
+        if not chunks and not allow_empty:
+            raise ValueError("No indexable document chunks; index preserved. An empty corpus requires --allow-empty")
         fresh = InMemoryVectorStore(self.store.embedding)
         if chunks:
             ids = [hashlib.sha256((str(doc.metadata.get("source_id")) + ":" + str(doc.metadata.get("page")) + ":" + str(doc.metadata.get("start_index")) + ":" + doc.page_content).encode()).hexdigest() for doc in chunks]
@@ -141,6 +143,21 @@ class SpecialistIndex:
                 json.dump({"identity": self.identity, "vectors": fresh.store}, stream, ensure_ascii=False)
                 stream.flush()
                 os.fsync(stream.fileno())
+            if self.path.exists():
+                # Retain the last corpus even when a successful, smaller
+                # manifest intentionally replaces it. Backups are content keyed.
+                previous = self.path.read_bytes()
+                directory = self.path.parent / "backups"
+                directory.mkdir(exist_ok=True)
+                backup = directory / f"vectors-{hashlib.sha256(previous).hexdigest()}.json"
+                try:
+                    with backup.open("xb") as stream:
+                        stream.write(previous)
+                        stream.flush()
+                        os.fsync(stream.fileno())
+                except FileExistsError:
+                    if backup.read_bytes() != previous:
+                        raise ValueError("Index backup differs; existing index preserved") from None
             os.replace(temp_name, self.path)
         finally:
             if Path(temp_name).exists():
