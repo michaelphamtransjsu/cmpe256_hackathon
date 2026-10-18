@@ -12,3 +12,7 @@ work/
 *:Zone.Identifier
 .DS_Store
 storage/
+node_modules/
+*.tsbuildinfo
+.env.*
+!.env.example
